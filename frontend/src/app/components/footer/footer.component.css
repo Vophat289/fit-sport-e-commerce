@@ -1,0 +1,157 @@
+/* ======== Cấu trúc tổng thể ======== */
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Giúp footer luôn nằm cuối trang */
+footer.footer {
+  margin-top: auto;
+}
+
+/* ======== Footer ======== */
+.footer {
+  background-color: #dddddd;
+  font-family: "Roboto", sans-serif;
+  color: #222;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-container {
+  padding: 50px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ======== Phần trên ======== */
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+/* Logo và mạng xã hội */
+.footer-brand {
+  flex: 1 1 250px;
+}
+
+.footer-logo {
+  width: 180px;
+  margin-bottom: 15px;
+}
+
+.footer-follow-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.footer-social a {
+  display: inline-block;
+  color: #000;
+  margin-right: 15px;
+  font-size: 22px;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.footer-social a:hover {
+  color: #0077b6;
+  transform: scale(1.2);
+}
+
+/* ======== Các cột nội dung ======== */
+.footer-columns {
+  display: flex;
+  flex: 3;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.footer-col {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.footer-col h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col li {
+  margin-bottom: 6px;
+  color: #444;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.footer-col li:hover {
+  color: #0077b6;
+}
+
+/* ======== Phần “Về chúng tôi” ======== */
+.footer-about {
+  border-top: 1px solid #ddd;
+  padding-top: 30px;
+}
+
+.footer-about h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.footer-about p {
+  color: #444;
+  text-align: justify;
+  margin-bottom: 15px;
+}
+
+/* ======== Dòng cuối ======== */
+.footer-bottom {
+  background-color: #0077b6;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 15px;
+}
+
+.footer-bottom i {
+  margin: 0 5px;
+}
+
+/* ======== Responsive ======== */
+@media (max-width: 992px) {
+  .footer-container {
+    padding: 40px 30px;
+  }
+  .footer-columns {
+    flex-direction: column;
+    gap: 25px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-social a {
+    font-size: 20px;
+  }
+
+  .footer-col h3 {
+    font-size: 15px;
+  }
+
+  .footer-bottom {
+    font-size: 14px;
+  }
+}
