@@ -1,0 +1,112 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.header {
+  width: 100%;
+  background-color: #fff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  border-bottom: 1px solid #ddd;
+}
+
+/* === TOP BAR === */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 60px;
+}
+
+/* LOGO */
+.logo {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #000;
+}
+
+/* SEARCH BAR */
+.search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #f6f6f6;
+  border-radius: 20px;
+  padding: 8px 15px;
+  margin: 0 80px;
+  max-width: 600px;
+  position: relative;
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+.search-bar i {
+  color: #444;
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.action-item i {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.action-item:hover {
+  color: #000;
+}
+
+/* === MENU BAR === */
+.menu-bar {
+  background-color: #f5f3f3;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-bar ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding: 8px 0;
+  gap: 50px;
+}
+
+.menu-bar li {
+  font-size: 15px;
+  color: #222;
+  cursor: pointer;
+  position: relative;
+}
+
+
+.menu-bar li:hover {
+  color: #000;
+  font-weight: 500;
+}
