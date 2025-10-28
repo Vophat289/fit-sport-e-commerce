@@ -1,7 +1,7 @@
 import Product from "../models/product.model.js";
 
 //lấy toàn bộ sản phẩm
-const getAllProducts = async (req, res) => {
+ export const getAllProducts = async (req, res) => {
     try{
         const products = await Product.find();
         res.json(products)
@@ -11,7 +11,7 @@ const getAllProducts = async (req, res) => {
 };
 
 //thêm sản phẩm
-const createProduct = async (req, res) => {
+ export const createProduct = async (req, res) => {
     try{
         const {name, price, description} = req.body;
         const newProduct = new Product({name, price, description});
@@ -23,16 +23,16 @@ const createProduct = async (req, res) => {
 }
 
 //cập nhật sản phẩm
-const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
     try{
-
+        
     }catch(error){
         res.status(500).json({message: error.message});
     }
 }
 
 //xóa sản phẩm
-const deleteProduct = (req, res) => {
+export const deleteProduct = (req, res) => {
     try{
 
     }catch(error){
@@ -40,6 +40,3 @@ const deleteProduct = (req, res) => {
     }
 }
 
-export default {
-    getAllProducts, createProduct, updateProduct, deleteProduct
-}
