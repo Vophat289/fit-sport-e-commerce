@@ -3,7 +3,7 @@ import slugify from 'slugify';
 
 export const getAllCategories = async (req, res) => {
     try{
-        const categories = await Category.find().sort({createAt: -1});
+        const categories = await Category.find().sort({createdAt: -1});
         res.json(categories)
     }catch(error){
         res.status(500).json({message: error.message});
@@ -14,7 +14,7 @@ export const getAllCategories = async (req, res) => {
 export const createCategory = async (req, res) => {
     try{
         const {name, description} = req.body;
-        const slug =  slugify(name, {lower: true, locale: "vi"})//tao slug tu ten
+        const slug =  slugify(name, {lower: true, locale: "vi"}); //tao slug tu ten
 
         //kiểm tra nếu name k tồn tại hoặc name rỗng thì k gửi được và trả về lỗi 400
         if(!name || name.trim() === ""){
@@ -38,22 +38,27 @@ export const createCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
     try{
-        const { id } = res.params;
+        const { id } = req.params;
         const { name, description} = req.body;
 
-        const slug = slugify (name, {lower: true, locale: "vi"})
+        //kiểm tra có tồn tại k
+        const category = await Category.findById(id);
+        if(!category){
+            return res.status(404).json({message:"Không tìm thấy danh mục"})
+        }
 
-        const updated = await Category.findByIdAndUpdate(
-            id,
-            {name, slug, description},
-            {new : true}
-        );
+        //cập nhật dữ liệu
+        if(name?.trim()){
+            category.name = name.trim();
+            category.slug = slugify(name, {lower: true, locale: "vi"});
+        }
+        if(description !== undefined){
+            category.description = description;
+        }
 
-        if (!updated) {
-      return res.status(404).json({ message: "Không tìm thấy danh mục!" });
-    }
+        await category.save();
+        res.status(200).json({message:"Cập nhật danh mục thành công", category});
 
-    res.status(200).json(updated);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi cập nhật danh mục!", error });
   }
@@ -62,15 +67,15 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try{
         const {id} = req.params;
-
         const deleted = await Category.findByIdAndDelete(id);
+        
         if(!deleted){
             return res.status(404).json({message: "Không tìm thấy danh mục !"})
         }
         res.status(200).json({message: "Đã xóa danh mục thành công !"});
 
     }catch(error){
-        res.status(500).json({message:"Lỗi khi khi xóa sản phẩm !",error})
+        res.status(500).json({message:"Lỗi khi khi xóa danh mục !",error})
     }
 }
 

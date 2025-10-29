@@ -15,11 +15,7 @@ const categorySchema = new mongoose.Schema({
     description: {
         type: String,
         default: "" 
-    },
-    createAt: {
-        type: Date,
-        default: Date.now //thêm ngày tạo khi lưu vào db
     }
-});
+},{timestamps: true});
 
 export default mongoose.model("Category", categorySchema);
