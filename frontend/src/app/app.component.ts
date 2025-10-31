@@ -7,9 +7,8 @@ import { FooterComponent } from './components/footer/footer.component';
   selector: 'app-root',
   standalone: true, //định nghĩa Component độc lập mà k cần thêm vào declarations (ngModule)
   imports: [ 
-    
     RouterOutlet, 
-    HeaderComponent, 
+    HeaderComponent,   
     FooterComponent
   ],
   templateUrl: './app.component.html',

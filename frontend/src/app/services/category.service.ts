@@ -9,14 +9,14 @@ export interface Category {
     description?: string;
     createdAt?: string;
 };
-
+ 
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService{
 
     private apiUrl = 'http://locaclhost:3000/api/categories';
-
+    
     constructor(private http: HttpClient){}
 
     //get danh mục

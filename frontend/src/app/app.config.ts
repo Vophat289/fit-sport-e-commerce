@@ -7,5 +7,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withComponentInputBinding()),//withcomponentinputbiding cho phép truyền các component qua route
-    provideHttpClient()]
+    provideHttpClient() //gọi api
+  ]
 };

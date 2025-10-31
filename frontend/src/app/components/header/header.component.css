@@ -1,112 +1,152 @@
-/* RESET */
-* {
+
+:root {
+  --gray: #666;
+  --blue: #2850FF;
+  --red: #D60000;
+  --border: #e5e5e5;
+}
+
+
+body {
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
 }
 
-.header {
+/* --- TOP BAR --- */
+.topbar {
   width: 100%;
-  background-color: #fff;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  border-bottom: 1px solid #ddd;
-}
-
-/* === TOP BAR === */
-.top-bar {
+  height: 30px;
+  background: var(--gray);
+  color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 60px;
+  padding: 0 40px;
+  font-size: 13px;
 }
 
-/* LOGO */
-.logo {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #000;
+.topbar a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 14px;
+  font-weight: 500;
 }
 
-/* SEARCH BAR */
-.search-bar {
-  flex: 1;
+/* --- HEADER --- */
+.header {
+  width: 100%;
+  height: 86px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  background-color: #f6f6f6;
-  border-radius: 20px;
-  padding: 8px 15px;
-  margin: 0 80px;
-  max-width: 600px;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.logo img {
+  height: 300px;  
+} 
+
+/* --- MENU --- */  
+.menu {
+  display: flex;
+  list-style: none;
+  gap: 45px;
+  margin: 0;
+  padding: 0;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #111;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.menu .new {
+  color: var(--blue);
+}
+
+.menu .sale {
+  color: var(--red);
   position: relative;
 }
 
-.search-bar input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14px;
-  padding: 4px 8px;
+.menu .sale span {
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 700;
+  position: absolute;
+  top: -8px;
+  right: -20px;
 }
 
-.search-bar i {
-  color: #444;
-  font-size: 16px;
-  margin-right: 8px;
-}
-
-/* ACTIONS */
+/* --- SEARCH + ICONS --- */
 .actions {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 14px;
 }
 
-.action-item {
+.search {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  font-size: 13px;
-  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 40px;
+  padding: 6px 12px;
+  width: 260px;
+}
+
+.search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+}
+
+.search button {
+  border: none;
+  background: transparent;
   cursor: pointer;
-  transition: color 0.2s ease;
 }
 
-.action-item i {
-  font-size: 20px;
-  margin-bottom: 4px;
+.search svg {
+  width: 18px;
+  height: 18px;
 }
 
-.action-item:hover {
-  color: #000;
-}
-
-/* === MENU BAR === */
-.menu-bar {
-  background-color: #f5f3f3;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-
-.menu-bar ul {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  list-style: none;
-  padding: 8px 0;
-  gap: 50px;
-}
-
-.menu-bar li {
-  font-size: 15px;
-  color: #222;
+.icon {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.icon svg {
+  width: 18px;
+  height: 18px;
+}
 
-.menu-bar li:hover {
-  color: #000;
-  font-weight: 500;
+.cart .count {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
