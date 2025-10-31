@@ -18,7 +18,7 @@ export class CategoryComponent implements OnInit{
   } 
     
   loadCategories(){
-    this.categoryService.getAllCategories().subscribe({
+    this.categoryService.getAll().subscribe({
         next: (data) => (this.categories = data),
         error: (err) => console.error('Lỗi tải danh mục:', err),       
     })
@@ -26,5 +26,19 @@ export class CategoryComponent implements OnInit{
 
   createCategory(){
     if(!this.newCategory.name?.trim()) return;
+    this.categoryService.create(this.newCategory).subscribe({
+      next: () => {
+        this.newCategory = { name: '', description: ''};
+        this.loadCategories();
+      },
+      error: (err) => console.error('Lỗi thêm danh mục:', err),
+    })
+  }
+
+  deleteCategory(id: string){
+    this.categoryService.delete(id).subscribe({
+      next: () => this.loadCategories(),
+      error: (err) => console.error('Lỗi xóa danh mục', err), 
+    })
   }
 }

@@ -20,7 +20,7 @@ export class CategoryService{
     constructor(private http: HttpClient){}
 
     //get danh mục
-    getAllCategories(): Observable<Category[]>{
+    getAll(): Observable<Category[]>{
         return this.http.get<Category[]>(this.apiUrl)
     }
 
@@ -28,15 +28,15 @@ export class CategoryService{
         return this.http.get<Category[]>(`${this.apiUrl}/${slug}`);
     }
 
-    createCategory(data: Partial<Category>): Observable<Category[]>{
+    create(data: Partial<Category>): Observable<Category[]>{
         return this.http.post<Category[]>(this.apiUrl, data);
     }
 
-    updateCategory(id:string, data: Partial<Category>): Observable<Category>{
+    update(id:string, data: Partial<Category>): Observable<Category>{
         return this.http.post<Category>(`${this.apiUrl}/${id}`, data)
     }
 
-    deleteCategory(id: string): Observable<any>{
+    delete(id: string): Observable<any>{
         return this.http.delete(`${this.apiUrl}/${id}`)
     }
 }
