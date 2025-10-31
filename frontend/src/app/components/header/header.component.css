@@ -17,16 +17,16 @@ body {
   width: 100%;
   height: 30px;
   background: var(--gray);
-  color: #fff;
+  color: #000000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
+ 
   font-size: 13px;
 }
 
 .topbar a {
-  color: #fff;
+  color: #000000;
   text-decoration: none;
   margin-right: 14px;
   font-weight: 500;
@@ -58,29 +58,35 @@ body {
   padding: 0;
 }
 
-.menu a {
+.menu-link {
+  position: relative;
   text-decoration: none;
   color: #111;
   font-weight: 700;
   font-size: 15px;
+  padding-bottom: 4px;
+  transition: color 0.25s ease;
 }
 
-.menu .new {
-  color: var(--blue);
-}
-
-.menu .sale {
-  color: var(--red);
-  position: relative;
-}
-
-.menu .sale span {
-  font-size: 10px;
-  color: var(--red);
-  font-weight: 700;
+.menu-link::after {
+  content: "";
   position: absolute;
-  top: -8px;
-  right: -20px;
+  left: 50%;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #2850FF;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.menu-link:hover::after {
+  width: 100%;
+}
+
+/* Đồng thời đổi màu chữ nhẹ */
+.menu-link:hover {
+  color: #2850FF;
 }
 
 /* --- SEARCH + ICONS --- */
@@ -112,41 +118,62 @@ body {
   cursor: pointer;
 }
 
-.search svg {
-  width: 18px;
-  height: 18px;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px; /* khoảng cách giữa icon */
 }
 
-.icon {
-  width: 34px;
-  height: 34px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
+.icon-btn,
+.cart-icon {
   position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.icon svg {
-  width: 18px;
-  height: 18px;
+.icon-btn i,
+.cart-icon i {
+  font-size: 22px;
+  color: #000;
+  transition: color 0.25s ease;
 }
 
-.cart .count {
+/* Hover đổi màu nhẹ */
+.icon-btn:hover i,
+.cart-icon:hover i {
+  color: #2850FF; /* màu xanh đồng bộ thương hiệu */
+}
+
+
+
+/* Huy hiệu đỏ */
+.cart-count {
   position: absolute;
-  top: 0;
-  right: 2px;
-  background: var(--red);
+  top: -6px;
+  right: -10px;
+  background: #D60000;
   color: #fff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   border-radius: 50%;
-  height: 16px;
-  min-width: 16px;
+  height: 18px;
+  min-width: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 4px;
+  line-height: 1;
 }
+
+/* Đảm bảo căn giữa icon */
+.icon-btn i, .cart-icon i {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+
