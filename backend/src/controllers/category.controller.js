@@ -1,10 +1,13 @@
 import Category from '../models/category.model.js';
 import slugify from 'slugify';
-
+import cloudinary from '../config/cloudinary.js';
+import fs from 'fs';
 export const getAllCategories = async (req, res) => {
     try{
         const categories = await Category.find().sort({createdAt: -1});
-        res.json(categories)
+        console.log(categories);
+        
+      return res.status(200).json(categories)
     }catch(error){
         res.status(500).json({message: error.message});
     }
@@ -21,14 +24,28 @@ export const createCategory = async (req, res) => {
             return res.status(400).json({message: "Tên danh mục bắt buộc"});
         }
 
+        let imageUrl = "";
+
+        //nếu thêm ảnh
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "categories", //categories là folder trên cloudinary
+            });
+
+            imageUrl = result.secure_url; 
+            fs.unlinkSync(req.file.path) //xóa ảnh 
+        }
+
         //ktra slug da co chua
         const exiting = await Category.findOne({ slug });
         if(exiting){
             return res.status(400).json({message: "Danh mục đã tồn tại"})
         }
         //Tạo mới
-        const category = await Category.create({name, slug, description});
-        res.status(201).json(category);
+        const category = await Category.create({name, slug, description, image: imageUrl });
+        const saved = await category.save();
+
+        res.status(201).json(saved);
         
     }catch(error){
         res.status(500).json({message: "Lỗi khi tạo danh mục",   error: error.message, 
