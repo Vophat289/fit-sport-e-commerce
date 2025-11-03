@@ -24,6 +24,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@tailwindplus/elements": "^1.0.17",
     "bootstrap": "^5.3.8",
+    "cloudinary": "^2.8.0",
+    "multer": "^2.0.2",
     "rxjs": "~7.8.0",
     "tailwind": "^4.0.0",
     "tslib": "^2.3.0",
