@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common'
 })
 export class HomeCategoryComponent implements OnInit{
   categories: Category[] = [];
+  loading = true
+
   constructor(private categoryService: CategoryService, private router: Router){}
 
  ngOnInit(){
@@ -18,8 +20,8 @@ export class HomeCategoryComponent implements OnInit{
 
  loadCategories(){
   this.categoryService.getAll().subscribe({
-    next: (data) => (this.categories = data),
-    error: (err) => console.error('Không tìm thấy danh mục: ', err)
+    next: (data) => (this.categories = data, this.loading),
+    error: (err) => console.error('Không tìm thấy danh mục: ', err)   
   })
  }
 
