@@ -64,6 +64,17 @@ export const updateCategory = async (req, res) => {
             return res.status(404).json({message:"Không tìm thấy danh mục"})
         }
 
+        //nếu file có ảnh mới thì upload lên cloudinary
+        if(req.file){
+            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+                folder: "categories",
+            });
+
+            //xóa file ảnh cũ nếu mún
+            category.image = uploadResult.secure_url;
+            fs.unlinkSync(req.file.path);
+        }
+
         //cập nhật dữ liệu
         if(name?.trim()){
             category.name = name.trim();
