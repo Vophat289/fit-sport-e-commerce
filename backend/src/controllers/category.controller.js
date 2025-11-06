@@ -66,7 +66,7 @@ export const updateCategory = async (req, res) => {
 
         //nếu file có ảnh mới thì upload lên cloudinary
         if(req.file){
-            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            const uploadResult = await cloudinary.uploader.rename(req.file.path, {
                 folder: "categories",
             });
 
