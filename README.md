@@ -38,3 +38,8 @@ HOẠT ĐỘNG KHI GET SẢN PHẨM THEO SLUG
    ↓
 7. Trả về sản phẩm (hoặc 404 nếu không tìm thấy)
 
+LỆNH GIT KHI MERGE CODE TỪ NHÁNH QUA MAIN
+git checkout main
+git pull origin main
+git merge ten-nhanh (ví dụ vophat)
+git push origin main
