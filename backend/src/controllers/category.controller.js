@@ -84,6 +84,7 @@ export const updateCategory = async (req, res) => {
             category.description = description;
         }
 
+        //lưu vào database
         await category.save();
         res.status(200).json({message:"Cập nhật danh mục thành công", category});
 

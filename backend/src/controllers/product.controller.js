@@ -1,6 +1,7 @@
 import Product from "../models/product.model.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
+import slugify from 'slugify';  
 
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
@@ -17,11 +18,35 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+//lấy sản phẩm theo slug
+export const getProductBySlug = async (req, res) => {
+  try{
+    const {slug} = req.params;
+    const product = await Product.findOne({ slug }).populate("category", "name");
+
+    //kiểm tra sản phẩm có tồn tại k
+    if(!product){
+      return res.status(404).json({message:"Không tìm thấy sản phẩm !"});
+    }
+    res.json(product);
+    
+  }catch(error){
+    return res.status(500).json({message: "Lỗi khi lấy sản phẩm: ", error: error.message})
+  }
+}
+
 //thêm sản phẩm
 export const createProduct = async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
-    const images = [];
+    const imageUrls = [];
+    const slug = slugify(name, {lower: true, locale:"vi"});
+
+    //kiểm tra slug đã tồn tại chưa
+    const exitingProduct = await Product.findOne({slug});
+    if(exitingProduct){
+        return res.status(400).json({message:"Sản phẩm đã tồn tại"});
+    }
 
     //ảnh gửi lên uplaod tưng file ảnh lên Cloudinary
     if (req.files && req.files.length > 0) {
@@ -30,8 +55,7 @@ export const createProduct = async (req, res) => {
           folder: "products",
         });
 
-        console.log("☁️ Upload thành công:", result.secure_url);
-        images.push(result.secure_url);
+        imageUrls.push(result.secure_url);
         fs.unlinkSync(file.path);
       }
     } else {
@@ -40,32 +64,63 @@ export const createProduct = async (req, res) => {
 
     const newProduct = new Product({
       name,
+      slug,
       price,
       description,
       category,
-      images,
+      image: imageUrls,
     });
+    
+    //lưu vào database 
     const savedProduct = await newProduct.save();
-    res
-      .status(201)
-      .json({ message: "Thêm sản phẩm thành công", product: newProduct });
+    res.status(201).json({ message: "Thêm sản phẩm thành công", product: savedProduct });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message:"Lỗi khi thêm sản phẩm", error: error.message });
   }
 };
 
 //cập nhật sản phẩm
 export const updateProduct = async (req, res) => {
   try {
+    const {id} = req.params;
+    const {name, price, description, category} = req.body;
+
+    //tìm product theo id 
+    const product = await Product.findById(id);
+    if(!product){
+      return res.status(404).json({message: "Không tìm thấy sản phẩm"});
+    }
+
+    //tạo slug mới khi tên thay đổi
+    if(name && name.trim() !== product.name) {
+      const newSlug = slugify(name, {
+        lower: true, locale: "vi"
+      });
+    }
+    if(price !== undefined)product.price = price;
+    if(description !== undefined)product.description = description;
+    if(category !== undefined) product.category = category;
+
+    //lưu vào database
+    await product.save();
+    res.status(200).json({message:"Cập nhật sản phẩm thành công !", product})
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi cập nhật sản phẩm: ", error: error.message });
   }
 };
 
 //xóa sản phẩm
-export const deleteProduct = (req, res) => {
+export const deleteProduct = async (req, res) => {
   try {
+    const {id} = req.params;
+    const deleteProduct = await Product.findByIdAndDelete(id);
+
+    if(!deleteProduct){
+      return res.status(404).json({message: "Không tìm thấy sản phẩm !"})
+    }
+    res.status(200).json({message: "Đã xóa sản phẩm thành công !"});
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi khi xóa sản phẩm: ", error: error.message });
   }
 };
