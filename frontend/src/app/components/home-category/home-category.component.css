@@ -1,0 +1,89 @@
+/* --- Toàn bộ khu vực danh mục --- */
+.category-section {
+  width: 100%;
+  padding: 2rem 0;
+  text-align: center;
+ 
+  background-color: #fff;
+}
+
+/* Tiêu đề */
+.category-section .title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 2rem;
+margin-left: 3.5rem;
+  color: #111;
+}
+
+/* --- Danh sách danh mục --- */
+.category-list {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+  row-gap: 2rem;
+}
+
+/* --- Thẻ danh mục --- */
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* --- Ảnh danh mục --- */
+.category-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #ddd; /* màu nền tạm nếu chưa có ảnh */
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.category-card:hover img {
+  border-color: #000;
+}
+
+/* --- Tên danh mục --- */
+.category-card h3 {
+  font-size: 0.9rem;
+  color: #222;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* --- Khi chưa có dữ liệu --- */
+.empty {
+  color: #999;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+}
+
+/* --- Responsive cho mobile --- */
+@media (max-width: 768px) {
+  .category-list {
+    gap: 1rem;
+  }
+
+  .category-card img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .category-card h3 {
+    font-size: 0.8rem;
+  }
+}

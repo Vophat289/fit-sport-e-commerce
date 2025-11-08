@@ -5,6 +5,13 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    slug:{
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
     price: {
         type: Number,
         required: true,
@@ -12,8 +19,19 @@ const productSchema = new mongoose.Schema({
     description:{
         type: String,
         required: true,
-    },   
+    },
+    category:{
+        type: mongoose.Schema.Types.ObjectId, ref: "Category",  
+        ref: "Category",
+    },
+    image: {
+        type: [String],
+        default: []
+    }   
 }, {timestamps: true});
+
+//tạo index cho slug để tìm kiếm nhanh hơn
+productSchema.index({slug: 1}); //1 là tăng dần
 
 const Product = mongoose.model("Product", productSchema);
 
