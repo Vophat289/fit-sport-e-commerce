@@ -1,1 +1,21 @@
-<p>home works!</p>
+<div class="banner">
+  <div class="slides" [style.transform]="'translateX(-' + current * 100 + '%)'">
+    <div class="slide" *ngFor="let img of images">
+      <img [src]="img" alt="Banner">
+    </div>
+  </div>
+
+  <button class="arrow left" (click)="prev()">&#10094;</button>
+  <button class="arrow right" (click)="next()">&#10095;</button>
+
+  <div class="dots">
+    <span 
+      *ngFor="let img of images; let i = index"
+      [class.active]="i === current"
+      (click)="current = i">
+    </span>
+    
+  </div>
+</div>
+
+<app-home-category></app-home-category>
