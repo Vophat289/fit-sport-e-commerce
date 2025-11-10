@@ -15,7 +15,7 @@ export class CategoryComponent implements OnInit{
  
   ngOnInit(): void {
     this.loadCategories();
-  } 
+  } // 
     
   loadCategories(){
     this.categoryService.getAll().subscribe({
