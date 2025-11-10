@@ -38,7 +38,7 @@ export const getProductBySlug = async (req, res) => {
 //thêm sản phẩm
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, description, category } = req.body;
+    const { name, price, description, category, colors, sizes } = req.body;
     const imageUrls = [];
     const slug = slugify(name, {lower: true, locale:"vi"});
 
@@ -68,6 +68,8 @@ export const createProduct = async (req, res) => {
       price,
       description,
       category,
+      colors,
+      sizes,
       image: imageUrls,
     });
     
@@ -96,13 +98,42 @@ export const updateProduct = async (req, res) => {
       const newSlug = slugify(name, {
         lower: true, locale: "vi"
       });
+
+      //kiểm tra slug cập nhật có bị trùng k
+      const exitingProduct = await Product.findOne({
+        slug: newSlug,
+        _id: { $ne: id }
+      });
+      if(exitingProduct){
+        return res.status(400).json({message:"Tên sản phẩm này đã được sử dụng"});
+      }
+
+      //cập nhật 
+      product.name = name.trim();
+      product.slug = newSlug;
     }
     if(price !== undefined)product.price = price;
     if(description !== undefined)product.description = description;
     if(category !== undefined) product.category = category;
 
+    //cập nhật ảnh
+    if (req.files && req.files.length > 0) {
+      const newImageUrls = [];
+
+      for (const file of req.files) {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "products",
+        });
+
+        newImageUrls.push(result.secure_url);
+        fs.unlinkSync(file.path);
+      }
+
+      product.image = newImageUrls;
+    }
     //lưu vào database
     await product.save();
+    await product.populate("category", "name")
     res.status(200).json({message:"Cập nhật sản phẩm thành công !", product})
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi cập nhật sản phẩm: ", error: error.message });

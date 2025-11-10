@@ -27,7 +27,9 @@ const productSchema = new mongoose.Schema({
     image: {
         type: [String],
         default: []
-    }   
+    },
+    colors:[String],   
+    sizes:[String],
 }, {timestamps: true});
 
 //tạo index cho slug để tìm kiếm nhanh hơn

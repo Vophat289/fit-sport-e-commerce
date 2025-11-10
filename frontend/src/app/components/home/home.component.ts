@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeCategoryComponent } from '../home-category/home-category.component'
+import { HomeProductComponent } from '../home-product/home-product.component';
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, HomeCategoryComponent],
+  imports: [CommonModule, HomeCategoryComponent, HomeProductComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -19,7 +20,7 @@ export class HomeComponent {
   ngOnInit() {
     setInterval(() => {
       this.next();
-    }, 4000); // 4 giây đổi ảnh
+    }, 3000); // 4 giây đổi ảnh
   }
 
   next() {

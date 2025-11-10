@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Category } from './category.service';
 
 export interface Product{
-  _id?: String;
-  name: String;
-  slug?: String;
-  price: Number;
-  description?: String;
-  category?: {
-    _id: String;
-    name: String;
-  } | String;
-  image?: String[];
-  createdAt?: String;
-  updatedAt?: String;
+  _id?: string;
+  name: string;
+  slug?: string;
+  price: number;
+  description?: string;
+  category?: Category | string;
+  image?: string[];
+  colors?: string[];
+  sizes?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Injectable({
@@ -30,7 +30,7 @@ export class ProductService {
     return this.http.get<Product[]>(this.apiUrl); //Observable<Product[]> là kiểu dữ liệu trả vè mảng
   }
 
-  getBySlugProduct(slug: String): Observable<Product>{
+  getBySlugProduct(slug: string): Observable<Product>{
     return this.http.get<Product>(`${this.apiUrl}/${slug}`); //<Product> trả về 1 product (k phải array)
   }
 }
