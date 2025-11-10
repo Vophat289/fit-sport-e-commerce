@@ -35,4 +35,10 @@ export class HomeProductComponent implements OnInit{
       }
     });
   }
+
+  //UI Tĩnh test 
+  addToCart(product: any) {
+  console.log('🛒 Đã thêm vào giỏ:', product.name);
+  
+  } 
 }

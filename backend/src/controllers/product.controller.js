@@ -38,7 +38,8 @@ export const getProductBySlug = async (req, res) => {
 //thêm sản phẩm
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, description, category, colors, sizes } = req.body;
+    const { name, price, description, category } = req.body;
+    let {colors, sizes} = req.body;
     const imageUrls = [];
     const slug = slugify(name, {lower: true, locale:"vi"});
 
@@ -60,6 +61,22 @@ export const createProduct = async (req, res) => {
       }
     } else {
       console.log("không có ảnh nào được gửi lên");
+    }
+
+    if(typeof colors === 'string'){
+      try{
+        colors = JSON.parse(colors); //chuyển chuỗi json thành mảng thật
+      }catch{
+        colors = [colors];
+      }
+    }
+
+    if(typeof sizes === 'string'){
+      try{
+        sizes = JSON.parse(sizes); //chuyển chuỗi json thành mảng thật
+      }catch{
+        sizes = [sizes]; //nếu parse lỗi thì bọc lại thành mảng luon
+      }
     }
 
     const newProduct = new Product({
