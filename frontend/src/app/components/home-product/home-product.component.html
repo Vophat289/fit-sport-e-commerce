@@ -1,9 +1,11 @@
 <section class="product-section">
-  <h2 class="title">Sản phẩm nổi bật</h2>
 
+  <!-- Khi đang tải -->
   <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
 
+  <!-- Danh sách sản phẩm -->
   <div class="product-list" *ngIf="!loading && products.length > 0">
+
     <div class="product-card" *ngFor="let product of products">
       
       <!-- ẢNH SẢN PHẨM -->
@@ -48,6 +50,7 @@
     </div>
   </div>
 
+  <!-- Nếu không có sản phẩm -->
   <p *ngIf="!loading && products.length === 0" class="empty">
     Chưa có sản phẩm nào
   </p>

@@ -33,4 +33,8 @@ export class ProductService {
   getBySlugProduct(slug: string): Observable<Product>{
     return this.http.get<Product>(`${this.apiUrl}/${slug}`); //<Product> trả về 1 product (k phải array)
   }
+
+  getProductsByCategory(categoryId: string): Observable<Product[]>{
+    return this.http.get<Product[]>(`${this.apiUrl}/categories/${categoryId}`);
+  }
 }
