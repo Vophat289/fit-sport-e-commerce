@@ -1,1 +1,113 @@
-<p>product-page works!</p>
+<section class="product-section">
+
+  <!-- 🔹 Thanh chọn danh mục -->
+  <div class="category-bar" *ngIf="categories.length > 0">
+    <button 
+      (click)="resetFilter()"
+      [class.active]="!selectedCategory">
+      Tất cả
+    </button>
+
+    <button
+      *ngFor="let cat of categories"
+      (click)="filterByCategory(cat._id!)"
+      [class.active]="selectedCategory === cat._id">
+      {{ cat.name }}
+    </button>
+  </div>
+
+  <!-- 🔹 Loading -->
+  <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
+
+  <!-- 🔹 Danh sách sản phẩm -->
+  <div class="product-list" *ngIf="!loading && products.length > 0">
+    <div class="product-card" *ngFor="let product of products">
+      
+      <!-- Ảnh -->
+      <div class="product-image">
+        <img
+          [src]="product.image && product.image.length ? product.image[0] : 'assets/images/placeholder.jpg'"
+          [alt]="product.name"
+          class="product-img"
+        />
+        <div class="product-overlay">
+          <button class="btn-detail">Xem chi tiết</button>
+          <button class="btn-buy">Mua ngay</button>
+        </div>
+      </div>
+
+      <!-- Thông tin -->
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price | number }} ₫</p>
+      </div>
+
+      <!-- Nút thêm giỏ -->
+      <div class="product-action">
+        <button class="btn-cart" (click)="addToCart(product)">
+          Thêm vào giỏ hàng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Không có sản phẩm -->
+  <p *ngIf="!loading && products.length === 0" class="empty">
+    Không có sản phẩm nào trong danh mục này.
+  </p>
+
+  <!-- Loading -->
+  <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
+
+  <!-- Danh sách sản phẩm -->
+  <div class="product-list" *ngIf="!loading && products.length > 0">
+
+    <div class="product-card" *ngFor="let product of products">
+      
+      <!-- ẢNH SẢN PHẨM -->
+      <div class="product-image">
+        <img 
+          [src]="product.image && product.image.length > 0 ? product.image[0] : 'assets/images/placeholder.jpg'" 
+          [alt]="product.name"
+          class="product-img"
+        />
+
+        <!-- Overlay khi hover -->
+        <div class="product-overlay">
+          <button class="btn-detail">Xem chi tiết</button>
+          <button class="btn-buy">Mua ngay</button>
+        </div>
+      </div>  
+
+      <!-- THÔNG TIN SẢN PHẨM -->
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price | number }} ₫</p>
+
+        <div *ngIf="product?.colors?.length" class="product-colors">
+          <span *ngFor="let c of product.colors"
+                class="color-dot"
+                [style.backgroundColor]="c"
+                [title]="c"></span>
+        </div>
+
+        <div *ngIf="product?.sizes?.length" class="product-sizes">
+          <span *ngFor="let s of product.sizes" class="size-tag">{{ s }}</span>             
+        </div>
+      </div>
+
+      <!-- ✅ NÚT THÊM VÀO GIỎ -->
+      <div class="product-action">
+        <button class="btn-cart" (click)="addToCart(product)">
+           Thêm vào giỏ hàng
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Nếu không có sản phẩm -->
+  <p *ngIf="!loading && products.length === 0" class="empty">
+    Chưa có sản phẩm nào
+  </p>
+</section> phần này bạn gửi tôi nó lỗi đừng thay đổi gì của sản phẩm nhé tay ném của lóp
