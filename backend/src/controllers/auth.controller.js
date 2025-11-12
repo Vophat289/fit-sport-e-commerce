@@ -155,7 +155,7 @@ export const forgotPassword = async (req, res) => {
     const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.resetPin = pin;
-    user.resetPinExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+    user.resetPinExpires = Date.now() + 10 * 60 * 1000; 
     await user.save({ validateBeforeSave: false });
 
     await sendEmail({
@@ -180,9 +180,12 @@ export const forgotPassword = async (req, res) => {
 export const verifyResetPin = async (req, res) => {
   try {
     const { email, pin } = req.body;
-    const user = await User.findOne({ email, resetPin: pin });
+    const user = await User.findOne({ email });
 
     if (!user)
+      return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+
+    if (user.resetPin.toString() !== pin.toString())
       return res.status(400).json({ message: 'Mã PIN không chính xác.' });
 
     if (user.resetPinExpires < Date.now())
@@ -198,15 +201,18 @@ export const verifyResetPin = async (req, res) => {
 // đặt lại mật khẩu
 export const resetPassword = async (req, res) => {
   try {
-    const { email, pin, newPassword } = req.body;
-    const user = await User.findOne({ email, resetPin: pin });
+    const { pin, newPassword } = req.body;
+
+    // tìm user theo mã PIN
+    const user = await User.findOne({ resetPin: pin });
 
     if (!user)
-      return res.status(400).json({ message: 'Mã PIN không chính xác.' });
+      return res.status(404).json({ message: 'Không tìm thấy người dùng với mã PIN này.' });
 
     if (user.resetPinExpires < Date.now())
       return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
 
+    // cập nhật mật khẩu mới
     user.password = newPassword;
     user.resetPin = undefined;
     user.resetPinExpires = undefined;
@@ -218,6 +224,7 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server khi đặt lại mật khẩu.' });
   }
 };
+
 
 // đăng xuất
 export const logout = async (req, res) => {

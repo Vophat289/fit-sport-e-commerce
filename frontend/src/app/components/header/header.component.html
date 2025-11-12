@@ -20,7 +20,6 @@
     <li><a class="menu-link" href="#">SẢN PHẨM</a></li>
     <li><a class="menu-link" href="#">BÀI VIẾT</a></li>
     <li><a class="menu-link" href="#">LIÊN HỆ</a></li>
-
   </ul>
 
   <div class="actions">
@@ -31,15 +30,24 @@
       </button>
     </div>
 
-  <div class="header-actions">
-  <button class="icon-btn">
-    <i class="fa-regular fa-user"></i>
-  </button>
+    <div class="header-actions">
+      <ng-container *ngIf="userName; else showLogin">
+        <span class="user-greeting">Xin chào, {{ userName }}</span>
+        <button class="icon-btn" (click)="logout()" title="Đăng xuất">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </ng-container>
 
-  <div class="cart-icon">
-    <i class="fa-solid fa-bag-shopping"></i>
-    <span class="cart-count">0</span>
-  </div>
-</div>
+      <ng-template #showLogin>
+        <button class="icon-btn" (click)="goToLogin()">
+          <i class="fa-regular fa-user"></i>
+        </button>
+      </ng-template>
+
+      <div class="cart-icon">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cart-count">0</span>
+      </div>
+    </div>
   </div>
 </div>
