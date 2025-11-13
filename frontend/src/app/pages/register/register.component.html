@@ -1,18 +1,13 @@
 <div class="register-container">
   <div class="register-card">
-    <h2>Đăng Ký</h2>
     <img src="../../../assets/images/logo-login.png" alt="FitSport" class="logo" />
-
+    <h2>Đăng Ký</h2>
     <p>Rất nhiều đặc quyền và quyền lợi mua sắm đang chờ bạn</p>
 
-<div class="benefits">
-  <div>
-    <i class="fa-solid fa-ticket"></i> Voucher ưu đãi
-  </div>
-  <div>
-    <i class="fa-solid fa-gift"></i> Quà tặng độc quyền
-  </div>
-</div>
+    <div class="benefits">
+      <div><i class="fa-solid fa-ticket"></i> Voucher ưu đãi</div>
+      <div><i class="fa-solid fa-gift"></i> Quà tặng độc quyền</div>
+    </div>
 
     <form (ngSubmit)="onRegister()">
       <input
@@ -50,7 +45,11 @@
       </button>
     </form>
 
-    <div *ngIf="message" [ngClass]="isError ? 'message-error' : 'message-success'" class="message-box">
+    <div
+      *ngIf="message"
+      [ngClass]="isError ? 'message-error' : 'message-success'"
+      class="message-box"
+    >
       {{ message }}
     </div>
 

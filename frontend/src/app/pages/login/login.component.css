@@ -1,114 +1,198 @@
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
-  height: 110vh;
+  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  height: 100vh;
+  animation: fadeIn 1s ease-in-out;
 }
 
 .login-card {
-  background: whitesmoke;
+  background: #fff;
   padding: 2rem;
-  border-radius: 16px;
-  width: 200;
+  border-radius: 20px;
+  width: 350px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  animation: slideUp 0.8s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.login-card h2 {
-  margin: 0px 0 0px 0;
-  font-size: 1.8rem;
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
 }
 
 .logo {
-  width: 160px;
-  height: 80px;
-  
+  width: 150px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.login-card h2 {
+  font-size: 1.6rem;
+  margin: 0.5rem 0;
+  color: #222;
 }
 
 .login-card p {
-  margin: 0;
-  color: #555;
-  font-size: 0.95rem;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .benefits {
   display: flex;
   justify-content: space-around;
   margin: 1rem 0;
+  color: #444;
+  font-size: 0.9rem;
 }
-.google-btn, .facebook-btn {
+
+.benefits i {
+  color: #ff7b00;
+  margin-right: 5px;
+}
+
+.google-btn,
+.facebook-btn {
   width: 100%;
   border: none;
   border-radius: 8px;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+  padding: 0.6rem;
+  margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.3s ease;
 }
+
 .google-btn {
   background: #fff;
   border: 1px solid #ccc;
+  color: #444;
 }
+
+.google-btn:hover {
+  background: #f7f7f7;
+}
+
 .facebook-btn {
   background: #1877f2;
   color: #fff;
 }
+
+.facebook-btn:hover {
+  background: #0f5bd7;
+}
+
 .divider {
   margin: 1rem 0;
-  color: #888;
-  font-size: 0.9rem;
+  color: #999;
+  font-size: 0.85rem;
+  position: relative;
 }
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 1px;
+  background: #ddd;
+  top: 50%;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
 input {
-  width: 93%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  align-items: center;
-  justify-content: center;
+  width: 92%;
+  padding: 0.7rem;
+  margin-bottom: 0.9rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: 0.3s;
+  outline: none;
 }
+
+input:focus {
+  border-color: #000;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+
 button[type="submit"] {
-  width: 99%;
-  padding: 0.75rem;
+  width: 100%;
+  padding: 0.7rem;
   background: #000;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-
+  font-weight: 600;
+  transition: 0.3s;
 }
+
+button[type="submit"]:hover {
+  background: #333;
+  transform: scale(1.02);
+}
+
 .links {
   display: flex;
   justify-content: space-between;
   margin-top: 1rem;
 }
+
 .links a {
   color: #007bff;
   text-decoration: none;
+  font-size: 0.85rem;
 }
+
+.links a:hover {
+  text-decoration: underline;
+}
+
 .message-box {
-  width: 98%;
   margin-top: 12px;
   padding: 10px 15px;
-  border-radius: 5px;
+  border-radius: 8px;
   font-weight: 500;
   font-size: 14px;
-  user-select: none;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  animation: fadeIn 0.5s ease;
 }
 
 .message-error {
   color: #fff;
-  background-color: #e74c3c; /* đỏ */
-  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+  background-color: #e74c3c;
 }
 
 .message-success {
   color: #fff;
-  background-color: #2ecc71; /* xanh lá */
-  box-shadow: 0 2px 6px rgba(46, 204, 113, 0.4);
+  background-color: #2ecc71;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

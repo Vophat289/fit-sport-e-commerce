@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -11,15 +12,32 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent  {
   username: string = '';
   password: string = '';
   message: string | null = null;
-  isError: boolean = false; // true nếu lỗi, false nếu thành công
+  isError: boolean = false;
   isLoading: boolean = false;
 
   private router = inject(Router);
   private authService = inject(AuthService);
+  private toastr = inject(ToastrService);
+
+
+  ngOnInit() {
+    // ✅ Khi đăng nhập qua Google, backend redirect về /login?user=...&token=...
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get('user');
+    const token = params.get('token');
+
+    if (user && token) {
+      const parsedUser = JSON.parse(user);
+      localStorage.setItem('user', JSON.stringify(parsedUser));
+      localStorage.setItem('token', token);
+      this.authService['currentUserSubject'].next(parsedUser);
+      this.router.navigate(['/home']);
+    }
+  }
 
   login() {
     this.message = null;
@@ -33,20 +51,22 @@ export class LoginComponent {
     this.isLoading = true;
     this.authService.login(this.username, this.password).subscribe({
       next: (res) => {
+        localStorage.setItem('user', JSON.stringify(res.user));
+        localStorage.setItem('token', res.token);
+        this.authService['currentUserSubject'].next(res.user);
+        this.toastr.success('Đăng nhập thành công');
         this.isLoading = false;
-        this.isError = false;
-        this.message = res.message || 'Đăng nhập thành công!';
         this.router.navigate(['/home']);
       },
       error: (err) => {
         this.isLoading = false;
         this.isError = true;
         this.message = err.error?.message || 'Đăng nhập thất bại, vui lòng thử lại.';
+        this.toastr.error(this.message ?? 'Lỗi');
       },
     });
   }
-
   loginWithGoogle() {
-    alert('Chức năng đăng nhập với Google chưa được triển khai.');
+    window.location.href = 'http://localhost:3000/api/auth/google';
   }
 }

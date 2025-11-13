@@ -227,11 +227,20 @@ export const resetPassword = async (req, res) => {
 
 
 // đăng xuất
-export const logout = async (req, res) => {
-  try {
-    return res.status(200).json({ message: 'Đăng xuất thành công.' });
-  } catch (error) {
-    console.error('Lỗi logout:', error.message);
-    return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
-  }
+export const logout = (req, res) => {
+  req.logout(function(err) {
+    if (err) {
+      console.error('Lỗi logout:', err);
+      return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
+    }
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Lỗi hủy session:', err);
+        return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
+      }
+      res.clearCookie('connect.sid'); // Xóa cookie session trên client
+      return res.status(200).json({ message: 'Đăng xuất thành công.' });
+    });
+  });
 };
+

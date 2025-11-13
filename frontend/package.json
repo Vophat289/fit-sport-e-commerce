@@ -10,7 +10,8 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/cdk": "^19.2.3",
+    "@angular/animations": "^19.2.0",
+    "@angular/cdk": "^19.2.0",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
@@ -26,6 +27,7 @@
     "bootstrap": "^5.3.8",
     "cloudinary": "^2.8.0",
     "multer": "^2.0.2",
+    "ngx-toastr": "^19.1.0",
     "rxjs": "~7.8.0",
     "tailwind": "^4.0.0",
     "tslib": "^2.3.0",

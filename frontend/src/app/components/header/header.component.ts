@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-header',
@@ -13,11 +14,21 @@ import { FormsModule } from '@angular/forms';
 export class HeaderComponent implements OnInit {
   userName: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private toastr: ToastrService
+) {}
 
   ngOnInit() {
-    const user = this.authService.getUser();
-    this.userName = user ? user.name : null;
+    this.authService.currentUser$.subscribe((user) => {
+      console.log('User object:', user);
+      if (user) {
+        this.userName = typeof user.displayName === 'string' ? user.displayName : (user.name || 'Người dùng');
+      } else {
+        this.userName = null;
+      }
+    });
   }
 
   goToLogin() {
@@ -25,8 +36,11 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
-    this.userName = null;
-    this.router.navigate(['/login']);
+    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+      this.authService.logout().subscribe(() => {
+        this.toastr.success('Đăng xuất thành công', 'Thành công');
+        this.router.navigate(['/home']);
+      });
+    }
   }
 }

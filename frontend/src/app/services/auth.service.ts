@@ -1,11 +1,12 @@
 // src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 interface User {
   _id: string;
   name: string;
+  displayName: string;
   email: string;
   role: string;
   isVerified: boolean;
@@ -23,6 +24,9 @@ interface LoginResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
 
+  private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
+  currentUser$ = this.currentUserSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<LoginResponse> {
@@ -30,6 +34,7 @@ export class AuthService {
       tap(res => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
+        this.currentUserSubject.next(res.user);
       })
     );
   }
@@ -42,15 +47,20 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/forgot-password`, { email });
   }
 
-resetPassword(pin: string, newPassword: string) {
-  return this.http.post(`${this.apiUrl}/reset-password`, { pin, newPassword });
+  resetPassword(pin: string, newPassword: string) {
+    return this.http.post(`${this.apiUrl}/reset-password`, { pin, newPassword });
 }
 
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
+logout() {
+  return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+    tap(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.currentUserSubject.next(null);
+    })
+  );
+}
 
   getToken(): string | null {
     return localStorage.getItem('token');
