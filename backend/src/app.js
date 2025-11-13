@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session'; 
+import passport from './config/auth.js'; 
+
 import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js'
 import authRoutes from './routes/auth.routes.js';
@@ -15,6 +18,18 @@ app.use(cors({
     credentials: true // gửi cookie, token, jwt để xác thực
 }));
 app.use(express.json());
+
+app.use(session({
+    secret: 'secretkey123', 
+    resave: false,
+    saveUninitialized: false, // Set false nếu dùng cho API server
+    cookie: { 
+        secure: true // Set true nếu dùng HTTPS
+    } 
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
