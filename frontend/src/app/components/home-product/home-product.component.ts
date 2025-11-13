@@ -32,6 +32,7 @@ export class HomeProductComponent implements OnInit{
       error:(err) => {
         console.error('Lỗi tải sản phẩm: ', err);
         this.loading = false;
+
       }
     });
   }

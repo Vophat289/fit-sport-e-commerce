@@ -1,7 +1,9 @@
 import Product from "../models/product.model.js";
+import Category from "../models/category.model.js"
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import slugify from 'slugify';  
+import { error } from "console";
 
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
@@ -32,6 +34,28 @@ export const getProductBySlug = async (req, res) => {
     
   }catch(error){
     return res.status(500).json({message: "Lỗi khi lấy sản phẩm: ", error: error.message})
+  }
+}
+
+//lấy sản phẩm theo danh mục
+export const getProductsByCategory = async (req,res) => {
+  try{
+    const {slug} = req.params;
+    
+    const category = await Category.find({ slug });
+    if(!category){
+     return res.status(404).json({message: "Không tìm thấy danh mục"})
+    }
+
+    const products = await Product.find({ category: category._id }).populate( "category", "name slug");
+    if(!products || products.length === 0){
+        return res.status(404).json({message: "Không có sản phẩm trong danh mục này"})
+    }
+    
+    res.json(products);
+
+  }catch(error){
+      return res.status(500).json({message: "Lỗi khi lấy sản phẩm trong danh mục", error: error.message});
   }
 }
 
