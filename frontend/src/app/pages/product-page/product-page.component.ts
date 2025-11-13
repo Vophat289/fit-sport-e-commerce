@@ -52,7 +52,8 @@ export class ProductPageComponent implements OnInit{
   filterByCategory(slug: string): void {
     this.loading = true;
     this.selectedCategory = slug;
-    this.productService.getByCategory(slug).subscribe({
+    
+    this.productService.getByCategorySlug(slug).subscribe({
       next: (data) => { 
         this.products = data;
         this.loading = false;

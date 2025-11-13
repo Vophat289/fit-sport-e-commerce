@@ -42,7 +42,7 @@ export const getProductsByCategory = async (req,res) => {
   try{
     const {slug} = req.params;
     
-    const category = await Category.find({ slug });
+    const category = await Category.findOne({ slug });
     if(!category){
      return res.status(404).json({message: "Không tìm thấy danh mục"})
     }
