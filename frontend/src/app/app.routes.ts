@@ -5,6 +5,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { HomeCategoryComponent } from './components/home-category/home-category.component';
 import { ProductPageComponent } from './pages/product-page/product-page.component'
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'products/category/:slug', component: ProductPageComponent},
 
   { path: 'login', component: LoginComponent },
+  { path: 'verify-pin', component: VerifyPinComponent},
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },

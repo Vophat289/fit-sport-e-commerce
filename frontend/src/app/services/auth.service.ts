@@ -38,6 +38,11 @@ export class AuthService {
       })
     );
   }
+// auth.service.ts
+verifyPin(email: string, pin: string): Observable<any> { // ⭐ FIX 1: Thêm email
+    // Gửi cả email và pin lên server 
+    return this.http.post(`${this.apiUrl}/verify-pin`, { email, pin }); 
+}
 
   register(name: string, email: string, password: string) {
     return this.http.post(`${this.apiUrl}/register`, { name, email, password });
@@ -50,7 +55,6 @@ export class AuthService {
   resetPassword(pin: string, newPassword: string) {
     return this.http.post(`${this.apiUrl}/reset-password`, { pin, newPassword });
 }
-
 
 logout() {
   return this.http.post(`${this.apiUrl}/logout`, {}).pipe(

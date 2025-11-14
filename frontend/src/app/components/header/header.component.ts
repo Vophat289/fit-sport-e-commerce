@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
+
 @Component({
   selector: 'app-header',
   imports: [CommonModule, FormsModule],
@@ -34,13 +35,21 @@ export class HeaderComponent implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+ logout() {
+  if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) { 
+    this.authService.logout().subscribe({
+        next: () => {
+            alert('Đăng xuất thành công'); 
 
-  logout() {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
-      this.authService.logout().subscribe(() => {
-        this.toastr.success('Đăng xuất thành công', 'Thành công');
-        this.router.navigate(['/home']);
-      });
-    }
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            this.router.navigate(['/home']);
+        },
+        error: (err) => {
+            alert('Đăng xuất thất bại. Vui lòng thử lại.');
+        }
+    });
   }
+}
 }

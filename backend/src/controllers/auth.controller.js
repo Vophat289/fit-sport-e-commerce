@@ -8,10 +8,10 @@ dotenv.config();
 const emailValidator = new EmailValidator();
 
 // tạo jwt token
-const generateToken = (user) => {
+export const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET || 'your_secret_key',
+    { id: user._id, role: user.role ?? 'user' },
+    process.env.JWT_SECRET || 'fitsport_2025',
     { expiresIn: '1d' }
   );
 };
@@ -115,22 +115,23 @@ export const register = async (req, res) => {
   }
 };
 
-// Xác minh mã PIN khi đăng ký
+// xác minh mã PIN khi đăng ký
 export const verifyPin = async (req, res) => {
   try {
-    const { email, pin } = req.body;
+    const { email, pin } = req.body; 
+    
     const user = await User.findOne({ email });
 
     if (!user)
       return res.status(404).json({ message: 'Không tìm thấy người dùng với email này.' });
 
-    if (user.verificationPin !== pin)
-      return res.status(400).json({ message: 'Mã PIN không chính xác.' });
-
     if (user.verificationPinExpires < Date.now())
       return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
 
-    // Cập nhật trạng thái xác minh
+    if (user.verificationPin !== String(pin))
+      return res.status(400).json({ message: 'Mã PIN không chính xác.' });
+
+    // cập nhật trạng thái xác minh
     user.isVerified = true;
     user.verificationPin = undefined;
     user.verificationPinExpires = undefined;
@@ -142,7 +143,6 @@ export const verifyPin = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server khi xác minh mã PIN.' });
   }
 };
-
 
 // quên mật khẩu 
 export const forgotPassword = async (req, res) => {

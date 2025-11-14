@@ -1,0 +1,30 @@
+<div class="forgot-container">
+  <div class="forgot-card">
+    <h3>Xác nhận mã PIN</h3>
+
+    <form (ngSubmit)="onVerifyPin()">
+      <input
+        type="text"
+        maxlength="6"
+        [(ngModel)]="pin"
+        name="pin"
+        placeholder="Nhập mã PIN gồm 6 số"
+        required
+      />
+
+      <button type="submit">Xác nhận</button>
+
+      <div
+        *ngIf="message"
+        class="message-box"
+        [ngClass]="isError ? 'message-error' : 'message-success'"
+      >
+        {{ message }}
+      </div>
+
+      <div class="links">
+        <a routerLink="/login">Quay lại đăng nhập</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   name = '';
   email = '';
-  password = '';
+  password = '';  
   confirmPassword = '';
   message: string | null = null;
   isError = false;
@@ -23,30 +23,20 @@ export class RegisterComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   onRegister() {
-    this.message = null;
-    if (!this.name || !this.email || !this.password || !this.confirmPassword) {
-      this.isError = true;
-      this.message = 'Vui lòng điền đầy đủ thông tin.';
-      return;
-    }
-    if (this.password !== this.confirmPassword) {
-      this.isError = true;
-      this.message = 'Mật khẩu xác nhận không khớp.';
-      return;
-    }
-
     this.isLoading = true;
-    this.auth.register(this.name, this.email, this.password).subscribe({
-      next: (res: any) => {
-        this.isLoading = false;
-        this.isError = false;
-        this.message = res.message || 'Đăng ký thành công. Vui lòng kiểm tra email để lấy mã PIN.';
-        setTimeout(() => this.router.navigate(['/verify']), 1200);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.isError = true;
-        this.message = err.error?.message || 'Lỗi đăng ký.';
+        this.auth.register(this.name, this.email, this.password).subscribe({
+            next: (res: any) => {
+                this.isLoading = false;
+                this.isError = false;
+                this.message = res.message || 'Đăng ký thành công. Vui lòng kiểm tra email để lấy mã PIN.';
+                localStorage.setItem('verificationEmail', this.email); 
+              
+                setTimeout(() => this.router.navigate(['/verify-pin']), 800);
+            },
+            error: (err) => {
+                this.isLoading = false;
+                this.isError = true;
+                this.message = err.error?.message || 'Lỗi đăng ký.';
       }
     });
   }
