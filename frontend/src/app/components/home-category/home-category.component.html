@@ -1,0 +1,11 @@
+<section class="category-section">
+    <h2 class="title">Danh mục sản phẩm</h2>
+  
+    <div class="category-list" *ngIf="categories.length > 0">
+        <div class="category-card" *ngFor="let cat of categories" (click)="goToCategory(cat.slug!)">
+            <img [src]="cat.image" [alt]="cat.name" class="category-img"/>
+            <h3>{{cat.name}}</h3>
+        </div>
+    </div>
+    <p *ngIf="categories.length === 0" class="empty">Đang tải danh mục ...</p>
+</section>

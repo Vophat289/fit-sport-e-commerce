@@ -1,1 +1,166 @@
-<p>home works!</p>
+<div class="banner">
+  <div class="slides" [style.transform]="'translateX(-' + current * 100 + '%)'">
+    <div class="slide" *ngFor="let img of images">
+      <img [src]="img" alt="Banner">
+    </div>
+  </div>
+
+  <button class="arrow left" (click)="prev()">&#10094;</button>
+  <button class="arrow right" (click)="next()">&#10095;</button>
+
+  <div class="dots">
+    <span 
+      *ngFor="let img of images; let i = index"
+      [class.active]="i === current"
+      (click)="current = i">
+    </span>
+    
+  </div>
+</div>
+
+<app-home-category></app-home-category>
+
+<section class="product-section">
+  <h2 class="title">Sản phẩm nổi bật</h2>
+<app-home-product></app-home-product>
+</section>
+<section class="about-section">
+  <div class="about-container">
+    
+    <!-- 🔹 Cột trái: Nội dung -->
+    <div class="about-content">
+      <h2 class="about-title">
+        <span>FitSport Việt Nam</span> | Cửa Hàng Thể Thao
+        <br> Chính Hãng
+      </h2>
+
+      <p class="about-description">
+        FitSport Việt Nam - thương hiệu đồ thể thao đạt chuẩn Châu Âu.
+        Với hơn <strong>5.000 sản phẩm</strong> cho 60+ môn thể thao, cho mọi đối tượng,
+        từ người mới bắt đầu đến chuyên nghiệp. Khám phá ngay giày thể thao,
+        quần áo thể thao, dụng cụ thể thao cho cả người lớn và trẻ em.
+        Chất lượng vượt trội, giá cả phải chăng, nhiều ưu đãi lớn!
+      </p>
+
+      <button class="about-btn">
+        Tìm hiểu thêm
+      </button>
+    </div>
+
+    <!-- 🔹 Cột phải: Ảnh -->
+    <div class="about-image">
+      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762832859/about-home3_cntchx.jpg" alt="Giới thiệu FitSport" />
+    </div>
+
+  </div>
+</section>
+
+
+
+<app-home-product></app-home-product>
+
+<section class="deal-section">
+  <h2 class="deal-title">Khám phá các deal hời thể thao</h2>
+
+  <div class="deal-banner">
+    <div class="deal-item">
+      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828332/banner-voucher-1_ugkbow.png" alt="Deal hot thể thao" />
+    </div>
+    <div class="deal-item">
+      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828334/banner-voucher-2_n7yxeh.png" alt="Deal chồng deal" />
+    </div>
+  </div>
+</section>
+
+<section class="sale-section">
+  <h2 class="sale-title">[Giá giảm] Bộ sưu tập dưới 99K &amp; 199K</h2>
+
+  <div class="sale-grid">
+    <div class="sale-card">
+      <div class="sale-content">
+        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
+        <h3 class="sale-text">BỘ SƯU TẬP<br><span class="sale-price">&lt;99K</span></h3>
+        <button class="sale-btn">Khám phá</button>
+      </div>
+    </div>
+
+    <div class="sale-card">
+      <div class="sale-content">
+        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
+        <h3 class="sale-text">BỘ SƯU TẬP<br><span class="sale-price">&lt;199K</span></h3>
+        <button class="sale-btn">Khám phá</button>
+      </div>
+    </div>
+
+    <div class="sale-card">
+      <div class="sale-content">
+        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
+        <h3 class="sale-text">TẤT CẢ<br><span class="sale-price">600+ sản phẩm</span></h3>
+        <button class="sale-btn">Khám phá</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="policy-section">
+  <div class="policy-container">
+
+    <!-- 🔹 Hàng trên: Chính sách -->
+    <div class="policy-grid">
+      <div class="policy-card">
+        <i class="fa-solid fa-rocket"></i>
+        <h3>Miễn phí ship</h3>
+        <p>với đơn từ 299K</p>
+      </div>
+
+      <div class="policy-card">
+        <i class="fa-solid fa-headset"></i>
+        <h3>Hỗ trợ 24/7</h3>
+        <p>online 24/7 - trực tiếp 24/7</p>
+      </div>
+
+      <div class="policy-card">
+        <i class="fa-solid fa-box-open"></i>
+        <h3>Trao đổi hoặc trả lại</h3>
+        <p>trong vòng 7 ngày</p>
+      </div>
+
+      <div class="policy-card">
+        <i class="fa-solid fa-wallet"></i>
+        <h3>Đặt hàng online</h3>
+        <p>hotline: +84 7899878</p>
+      </div>
+    </div>
+
+    <!-- 🔹 Hàng dưới: Giá trị thương hiệu -->
+    <div class="value-grid">
+      <div class="value-item">
+        <i class="fa-solid fa-lightbulb"></i>
+        <p>Sáng tạo</p>
+      </div>
+      <div class="value-item">
+        <i class="fa-solid fa-handshake"></i>
+        <p>Niềm tin</p>
+      </div>
+      <div class="value-item">
+        <i class="fa-solid fa-shirt"></i>
+        <p>Thời trang</p>
+      </div>
+      <div class="value-item">
+        <i class="fa-solid fa-gear"></i>
+        <p>Trách nhiệm</p>
+      </div>
+      <div class="value-item">
+        <i class="fa-solid fa-people-group"></i>
+        <p>Nhu cầu</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+

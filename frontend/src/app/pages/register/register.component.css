@@ -1,0 +1,141 @@
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  height: 100vh;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.register-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  animation: slideUp 0.8s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+.logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.register-card h2 {
+  font-size: 1.6rem;
+  margin: 0.5rem 0;
+  color: #222;
+}
+
+.register-card p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.benefits {
+  display: flex;
+  justify-content: space-around;
+  margin: 1rem 0;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.benefits i {
+  color: #ff7b00;
+  margin-right: 5px;
+}
+
+input {
+  width: 93%;
+  padding: 0.7rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: 0.3s;
+  outline: none;
+}
+
+input:focus {
+  border-color: #000;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 0.7rem;
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+button[type="submit"]:hover {
+  background: #333;
+  transform: scale(1.02);
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.links a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.links a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.message-box {
+  margin-top: 12px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+.message-error {
+  color: #fff;
+  background-color: #e74c3c;
+}
+
+.message-success {
+  color: #fff;
+  background-color: #2ecc71;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
