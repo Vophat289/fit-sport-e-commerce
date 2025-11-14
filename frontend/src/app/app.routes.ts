@@ -18,7 +18,9 @@ export const routes: Routes = [
   { path: 'products', component: ProductPageComponent}, 
   { path: 'products/category/:slug', component: ProductPageComponent},
 
+
   {path: 'gioi-thieu', component: GioiThieuComponent},
+
 
   { path: 'login', component: LoginComponent },
   { path: 'verify-pin', component: VerifyPinComponent},
