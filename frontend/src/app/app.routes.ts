@@ -9,6 +9,7 @@ import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { HomeCategoryComponent } from './components/home-category/home-category.component';
 import { ProductPageComponent } from './pages/product-page/product-page.component'
+import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent }, 
@@ -16,6 +17,8 @@ export const routes: Routes = [
   { path: 'category/:slug', component: HomeCategoryComponent},
   { path: 'products', component: ProductPageComponent}, 
   { path: 'products/category/:slug', component: ProductPageComponent},
+
+  {path: 'gioi-thieu', component: GioiThieuComponent},
 
   { path: 'login', component: LoginComponent },
   { path: 'verify-pin', component: VerifyPinComponent},
