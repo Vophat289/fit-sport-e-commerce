@@ -6,6 +6,7 @@ import passport from './config/auth.js';
 import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js'
 import authRoutes from './routes/auth.routes.js';
+import voucherRoutes from './routes/voucher.routes.js'
 import { EventEmitter } from 'events';
 
 EventEmitter.defaultMaxListeners = 20
@@ -34,6 +35,7 @@ app.use(passport.session());
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/voucher", voucherRoutes);
 
 app.get("/", (req, res) => {
     res.send("backend + mongodb đang chạy", productRoutes);
