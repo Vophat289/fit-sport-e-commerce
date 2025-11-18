@@ -197,24 +197,7 @@ const CartController = {
     }
   },
 
-  async getCartTotal(req, res) {
-  try {
-    const userId = req.user.id; // hoặc req.params.user_id nếu lấy từ params
-    const cart = await Cart.findOne({ user_id: userId }).populate("products.product_id");
-    if (!cart) return res.json({ success: true, total: 0 });
-
-    let total = 0;
-    cart.products.forEach(item => {
-      total += item.product_id.price * item.quantity;
-    });
-
-    res.json({ success: true, total });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-}
   
 };
-
 
 export default CartController;
