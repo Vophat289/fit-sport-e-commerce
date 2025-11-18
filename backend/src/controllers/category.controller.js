@@ -5,7 +5,7 @@ import fs from 'fs';
 export const getAllCategories = async (req, res) => {
     try{
         const categories = await Category.find().sort({createdAt: -1});
-        console.log(categories);
+      
         
       return res.status(200).json(categories)
     }catch(error){
