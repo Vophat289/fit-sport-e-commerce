@@ -1,59 +1,161 @@
 <section class="product-section">
-  <!-- 🔹 Thanh chọn danh mục -->
-  <div class="category-bar" *ngIf="categories.length > 0">
-    <button (click)="resetFilter()" [class.active]="!selectedCategory">
-      Tất cả
-    </button>
-
-    <button
-      *ngFor="let cat of categories"
-      (click)="filterByCategory(cat.slug!)"
-      [class.active]="selectedCategory === cat.slug"
-    >
-      {{ cat.name }}
-    </button>
-  </div>
-
-  <!-- 🔹 Loading -->
-  <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
-
-  <!-- 🔹 Danh sách sản phẩm -->
-  <div class="product-list" *ngIf="!loading && products.length > 0">
-    <div class="product-card" *ngFor="let product of products">
-      <!-- Ảnh -->
-      <div class="product-image">
-        <img
-          [src]="
-            product.image && product.image.length
-              ? product.image[0]
-              : 'assets/images/placeholder.jpg'
-          "
-          [alt]="product.name"
-          class="product-img"
-        />
-        <div class="product-overlay">
-          <button class="btn-detail">Xem chi tiết</button>
-          <button class="btn-buy">Mua ngay</button>
-        </div>
-      </div>
-
-      <!-- Thông tin -->
-      <div class="product-info">
-        <h3 class="product-name">{{ product.name }}</h3>
-        <p class="product-price">{{ product.price | number }} ₫</p>
-      </div>
-
-      <!-- Nút thêm giỏ -->
-      <div class="product-action">
-        <button class="btn-cart" (click)="addToCart(product)">
-          Thêm vào giỏ hàng
+  <div class="product-container">
+    
+    <!-- 🔹 SIDEBAR FILTER (Bên trái) -->
+    <aside class="filter-sidebar">
+      
+      <!-- 1. FILTER CATEGORY -->
+      <div class="filter-group">
+        <h3 class="filter-title">Danh mục</h3>
+        <button 
+          (click)="filterByCategory(null)"
+          [class.active]="!filters.category"
+          class="filter-btn">
+          Tất cả
+        </button>
+        <button
+          *ngFor="let cat of categories"
+          (click)="filterByCategory(cat.slug!)"
+          [class.active]="filters.category === cat.slug"
+          class="filter-btn">
+          {{ cat.name }}
         </button>
       </div>
+      
+      <!-- 2. FILTER SIZE -->
+      <div class="filter-group">
+        <h3 class="filter-title">Kích thước</h3>
+        <div class="size-options">
+          <!-- 
+            KHÁI NIỆM: *ngFor - Directive lặp qua mảng
+            - Lặp qua availableSizes để tạo checkbox cho mỗi size
+          -->
+          <label 
+            *ngFor="let size of availableSizes"
+            class="size-checkbox">
+            <!-- 
+              KHÁI NIỆM: [checked] - Property binding
+              - Checkbox được check nếu size có trong filters.sizes
+            -->
+            <input 
+              type="checkbox"
+              [checked]="filters.sizes.includes(size)"
+              (change)="toggleSize(size)">
+            <span class="size-label">{{ size }}</span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- 3. FILTER PRICE (Slider) -->
+      <div class="filter-group">
+        <h3 class="filter-title">CHỌN GIÁ</h3>
+        <div class="price-slider">
+          <!-- Input Min -->
+          <input 
+            type="number"
+            [(ngModel)]="filters.priceRange.min"
+            (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+            class="price-input"
+            [min]="20000"
+            [max]="14999000">
+          
+          <!-- Slider Container -->
+          <div class="slider-container">
+            <!-- 
+              KHÁI NIỆM: type="range" - HTML5 Range Input
+              - Tạo thanh kéo (slider)
+              - [(ngModel)]: Two-way binding với filters.priceRange.min
+              - (input): Event khi user kéo slider
+            -->
+            <input 
+              type="range"
+              [min]="20000"
+              [max]="14999000"
+              [(ngModel)]="filters.priceRange.min"
+              (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+              class="slider slider-min">
+            
+            <input 
+              type="range"
+              [min]="20000"
+              [max]="14999000"
+              [(ngModel)]="filters.priceRange.max"
+              (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+              class="slider slider-max">
+          </div>
+          
+          <!-- Input Max -->
+          <input 
+            type="number"
+            [(ngModel)]="filters.priceRange.max"
+            (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+            class="price-input"
+            [min]="20000"
+            [max]="14999000">
+        </div>
+        
+        <!-- Hiển thị giá đã chọn -->
+        <p class="price-display">
+          {{ filters.priceRange.min | number }} ₫ - 
+          {{ filters.priceRange.max | number }} ₫
+        </p>
+      </div>
+      
+      <!-- Button Reset -->
+      <button class="btn-reset" (click)="resetFilters()">
+        Xóa bộ lọc
+      </button>
+      
+    </aside>
+    
+    <!-- 🔹 PRODUCT CONTENT (Bên phải) -->
+    <div class="product-content">
+      
+      <!-- Loading -->
+      <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
+      
+      <!-- Danh sách sản phẩm -->
+      <!-- ⚠️ QUAN TRỌNG: Dùng filteredProducts, không phải products -->
+      <div class="product-list" *ngIf="!loading && filteredProducts.length > 0">
+        <div class="product-card" *ngFor="let product of filteredProducts">
+          <!-- Ảnh -->
+          <div class="product-image">
+            <img
+              [src]="
+                product.image && product.image.length
+                  ? product.image[0]
+                  : 'assets/images/placeholder.jpg'
+              "
+              [alt]="product.name"
+              class="product-img"
+            />
+            <div class="product-overlay">
+              <button class="btn-detail">Xem chi tiết</button>
+              <button class="btn-buy">Mua ngay</button>
+            </div>
+          </div>
+          
+          <!-- Thông tin -->
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-price">{{ product.price | number }} ₫</p>
+          </div>
+          
+          <!-- Nút thêm giỏ -->
+          <div class="product-action">
+            <button class="btn-cart" (click)="addToCart(product)">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <p *ngIf="!loading && filteredProducts.length === 0" class="empty">
+        Không có sản phẩm nào phù hợp với bộ lọc.
+      </p>
+      
     </div>
+    
   </div>
-
-  <!-- 🔹 Không có sản phẩm -->
-  <p *ngIf="!loading && products.length === 0" class="empty">
-    Không có sản phẩm nào trong danh mục này.
-  </p>
 </section>
