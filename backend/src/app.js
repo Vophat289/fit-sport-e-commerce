@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.routes.js';
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import { EventEmitter } from 'events';
+import contactRoutes from './routes/contact.routes.js';
 
 EventEmitter.defaultMaxListeners = 20
 
@@ -33,14 +34,18 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/contact", contactRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("backend + mongodb đang chạy", productRoutes);
 })
 
 export default app;
+

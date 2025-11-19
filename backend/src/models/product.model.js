@@ -39,3 +39,4 @@ productSchema.index({slug: 1}); //1 là tăng dần
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;
+

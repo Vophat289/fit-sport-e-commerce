@@ -1,0 +1,77 @@
+<div class="contact-container">
+  <!-- Form liên hệ -->
+  <ng-container *ngIf="!showSuccessMessage()">
+    <div class="header">
+      <h1>Ý kiến của bạn về {{ businessName }}</h1>
+      <p class="address">Địa chỉ: {{ address }}</p>
+    </div>
+
+    <div class="main-content">
+      <!-- Google Maps bên trái -->
+      <div class="map-section">
+        <iframe [src]="safeMapUrl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+
+      <!-- Form bên phải -->
+      <div class="form-section">
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="form-card">
+          <div class="form-group">
+            <label>Họ và tên:</label>
+            <input type="text" formControlName="fullName" />
+            <div class="error" *ngIf="contactForm.get('fullName')?.invalid && contactForm.get('fullName')?.touched">
+              Vui lòng nhập họ và tên.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" formControlName="email" />
+            <div class="error" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+              {{ contactForm.get('email')?.errors?.['required'] ? 'Vui lòng nhập email.' : 'Email không hợp lệ.' }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Điện thoại:</label>
+            <input type="tel" formControlName="phone" placeholder="Ví dụ: 0901234567" />
+            <div class="error" *ngIf="contactForm.get('phone')?.invalid && contactForm.get('phone')?.touched">
+              Số điện thoại phải có 10 số và bắt đầu bằng 0.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nội Dung:</label>
+            <textarea formControlName="content" rows="6" placeholder="Viết ý kiến của bạn tại đây..."></textarea>
+            <div class="error" *ngIf="contactForm.get('content')?.invalid && contactForm.get('content')?.touched">
+              Vui lòng nhập nội dung.
+            </div>
+          </div>
+
+          <button type="submit" [disabled]="isSubmitting()" class="submit-btn">
+            {{ isSubmitting() ? 'Đang gửi...' : 'Gửi thông tin' }}
+          </button>
+
+          <div class="error text-center" *ngIf="showErrorMessage()">
+            Gửi thất bại, vui lòng thử lại!
+          </div>
+        </form>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Màn hình thành công -->
+  <div *ngIf="showSuccessMessage()" class="success-screen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="#28a745" stroke-width="2"/>
+        <polyline points="7,12 10,15 17,9" fill="none" stroke="#28a745" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2>Gửi thông tin thành công!</h2>
+    <p>Cảm ơn bạn đã liên hệ. Chúng tôi đã nhận được thông tin và sẽ phản hồi sớm nhất có thể.</p>
+    <div class="btn-group">
+      <button class="btn primary" (click)="goToHomePage()">Quay về trang chủ</button>
+      <button class="btn secondary" (click)="openEmailApp()">Mở ứng dụng email</button>
+    </div>
+  </div>
+</div>

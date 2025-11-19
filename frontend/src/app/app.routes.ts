@@ -10,6 +10,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { HomeCategoryComponent } from './components/home-category/home-category.component';
 import { ProductPageComponent } from './pages/product-page/product-page.component'
 import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
+import { ContactComponent } from './pages/contact/contact.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent }, 
@@ -18,9 +19,7 @@ export const routes: Routes = [
   { path: 'products', component: ProductPageComponent}, 
   { path: 'products/category/:slug', component: ProductPageComponent},
 
-
   {path: 'gioi-thieu', component: GioiThieuComponent},
-
 
   { path: 'login', component: LoginComponent },
   { path: 'verify-pin', component: VerifyPinComponent},
@@ -28,6 +27,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
+  { path: 'contact', component: ContactComponent },  
 
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' }
