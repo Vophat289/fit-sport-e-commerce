@@ -13,7 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+<<<<<<< HEAD
     "cloudinary": "^2.8.0",
+=======
+    "cloudinary": "^1.37.3",
+>>>>>>> 918f4c1 (updatecode thanhdanh)
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "email-deep-validator": "^3.3.0",
@@ -22,7 +26,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
+<<<<<<< HEAD
     "multer-storage-cloudinary": "^2.2.1",
+=======
+    "multer-storage-cloudinary": "^4.0.0",
+>>>>>>> 918f4c1 (updatecode thanhdanh)
     "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",

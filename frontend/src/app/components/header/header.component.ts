@@ -4,11 +4,20 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+<<<<<<< HEAD
 
 
 @Component({
   selector: 'app-header',
   imports: [CommonModule, FormsModule],
+=======
+import { RouterModule } from '@angular/router'; // ⬅️ Thêm để routerLink hoạt động
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule], // ⬅️ Thêm RouterModule
+>>>>>>> 918f4c1 (updatecode thanhdanh)
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -19,7 +28,11 @@ export class HeaderComponent implements OnInit {
     private authService: AuthService, 
     private router: Router,
     private toastr: ToastrService
+<<<<<<< HEAD
 ) {}
+=======
+  ) {}
+>>>>>>> 918f4c1 (updatecode thanhdanh)
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
@@ -35,6 +48,7 @@ export class HeaderComponent implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+<<<<<<< HEAD
  logout() {
   if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) { 
     this.authService.logout().subscribe({
@@ -52,4 +66,24 @@ export class HeaderComponent implements OnInit {
     });
   }
 }
+=======
+
+  logout() {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) { 
+      this.authService.logout().subscribe({
+        next: () => {
+          alert('Đăng xuất thành công'); 
+
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          alert('Đăng xuất thất bại. Vui lòng thử lại.');
+        }
+      });
+    }
+  }
+>>>>>>> 918f4c1 (updatecode thanhdanh)
 }

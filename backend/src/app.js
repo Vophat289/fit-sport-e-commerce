@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session'; 
 import passport from './config/auth.js'; 
+<<<<<<< HEAD
 
 import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js'
@@ -28,11 +29,27 @@ app.use(session({
     cookie: { 
         secure: true // Set true nếu dùng HTTPS
     } 
+=======
+import contactRoutes from './routes/contact.routes.js';
+// import adminContactRoutes from './routes/adminContact.route.js'; // tạm comment
+
+const app = express();
+
+app.use(cors({ origin: "http://localhost:4200", credentials: true }));
+app.use(express.json());
+
+app.use(session({
+  secret: 'secretkey123',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // dùng HTTP
+>>>>>>> 918f4c1 (updatecode thanhdanh)
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
+<<<<<<< HEAD
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
@@ -44,3 +61,12 @@ app.get("/", (req, res) => {
 })
 
 export default app;
+=======
+app.use("/api/contact", contactRoutes);
+
+app.get("/", (req, res) => res.send("Backend + MongoDB đang chạy"));
+
+// app.use("/api/admin/contacts", adminContactRoutes); // tạm bỏ để tránh crash
+
+export default app;
+>>>>>>> 918f4c1 (updatecode thanhdanh)
