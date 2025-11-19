@@ -1,0 +1,55 @@
+<div class="login-container">
+  <div class="login-card">
+    <img src="../../../assets/images/logo-login.png" alt="FitSport" class="logo" />
+    <h2>Đăng Nhập</h2>
+    <p>Rất nhiều đặc quyền và quyền lợi mua sắm đang chờ bạn</p>
+
+    <div class="benefits">
+      <div>
+        <i class="fa-solid fa-ticket"></i> Voucher ưu đãi
+      </div>
+      <div>
+        <i class="fa-solid fa-gift"></i> Quà tặng độc quyền
+      </div>
+    </div>
+
+    <button class="google-btn" (click)="loginWithGoogle()">
+      <i class="fa-brands fa-google"></i> Đăng nhập với Google
+    </button>
+
+    <div class="divider">Hoặc</div>
+
+    <form (ngSubmit)="login()">
+      <input
+        type="text"
+        placeholder="Tên đăng nhập"
+        [(ngModel)]="username"
+        name="username"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Mật khẩu"
+        [(ngModel)]="password"
+        name="password"
+        required
+      />
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Đang đăng nhập...' : 'Đăng Nhập' }}
+      </button>
+    </form>
+
+    <div
+      *ngIf="message"
+      [ngClass]="isError ? 'message-error' : 'message-success'"
+      class="message-box"
+    >
+      {{ message }}
+    </div>
+
+    <div class="links">
+      <a routerLink="/register">Đăng ký tài khoản</a>
+      <a routerLink="/forgot-password">Quên mật khẩu</a>
+    </div>
+  </div>
+</div>
