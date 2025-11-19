@@ -10,6 +10,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { HomeCategoryComponent } from './components/home-category/home-category.component';
 import { ProductPageComponent } from './pages/product-page/product-page.component'
 import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
+import { AccountPageComponent } from './pages/account-page/account-page.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent }, 
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'products', component: ProductPageComponent}, 
   { path: 'products/category/:slug', component: ProductPageComponent},
 
-
+  { path: 'account', component: AccountPageComponent }, 
   {path: 'gioi-thieu', component: GioiThieuComponent},
 
 

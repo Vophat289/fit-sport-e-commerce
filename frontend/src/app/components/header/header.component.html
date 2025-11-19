@@ -30,7 +30,7 @@
 
     <div class="header-actions">
       <ng-container *ngIf="userName; else showLogin">
-        <span class="user-greeting">Xin chào, {{ userName }}</span>
+        <a class="user-greeting" [routerLink]="['/account']">Xin chào, {{ userName }} </a>
         <button class="icon-btn" (click)="logout()" title="Đăng xuất">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
