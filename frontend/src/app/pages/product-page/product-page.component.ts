@@ -25,8 +25,8 @@ export class ProductPageComponent implements OnInit{
     category: null as string | null,
     sizes: [] as string[],
     priceRange: {
-      min: 30000,
-      max: 2000000
+      min: 20000,
+      max: 5000000
     }
   }
   
@@ -46,7 +46,11 @@ export class ProductPageComponent implements OnInit{
         this.allProducts = data;
         this.filteredProducts = data; //lưu vào filteredproducts (ban đầu = tất cả)
         this.extractUniqueSizes(data);// extract unique để hiển thị checkbox
-        this.resetFilter();
+
+        // Cập nhật slider range ban đầu
+        setTimeout(() => {
+          this.updateSliderRange(this.filters.priceRange.min, this.filters.priceRange.max);
+        }, 100);
 
         this.loading = false;
         console.log('Sản phẩm đã tải: ', data);
@@ -82,7 +86,6 @@ export class ProductPageComponent implements OnInit{
         //kiểm tra category của sản phẩm
         const categorySlug = typeof product.category === 'object' && product.category !== null 
         ? (product.category as Category).slug: null;
-
         //so sánh slug với filter
         return categorySlug === this.filters.category;
       });
@@ -144,7 +147,27 @@ export class ProductPageComponent implements OnInit{
     this.filters.priceRange.min = min;
     this.filters.priceRange.max = max;
 
+    // Cập nhật CSS variable để hiển thị phần được chọn
+    this.updateSliderRange(min, max);
+
     this.applyFilters();
+  }
+
+  // Cập nhật phần được chọn trên slider
+  updateSliderRange(min: number, max: number): void {
+    const minValue = 20000;
+    const maxValue = 5000000;
+    const range = maxValue - minValue;
+    
+    const minPercent = ((min - minValue) / range) * 100;
+    const maxPercent = ((max - minValue) / range) * 100;
+    
+    // Cập nhật CSS variable
+    const sliderContainer = document.querySelector('.slider-container') as HTMLElement;
+    if (sliderContainer) {
+      sliderContainer.style.setProperty('--slider-min-percent', minPercent + '%');
+      sliderContainer.style.setProperty('--slider-max-percent', maxPercent + '%');
+    }
   }
 
   //reset tất cả filter 
@@ -154,9 +177,13 @@ export class ProductPageComponent implements OnInit{
       sizes: [],
       priceRange: {
         min: 20000,
-        max: 2000000
+        max: 5000000
       }
     };
+    // Cập nhật slider range
+    setTimeout(() => {
+      this.updateSliderRange(this.filters.priceRange.min, this.filters.priceRange.max);
+    }, 100);
     //hiển thị lại sp
     this.filteredProducts = [...this.allProducts];
   }
