@@ -1,9 +1,7 @@
-// src/app/services/account.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// INTERFACES
 export interface UserProfile {
   name: string;
   email: string;
@@ -43,7 +41,6 @@ export interface Voucher {
   expiryTime?: number;
 }
 
-// ACCOUNT SERVICE
 @Injectable({
   providedIn: 'root'
 })

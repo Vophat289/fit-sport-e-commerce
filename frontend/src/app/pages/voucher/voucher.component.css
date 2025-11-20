@@ -1,0 +1,110 @@
+.voucher-page {
+  padding: 20px;
+  animation: fadeIn 0.4s ease;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  margin: 15px 0;
+  font-size: 18px;
+}
+
+.tabs span {
+  cursor: pointer;
+  padding-bottom: 6px;
+  transition: 0.2s;
+}
+
+.tabs span.active {
+  border-bottom: 3px solid #2a72ff;
+  font-weight: bold;
+}
+
+.count {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.voucher-list {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 15px;
+}
+
+.voucher-card {
+  width: 230px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: #fff;
+  overflow: hidden;
+  animation: slideUp 0.4s ease;
+}
+
+.header {
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.body {
+  padding: 15px;
+}
+
+.code {
+  text-align: center;
+  font-size: 18px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.center {
+width: 10%;
+margin: 0 auto;
+}
+
+.load-more{
+  border-radius: 10px;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top-color: #2a72ff;
+  border-radius: 50%;
+  margin: 30px auto;
+  animation: spin 1s linear infinite;
+}
+
+.empty, .not-login {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+/* Animations */
+@keyframes fadeIn { from {opacity:0} to {opacity:1} }
+@keyframes slideUp { from {transform:translateY(20px); opacity:0;} to {transform:translateY(0); opacity:1;} }
+@keyframes spin { to { transform: rotate(360deg);} }

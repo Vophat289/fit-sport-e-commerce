@@ -12,6 +12,7 @@ import { ProductPageComponent } from './pages/product-page/product-page.componen
 import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
 import { AccountPageComponent } from './pages/account-page/account-page.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { VoucherComponent } from './pages/voucher/voucher.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent }, 
@@ -23,6 +24,7 @@ export const routes: Routes = [
   {path: 'gioi-thieu', component: GioiThieuComponent},
   { path: 'account', component: AccountPageComponent }, 
   { path: 'contact', component: ContactComponent }, 
+  { path: 'voucher', component: VoucherComponent }, 
 
   { path: 'login', component: LoginComponent },
   { path: 'verify-pin', component: VerifyPinComponent},
