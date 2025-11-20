@@ -175,6 +175,25 @@
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
             <p class="product-price">{{ product.price | number }} ₫</p>
+
+            <!-- Màu sắc -->
+            <div *ngIf="(product?.colors?.length ?? 0) > 0" class="product-colors">
+              <span 
+                *ngFor="let c of product.colors"
+                class="color-dot"
+                [style.backgroundColor]="c"
+                [title]="c">
+              </span>
+            </div>
+
+            <!-- Kích thước -->
+            <div *ngIf="(product?.sizes?.length ?? 0) > 0" class="product-sizes">
+              <span 
+                *ngFor="let s of product.sizes" 
+                class="size-tag">
+                {{ s }}
+              </span>
+            </div>
           </div>
           
           <!-- Nút thêm giỏ -->
