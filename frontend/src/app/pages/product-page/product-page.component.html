@@ -1,59 +1,202 @@
 <section class="product-section">
-  <!-- 🔹 Thanh chọn danh mục -->
-  <div class="category-bar" *ngIf="categories.length > 0">
-    <button (click)="resetFilter()" [class.active]="!selectedCategory">
-      Tất cả
-    </button>
-
-    <button
-      *ngFor="let cat of categories"
-      (click)="filterByCategory(cat.slug!)"
-      [class.active]="selectedCategory === cat.slug"
-    >
-      {{ cat.name }}
-    </button>
-  </div>
-
-  <!-- 🔹 Loading -->
-  <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
-
-  <!-- 🔹 Danh sách sản phẩm -->
-  <div class="product-list" *ngIf="!loading && products.length > 0">
-    <div class="product-card" *ngFor="let product of products">
-      <!-- Ảnh -->
-      <div class="product-image">
-        <img
-          [src]="
-            product.image && product.image.length
-              ? product.image[0]
-              : 'assets/images/placeholder.jpg'
-          "
-          [alt]="product.name"
-          class="product-img"
-        />
-        <div class="product-overlay">
-          <button class="btn-detail">Xem chi tiết</button>
-          <button class="btn-buy">Mua ngay</button>
-        </div>
-      </div>
-
-      <!-- Thông tin -->
-      <div class="product-info">
-        <h3 class="product-name">{{ product.name }}</h3>
-        <p class="product-price">{{ product.price | number }} ₫</p>
-      </div>
-
-      <!-- Nút thêm giỏ -->
-      <div class="product-action">
-        <button class="btn-cart" (click)="addToCart(product)">
-          Thêm vào giỏ hàng
+  <div class="product-container">
+    
+    <!-- 🔹 SIDEBAR FILTER (Bên trái) -->
+    <aside class="filter-sidebar">
+      
+      <!-- Header Sidebar -->
+      <div class="filter-header">
+        <h2 class="filter-header-title">
+          <i class="fa-solid fa-filter"></i>
+          Bộ lọc
+        </h2>
+        <button class="btn-reset" (click)="resetFilters()">
+          <i class="fa-solid fa-rotate-left"></i>
+          Xóa bộ lọc
         </button>
       </div>
+      
+      <!-- 1. FILTER CATEGORY -->
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <i class="fa-solid fa-tags"></i>
+          Danh mục
+        </h3>
+        <div class="filter-buttons">
+          <button 
+            (click)="filterByCategory(null)"
+            [class.active]="!filters.category"
+            class="filter-btn">
+            <i class="fa-solid fa-th"></i>
+            Tất cả
+          </button>
+          <button
+            *ngFor="let cat of categories"
+            (click)="filterByCategory(cat.slug!)"
+            [class.active]="filters.category === cat.slug"
+            class="filter-btn">
+            {{ cat.name }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- 2. FILTER SIZE -->
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <i class="fa-solid fa-ruler"></i>
+          Kích thước
+        </h3>
+        <div class="size-options">
+          <label 
+            *ngFor="let size of availableSizes"
+            class="size-checkbox"
+            [class.checked]="filters.sizes.includes(size)">
+            <input 
+              type="checkbox"
+              [checked]="filters.sizes.includes(size)"
+              (change)="toggleSize(size)">
+            <span class="checkbox-custom"></span>
+            <span class="size-label">{{ size }}</span>
+          </label>
+        </div>
+      </div>
+      
+          <!-- 3. FILTER PRICE (Slider) -->
+          <div class="filter-group">
+           <h3 class="filter-title">
+             <i class="fa-solid fa-dollar-sign"></i>
+             CHỌN GIÁ
+           </h3>
+           <div class="price-slider">
+             <!-- Input Min -->
+             <div class="price-input-group">
+               <label class="price-label">Từ</label>
+               <input 
+                 type="number"
+                 [(ngModel)]="filters.priceRange.min"
+                 (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                 class="price-input"
+                 [min]="20000"
+                 [max]="5000000">
+               <span class="price-unit">₫</span>
+             </div>
+             
+             <!-- Slider Container - 1 THANH CÓ 2 CỤC (MIN & MAX) -->
+             <div class="slider-container">
+               <input 
+                 type="range"
+                 [min]="20000"
+                 [max]="5000000"
+                 [(ngModel)]="filters.priceRange.min"
+                 (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                 class="slider slider-min">
+               
+               <input 
+                 type="range"
+                 [min]="20000"
+                 [max]="5000000"
+                 [(ngModel)]="filters.priceRange.max"
+                 (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                 class="slider slider-max">
+             </div>
+             
+             <!-- Input Max -->
+             <div class="price-input-group">
+               <label class="price-label">Đến</label>
+               <input 
+                 type="number"
+                 [(ngModel)]="filters.priceRange.max"
+                 (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                 class="price-input"
+                 [min]="20000"
+                 [max]="5000000">
+               <span class="price-unit">₫</span>
+             </div>
+           </div>
+           
+           <!-- Hiển thị giá đã chọn -->
+           <div class="price-display">
+             <span class="price-display-label">Khoảng giá:</span>
+             <span class="price-display-value">
+               {{ filters.priceRange.min | number }} ₫ - 
+               {{ filters.priceRange.max | number }} ₫
+             </span>
+           </div>
+         </div>
+      
+    </aside>
+    
+    <!-- 🔹 PRODUCT CONTENT (Bên phải) -->
+    <div class="product-content">
+      
+      <!-- Header Product List -->
+      <div class="product-header">
+        <h2 class="product-header-title">
+          Sản phẩm
+          <span class="product-count" *ngIf="!loading">
+            ({{ filteredProducts.length }} sản phẩm)
+          </span>
+        </h2>
+      </div>
+      
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Đang tải sản phẩm...</p>
+      </div>
+      
+      <!-- Danh sách sản phẩm -->
+      <div class="product-list" *ngIf="!loading && filteredProducts.length > 0">
+        <div class="product-card" *ngFor="let product of filteredProducts">
+          <!-- Ảnh -->
+          <div class="product-image">
+            <img
+              [src]="
+                product.image && product.image.length
+                  ? product.image[0]
+                  : 'assets/images/placeholder.jpg'
+              "
+              [alt]="product.name"
+              class="product-img"
+            />
+            <div class="product-overlay">
+              <button class="btn-detail">
+                <i class="fa-solid fa-eye"></i>
+                Xem chi tiết
+              </button>
+              <button class="btn-buy">
+                <i class="fa-solid fa-cart-shopping"></i>
+                Mua ngay
+              </button>
+            </div>
+          </div>
+          
+          <!-- Thông tin -->
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-price">{{ product.price | number }} ₫</p>
+          </div>
+          
+          <!-- Nút thêm giỏ -->
+          <div class="product-action">
+            <button class="btn-cart" (click)="addToCart(product)">
+              <i class="fa-solid fa-cart-plus"></i>
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="!loading && filteredProducts.length === 0" class="empty-container">
+        <i class="fa-solid fa-box-open empty-icon"></i>
+        <p class="empty-text">Không có sản phẩm nào phù hợp với bộ lọc.</p>
+        <button class="btn-empty-reset" (click)="resetFilters()">
+          Xóa bộ lọc
+        </button>
+      </div>
+      
     </div>
+    
   </div>
-
-  <!-- 🔹 Không có sản phẩm -->
-  <p *ngIf="!loading && products.length === 0" class="empty">
-    Không có sản phẩm nào trong danh mục này.
-  </p>
 </section>

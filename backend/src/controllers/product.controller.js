@@ -8,7 +8,7 @@ import { error } from "console";
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name");
+    const products = await Product.find().populate("category", "name slug");
     res.json(products);
   } catch (error) {
     res
