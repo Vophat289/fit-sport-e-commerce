@@ -1,1 +1,186 @@
-<p>product-detail works!</p>
+<div class="product-detail-container">
+  
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Đang tải sản phẩm...</p>
+    </div>
+  
+    <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <p>{{ error }}</p>
+    <button class="btn-outline" (click)="router.navigate(['/products'])">
+      Quay về trang sản phẩm
+    </button>
+  </div>
+  
+    <!-- Product Detail Content -->
+    <div *ngIf="product && !loading" class="product-detail-content">
+      
+      <!-- Breadcrumb (Đường dẫn) -->
+      <nav class="breadcrumb">
+        <a routerLink="/home">Trang chủ</a>
+        <span>/</span>
+        <a routerLink="/products">Sản phẩm</a>
+        <span>/</span>
+      <span>{{ product.name }}</span>
+      </nav>
+  
+      <!-- Main Content: 2 Cột -->
+    <section class="product-main">
+        
+        <!-- Cột trái: Ảnh sản phẩm -->
+        <div class="product-images">
+          
+          <!-- Ảnh lớn (hiển thị ảnh đang chọn) -->
+          <div class="main-image">
+            <img
+              [src]="product.image && product.image[selectedImageIndex] 
+                ? product.image[selectedImageIndex] 
+                : 'assets/images/placeholder.jpg'"
+              [alt]="product.name"
+              class="main-img"
+            />
+          </div>
+  
+          <!-- Gallery: Danh sách ảnh nhỏ -->
+          <div *ngIf="product.image && product.image.length > 1" class="image-gallery">
+            <div
+              *ngFor="let img of product.image; let i = index"
+              class="gallery-thumb"
+              [class.active]="i === selectedImageIndex"
+              (click)="selectImage(i)">
+              <img [src]="img" [alt]="product.name + ' - Ảnh ' + (i + 1)">
+            </div>
+          </div>
+        </div>
+  
+        <!-- Cột phải: Thông tin sản phẩm -->
+        <div class="product-info">
+          
+          <!-- Tên sản phẩm -->
+          <h1 class="product-title">{{ product.name }}</h1>
+  
+          <!-- Giá -->
+        <div class="product-price-section">
+          <div>
+            <span class="price">{{ product.price | number }} ₫</span>
+            <span class="price-tag">Giá tốt nhất hôm nay</span>
+          </div>
+          <button class="btn-share">
+            <i class="fa-solid fa-share-nodes"></i>
+            Chia sẻ
+          </button>
+        </div>
+
+          <!-- Lượt xem -->
+        <div class="product-meta">
+          <span class="meta-badge">
+            <i class="fa-solid fa-eye"></i>
+            {{ product.viewCount ?? 0 }} lượt xem
+          </span>
+          <span class="meta-badge">
+            <i class="fa-solid fa-shield"></i>
+            Chính hãng 100%
+          </span>
+          <span class="meta-badge">
+            <i class="fa-solid fa-truck-fast"></i>
+            Giao nhanh 2h
+          </span>
+        </div>
+  
+          <!-- Mô tả ngắn -->
+          <div class="product-description">
+            <p>{{ product.description }}</p>
+          </div>
+  
+          <!-- Chọn màu sắc -->
+          <div *ngIf="product.colors && product.colors.length > 0" class="product-options">
+            <h3 class="option-title">Màu sắc:</h3>
+            <div class="color-options">
+              <div
+                *ngFor="let color of product.colors"
+                class="color-option"
+                [class.selected]="selectedColor === color"
+                (click)="selectColor(color)"
+                [style.backgroundColor]="color"
+                [title]="color">
+              </div>
+            </div>
+          </div>
+  
+          <!-- Chọn kích thước -->
+          <div *ngIf="product.sizes && product.sizes.length > 0" class="product-options">
+            <h3 class="option-title">Kích thước:</h3>
+            <div class="size-options">
+              <button
+                *ngFor="let size of product.sizes"
+                class="size-option"
+                [class.selected]="selectedSize === size"
+                (click)="selectSize(size)">
+                {{ size }}
+              </button>
+            </div>
+          </div>
+  
+          <!-- Số lượng (tùy chọn) -->
+          <div class="quantity-section">
+            <label>Số lượng:</label>
+          <div class="quantity-controls">
+            <button class="qty-btn" (click)="decreaseQuantity()">−</button>
+            <input type="number" [(ngModel)]="quantity" min="1" class="qty-input">
+            <button class="qty-btn" (click)="increaseQuantity()">+</button>
+          </div>
+          </div>
+  
+          <!-- Nút thêm vào giỏ -->
+        <div class="action-buttons">
+          <button class="btn-add-cart">
+              <i class="fa-solid fa-cart-plus"></i>
+              Thêm vào giỏ hàng
+            </button>
+            <button class="btn-buy-now">
+              <i class="fa-solid fa-bolt"></i>
+              Mua ngay
+            </button>
+          </div>
+  
+        <!-- Thông tin bổ sung -->
+        <div class="service-highlights">
+          <div class="meta-item">
+            <i class="fa-solid fa-truck"></i>
+            <div>
+              <h4>Miễn phí ship</h4>
+              <p>Cho đơn từ 299.000đ</p>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-rotate-left"></i>
+            <div>
+              <h4>Đổi trả linh hoạt</h4>
+              <p>Trong vòng 7 ngày</p>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-shield-heart"></i>
+            <div>
+              <h4>Bảo hành chính hãng</h4>
+              <p>Cam kết chất lượng</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+      <!-- Tab thông tin chi tiết (mô tả, đánh giá, v.v.) -->
+      <section class="product-tabs">
+        <div class="tab-header">
+          <button class="tab-btn active">Mô tả sản phẩm</button>
+          <button class="tab-btn">Đánh giá</button>
+          <button class="tab-btn">Hướng dẫn sử dụng</button>
+        </div>
+        <div class="tab-content">
+          <p>{{ product.description }}</p>
+        </div>
+      </section>
+  </div>

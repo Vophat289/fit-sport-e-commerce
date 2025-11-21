@@ -15,6 +15,9 @@ export interface Product{
   sizes?: string[];
   createdAt?: string;
   updatedAt?: string;
+  viewCount?: number;
+  averageRating?: number;
+  totalRatings?: number;
 }
 
 @Injectable({
@@ -36,5 +39,8 @@ export class ProductService {
 
   getByCategorySlug(slug: string): Observable<Product[]>{
     return this.http.get<Product[]>(`${this.apiUrl}/category/${slug}`);
+  }
+  incrementView(slug: string): Observable<{viewCount: number}>{
+    return this.http.post<{ viewCount: number }>(`${this.apiUrl}/${slug}/view`, {});
   }
 }

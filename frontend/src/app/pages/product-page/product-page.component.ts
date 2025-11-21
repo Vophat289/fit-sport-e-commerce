@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import {ProductService, Product} from '@app/services/product.service';
 import {  CategoryService , Category} from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-product-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './product-page.component.html',
   styleUrl: './product-page.component.css'
 })
@@ -206,4 +207,5 @@ export class ProductPageComponent implements OnInit{
    addToCart(product: Product): void {
     console.log('🛒 Đã thêm vào giỏ:', product.name);
   }
+
 }

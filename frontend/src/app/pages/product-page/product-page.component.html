@@ -1,6 +1,7 @@
 <section class="product-section">
   <div class="product-container">
-    
+   
+
     <!-- 🔹 SIDEBAR FILTER (Bên trái) -->
     <aside class="filter-sidebar">
       
@@ -129,6 +130,11 @@
     <!-- 🔹 PRODUCT CONTENT (Bên phải) -->
     <div class="product-content">
       
+      <nav class="breadcrumb">
+        <a routerLink="/home">Trang chủ</a>
+        <span>/</span>
+        <a routerLink="/products">Sản phẩm</a>
+      </nav>
       <!-- Header Product List -->
       <div class="product-header">
         <h2 class="product-header-title">
@@ -162,7 +168,9 @@
             <div class="product-overlay">
               <button class="btn-detail">
                 <i class="fa-solid fa-eye"></i>
-                Xem chi tiết
+                <a [routerLink]="['/products', product.slug]">
+                  Xem chi tiết
+                </a>
               </button>
               <button class="btn-buy">
                 <i class="fa-solid fa-cart-shopping"></i>

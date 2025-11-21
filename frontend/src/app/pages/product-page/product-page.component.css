@@ -16,6 +16,24 @@
   align-items: flex-start;
 }
 
+
+.breadcrumb {
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #6c7394;
+  display: flex;
+  gap: 8px;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.breadcrumb span {
+  color: #9095b1;
+}
 /* ================================
    🔹 SIDEBAR FILTER (Bên trái)
 ================================ */
