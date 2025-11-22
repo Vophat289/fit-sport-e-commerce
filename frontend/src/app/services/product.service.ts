@@ -43,4 +43,7 @@ export class ProductService {
   incrementView(slug: string): Observable<{viewCount: number}>{
     return this.http.post<{ viewCount: number }>(`${this.apiUrl}/${slug}/view`, {});
   }
+  searchProducts(query: string): Observable<{query: string; count: number; products: Product[]}>{
+    return this.http.get<{query: string; count: number; products: Product[]}>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
+  }
 }

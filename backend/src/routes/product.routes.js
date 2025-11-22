@@ -1,9 +1,9 @@
 import express from 'express';
-import {getAllProducts, getProductBySlug, getProductsByCategory, createProduct, updateProduct, deleteProduct, incrementViewCount} from "../controllers/product.controller.js";
+import {getAllProducts, getProductBySlug, getProductsByCategory, createProduct, updateProduct, deleteProduct, incrementViewCount, searchProducts} from "../controllers/product.controller.js";
 import upload from '../middlewares/upload.middleware.js';
 const router = express.Router();
 
-
+router.get("/search", searchProducts);
 router.get("/", getAllProducts);
 router.get("/:slug", getProductBySlug);
 router.get("/category/:slug", getProductsByCategory);

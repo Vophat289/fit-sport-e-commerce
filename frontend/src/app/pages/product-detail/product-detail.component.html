@@ -67,10 +67,6 @@
             <span class="price">{{ product.price | number }} ₫</span>
             <span class="price-tag">Giá tốt nhất hôm nay</span>
           </div>
-          <button class="btn-share">
-            <i class="fa-solid fa-share-nodes"></i>
-            Chia sẻ
-          </button>
         </div>
 
           <!-- Lượt xem -->
@@ -90,9 +86,9 @@
         </div>
   
           <!-- Mô tả ngắn -->
-          <div class="product-description">
+          <!-- <div class="product-description">
             <p>{{ product.description }}</p>
-          </div>
+          </div> -->
   
           <!-- Chọn màu sắc -->
           <div *ngIf="product.colors && product.colors.length > 0" class="product-options">
@@ -177,7 +173,6 @@
         <div class="tab-header">
           <button class="tab-btn active">Mô tả sản phẩm</button>
           <button class="tab-btn">Đánh giá</button>
-          <button class="tab-btn">Hướng dẫn sử dụng</button>
         </div>
         <div class="tab-content">
           <p>{{ product.description }}</p>

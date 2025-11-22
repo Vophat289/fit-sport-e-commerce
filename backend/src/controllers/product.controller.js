@@ -241,3 +241,31 @@ export const incrementViewCount = async (req, res) => {
       .json({ message: "Lỗi khi tăng lượt xem ", error: error.message });
   }
 };
+
+//search
+export const searchProducts = async (req, res) => {
+  try{
+    const { q } = req.query;
+
+    //kiểm tra có từ khóa k
+    if(!q || q.trim() === ''){
+      return res.status(400).json({message: 'Vui lòng nhập từ khóa tìm kiếm'})
+    }
+
+    //tìm kiếm sp
+    const products = await Product.find({
+      $or: [
+        {name: { $regex: q, $options: 'i' }}, //regex là tìm kiếm theo pattern nhen và option i cũng v
+        {description: {$regex: q, $options: 'i'}}
+      ]
+    }).populate("category","name slug");
+
+    res.json({
+      query: q,
+      count: products.length,
+      products:  products
+    });
+  }catch(error){
+    res.status(500).json({message: 'Lỗi khi tìm kiếm sản phẩm', error:error.message})
+  }
+}
