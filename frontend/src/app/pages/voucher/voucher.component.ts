@@ -85,4 +85,10 @@ export class VoucherComponent implements OnInit {
     navigator.clipboard.writeText(code);
     alert("Đã sao chép mã: " + code);
   }
+
+  logout() {
+  localStorage.removeItem("token");
+  window.location.reload();
+}
+
 }

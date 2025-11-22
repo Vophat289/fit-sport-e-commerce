@@ -1,10 +1,19 @@
 <div class="voucher-page fade-in">
 
-  <h2 class="title">Voucher của tôi</h2>
+    <h2 class="title">Voucher của tôi</h2>
+
+    <div class="sidebar">
+    <ul>
+      <li>Thông tin cá nhân</li>
+      <li>Đơn hàng của tôi</li>
+      <li class="active">Voucher của tôi</li>
+      <li>Địa chỉ giao hàng</li>
+      <li *ngIf="isLoggedIn" (click)="logout()">Đăng xuất</li>
+    </ul>
+  </div>
 
   <div *ngIf="isLoggedIn; else noLogin" class="content">
 
-    <!-- FILTER TABS -->
     <div class="tabs">
       <span (click)="applyFilter('all')" [class.active]="activeFilter === 'all'">Tất cả</span>
       <span (click)="applyFilter('valid')" [class.active]="activeFilter === 'valid'">Còn hiệu lực</span>
@@ -15,16 +24,10 @@
     <p class="count">
       Hiện tại bạn có <b>{{ filteredVouchers.length }}</b> voucher khả dụng
     </p>
-
-    <!-- Loading animation -->
     <div *ngIf="loading" class="loader"></div>
-
-    <!-- Không có voucher -->
     <div *ngIf="!loading && filteredVouchers.length === 0" class="empty">
       Không có voucher nào
     </div>
-
-    <!-- Voucher LIST -->
     <div class="voucher-list">
       <div *ngFor="let v of filteredVouchers" class="voucher-card slide-up">
 
@@ -50,7 +53,6 @@
 
   </div>
 
-  <!-- Không đăng nhập -->
   <ng-template #noLogin>
     <div class="not-login fade-in">
       Bạn cần đăng nhập để xem voucher

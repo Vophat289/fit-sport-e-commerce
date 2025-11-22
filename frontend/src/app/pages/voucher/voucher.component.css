@@ -104,6 +104,63 @@ margin: 0 auto;
   opacity: 0.7;
 }
 
+/* Layout 2 cột */
+.page-container {
+  display: flex;
+  gap: 30px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  height: fit-content;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 12px 14px;
+  font-size: 16px;
+  color: #333;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: 0.25s ease;
+}
+
+.sidebar li:hover {
+  background: #eef3ff;
+  color: #2a72ff;
+  transform: translateX(4px);
+}
+
+.sidebar li.active {
+  background: #2a72ff;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 3px 10px rgba(42,114,255,0.3);
+}
+
+
+/* Responsive */
+@media (max-width: 900px) {
+  .page-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+  }
+}
+
+
 /* Animations */
 @keyframes fadeIn { from {opacity:0} to {opacity:1} }
 @keyframes slideUp { from {transform:translateY(20px); opacity:0;} to {transform:translateY(0); opacity:1;} }
