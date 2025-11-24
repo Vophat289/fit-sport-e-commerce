@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
-import { HeaderComponent } from './components/header/header.component';
+import { ClientLayoutComponent } from './components/client-layout/client-layout.component';
 import { HomeComponent } from './components/home/home.component';
-import { FooterComponent } from './components/footer/footer.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
@@ -14,28 +13,38 @@ import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
 import { AccountPageComponent } from './pages/account-page/account-page.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { VoucherComponent } from './pages/voucher/voucher.component';
+import { AdminRoutes } from './admin/admin.routes';
 
 export const routes: Routes = [
-  { path: 'home', component: HomeComponent }, 
+  {
+    path: '', // Route cha không có path, để các route con tự quy định path
+    component: ClientLayoutComponent, 
+    children: [
+      // Routes hiển thị bên trong ClientLayoutComponent
+      { path: 'home', component: HomeComponent }, 
+      { path: 'category/:slug', component: HomeCategoryComponent },
+      { path: 'products', component: ProductPageComponent }, 
+      { path: 'products/:slug', component: ProductDetailComponent }, 
+      { path: 'products/category/:slug', component: ProductPageComponent },
+      { path: 'gioi-thieu', component: GioiThieuComponent },
+      { path: 'account', component: AccountPageComponent }, 
+      { path: 'contact', component: ContactComponent }, 
+      { path: 'voucher', component: VoucherComponent }, 
 
-  { path: 'category/:slug', component: HomeCategoryComponent},
-  { path: 'products', component: ProductPageComponent}, 
-  { path: 'products/:slug', component: ProductDetailComponent}, 
-  { path: 'products/category/:slug', component: ProductPageComponent},
+      // Các route đăng nhập/đăng ký cũng nên được đặt trong Client Layout nếu muốn hiển thị header/footer
+      { path: 'login', component: LoginComponent },
+      { path: 'verify-pin', component: VerifyPinComponent},
+      { path: 'register', component: RegisterComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
 
-  {path: 'gioi-thieu', component: GioiThieuComponent},
-  { path: 'account', component: AccountPageComponent }, 
-  { path: 'contact', component: ContactComponent }, 
-  { path: 'voucher', component: VoucherComponent }, 
+      // Route mặc định khi vào /
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
+    ]
+  },
 
-  { path: 'login', component: LoginComponent },
-  { path: 'verify-pin', component: VerifyPinComponent},
-  { path: 'register', component: RegisterComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-
-   
-
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  // Các route này độc lập và KHÔNG sử dụng ClientLayoutComponent
+  ...AdminRoutes,
+  
   { path: '**', redirectTo: '/home' }
 ];

@@ -46,7 +46,6 @@ export class HeaderComponent implements OnInit {
   if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) { 
     this.authService.logout().subscribe({
         next: () => {
-            alert('Đăng xuất thành công'); 
 
             localStorage.removeItem('token');
             localStorage.removeItem('user');
