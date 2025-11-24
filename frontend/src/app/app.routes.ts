@@ -8,7 +8,8 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { HomeCategoryComponent } from './components/home-category/home-category.component';
-import { ProductPageComponent } from './pages/product-page/product-page.component'
+import { ProductPageComponent } from './pages/product-page/product-page.component';
+import { ProductDetailComponent } from './pages/product-detail/product-detail.component'
 import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
 import { AccountPageComponent } from './pages/account-page/account-page.component';
 import { ContactComponent } from './pages/contact/contact.component';
@@ -19,6 +20,7 @@ export const routes: Routes = [
 
   { path: 'category/:slug', component: HomeCategoryComponent},
   { path: 'products', component: ProductPageComponent}, 
+  { path: 'products/:slug', component: ProductDetailComponent}, 
   { path: 'products/category/:slug', component: ProductPageComponent},
 
   {path: 'gioi-thieu', component: GioiThieuComponent},
