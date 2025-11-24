@@ -1,72 +1,67 @@
+// src/app.js
 import express from 'express';
 import cors from 'cors';
-import session from 'express-session'; 
-import passport from './config/auth.js'; 
-<<<<<<< HEAD
+import session from 'express-session';
+import passport from './config/auth.js';
 
 import productRoutes from './routes/product.routes.js';
-import categoryRoutes from './routes/category.routes.js'
+import categoryRoutes from './routes/category.routes.js';
 import authRoutes from './routes/auth.routes.js';
+
+import accountRoutes from './routes/account.routes.js'; // thêm account routes
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import { EventEmitter } from 'events';
-
-EventEmitter.defaultMaxListeners = 20
-
-const app = express();
-
-app.use(cors({
-    origin:"http://localhost:4200", //connect với frontend
-    method: ["GET", "POST", "DELETE"],
-    credentials: true // gửi cookie, token, jwt để xác thực
-}));
-app.use(express.json());
-
-app.use(session({
-    secret: 'secretkey123', 
-    resave: false,
-    saveUninitialized: false, // Set false nếu dùng cho API server
-    cookie: { 
-        secure: true // Set true nếu dùng HTTPS
-    } 
-=======
 import contactRoutes from './routes/contact.routes.js';
-// import adminContactRoutes from './routes/adminContact.route.js'; // tạm comment
+
+EventEmitter.defaultMaxListeners = 20;
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:4200", credentials: true }));
-app.use(express.json());
+// ======================
+// CORS
+// ======================
+app.use(cors({
+    origin: "http://localhost:4200", // frontend Angular
+    methods: ["GET", "POST", "PUT", "DELETE"], // hỗ trợ các method
+    credentials: true // gửi cookie/token cho xác thực
+}));
 
+// ======================
+// Body parser
+// ======================
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ======================
+// Session & Passport
+// ======================
 app.use(session({
-  secret: 'secretkey123',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // dùng HTTP
->>>>>>> 918f4c1 (updatecode thanhdanh)
+    secret: 'secretkey123', // dùng cho session
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // đổi true nếu dùng HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // 1 ngày
+    }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-<<<<<<< HEAD
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
-
-app.get("/", (req, res) => {
-    res.send("backend + mongodb đang chạy", productRoutes);
-})
-
-export default app;
-=======
 app.use("/api/contact", contactRoutes);
 
-app.get("/", (req, res) => res.send("Backend + MongoDB đang chạy"));
 
-// app.use("/api/admin/contacts", adminContactRoutes); // tạm bỏ để tránh crash
+// Test route
+app.get("/", (req, res) => {
+    res.send("Backend + MongoDB đang chạy!");
+});
 
 export default app;
->>>>>>> 918f4c1 (updatecode thanhdanh)
