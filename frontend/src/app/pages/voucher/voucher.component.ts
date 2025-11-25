@@ -32,7 +32,7 @@ export class VoucherComponent implements OnInit {
   isLoggedIn = false;
 
   currentPage = 1;
-  pageSize = 7;
+  pageSize = 5;
   hasMore = true;
 
   constructor(

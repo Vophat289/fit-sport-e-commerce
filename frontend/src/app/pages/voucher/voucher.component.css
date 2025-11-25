@@ -1,158 +1,181 @@
+/* ============================
+   PREMIUM MODERN VOUCHER UI
+   ============================ */
+
 .voucher-page {
-  padding: 20px 24px;      
-  width: 100%;
-  max-width: 1500px;     
-  margin-left: 0;       
+  padding: 20px 24px;
+  max-width: 1260px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+  color: #2d2d2d;
+  animation: fadein 0.35s ease;
 }
 
 .title {
-  font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-.tabs {
-  display: flex;
-  gap: 20px;
-  font-size: 18px;
-  color: #555;
-  margin-bottom: 15px;
-  justify-content: flex-start;   /* nằm trái */
-}
-
-.tabs span {
-  cursor: pointer;
-  padding-bottom: 6px;
-  border-bottom: 3px solid transparent;
-}
-
-.tabs span.active {
-  border-bottom-color: #2a72ff;
-  font-weight: bold;
-  color: #2a72ff;
-}
-
-.count {
-  margin-bottom: 15px;
-  color: #333;
-}
-
-/* Voucher list — canh trái */
+/* List layout */
 .voucher-list {
-  display: flex;
-  flex-wrap: wrap;          /* tự xuống hàng */
-  gap: 16px;
-  justify-content: flex-start;   /* NẰM BÊN TRÁI */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px;
 }
 
-/* Thu nhỏ voucher card */
+/* Card */
 .voucher-card {
-  width: 196px;             
-  height: 180px;
-  font-size: 15px;
-  text-align: center;            
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  background: whitesmoke;
+  position: relative;
+  background: white;
+  border-radius: 14px;
+  padding-bottom: 10px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   overflow: hidden;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .voucher-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.12);
 }
 
+/* Header gradient */
 .header {
-  color: #fff;
-  text-align: center;
-  padding: 8px;
-  height: 50px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 0 10px;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.15);
 }
 
+/* Pattern overlay */
+.header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: url("https://www.transparenttextures.com/patterns/diagmonds.png");
+}
+
+/* Card body */
 .body {
-  padding: 12px;
-  font-size: 14px;
+  padding: 16px 18px;
+  font-size: 15px;
+  color: #444;
 }
 
 .body p {
-  margin: 4px 0;
-  font-size: 14px;
+  margin: 6px 0;
+  font-weight: 500;
 }
 
-/* Code + Copy */
+/* Code row */
 .code-row {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  margin-top: 10px;
+  margin-top: 14px;
+  background: #eef4ff;
+  padding: 8px 12px;
+  border-radius: 10px;
 }
 
 .code {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2a72ff;
-  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0058ff;
 }
 
+/* Copy button */
 .copy-btn {
-  padding: 4px 10px;
-  font-size: 12px;
-  background: #2a72ff;
-  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #0058ff;
   border: none;
-  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
+  transition: 0.25s;
 }
 
 .copy-btn:hover {
-  background: #1a4fcc;
+  background: #003ec7;
+  transform: scale(1.04);
 }
 
-/* Loading & Empty */
-.loader {
-  margin: 30px 0;
+/* Load more button */
+.center {
+  margin-top: 25px;
+  text-align: center;
 }
 
 .load-more {
-  padding: 10px 24px;
-  background-color: #2a72ff;
+  padding: 12px 28px;
+  background: linear-gradient(135deg,#007bff,#0046c2);
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.15s ease;
-  user-select: none;
-  box-shadow: 0 4px 8px rgb(42 114 255 / 0.4);
+  box-shadow: 0 6px 15px rgba(0,91,255,0.35);
+  transition: 0.3s ease;
 }
 
 .load-more:hover {
-  background-color: #1a4fcc;
-  transform: scale(1.05);
+  transform: scale(1.06);
+  background: linear-gradient(135deg,#0068d4,#003a9c);
 }
 
 .load-more:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
-.center {
-  width: 100%;
-  text-align: center;
-  margin-top: 20px;
-}
-
-
+/* Empty state */
 .empty {
   font-size: 18px;
   opacity: 0.7;
-  margin-top: 20px;
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* Loader (simple animated dots) */
+.loader {
+  margin: 30px 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #0058ff;
+}
+
+.loader::after {
+  content: "...";
+  animation: blink 0.8s infinite;
+}
+
+/* Animations */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
 }
 
 /* Responsive */
 @media (max-width: 600px) {
   .voucher-card {
-    width: 45%;
-    height: 200px;
+    border-radius: 18px;
   }
 }

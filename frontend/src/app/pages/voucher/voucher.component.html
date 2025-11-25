@@ -1,57 +1,39 @@
 <div class="voucher-page fade-in">
 
-  <h2 class="title">Voucher của tôi</h2>
+  <h2 class="title">Voucher</h2>
 
-  <div *ngIf="isLoggedIn; else noLogin">
+  <div *ngIf="loading" class="loader"></div>
 
-    <div class="tabs">
-      <span (click)="applyFilter('all')" [class.active]="activeFilter === 'all'">Tất cả</span>
-      <span (click)="applyFilter('valid')" [class.active]="activeFilter === 'valid'">Có thể dùng</span>
-      <span (click)="applyFilter('expiring')" [class.active]="activeFilter === 'expiring'">Không thể dùng</span>
-      <span (click)="applyFilter('expired')" [class.active]="activeFilter === 'expired'">Hết hạn</span>
-    </div>
+  <div *ngIf="!loading && filteredVouchers.length === 0" class="empty">
+    Không có voucher nào
+  </div>
+  
+  <div class="voucher-list" *ngIf="!loading && filteredVouchers.length > 0">
 
-    <div *ngIf="loading" class="loader"></div>
+    <div *ngFor="let v of filteredVouchers" class="voucher-card slide-up">
 
-    <div *ngIf="!loading && filteredVouchers.length === 0" class="empty">
-      Không có voucher nào
-    </div>
+      <div class="header" [style.background]="v.type === 'percent' ? '#00AEEF' : '#FF5252'">
+        <h3>
+          {{ v.type === 'percent' ? ('Giảm ' + v.value + '%') : ('Giảm ' + v.value + 'k') }}
+        </h3>
+      </div>
 
-    <!-- Danh sách voucher -->
-    <div class="voucher-list" *ngIf="!loading && filteredVouchers.length > 0">
+      <div class="body">
+        <p>Đơn tối thiểu {{ v.min_order_value | number }}đ</p>
+        <p>HSD: {{ v.end_date | date:'dd/MM/yyyy' }}</p>
 
-      <div *ngFor="let v of filteredVouchers" class="voucher-card slide-up">
-
-        <div class="header" [style.background]="v.type === 'percent' ? '#00AEEF' : '#FF5252'">
-          <h3>{{ v.type === 'percent' ? ('Giảm ' + v.value + '%') : ('Giảm ' + v.value + 'k') }}</h3>
+        <div class="code-row">
+          <h4 class="code">{{ v.code }}</h4>
+          <button class="copy-btn" (click)="copyCode(v.code)">Copy</button>
         </div>
-
-        <div class="body">
-
-          <p>Đơn tối thiểu {{ v.min_order_value | number }}đ</p>
-          <p>HSD: {{ v.end_date | date:'dd/MM/yyyy' }}</p>
-
-          <div class="code-row">
-            <h4 class="code">{{ v.code }}</h4>
-            <button class="copy-btn" (click)="copyCode(v.code)">Copy</button>
-          </div>
-
-        </div>
-
       </div>
 
     </div>
 
-    <div class="center" *ngIf="hasMore && !loading">
-      <button class="load-more" (click)="loadMore()">Xem thêm...</button>
-    </div>
-
   </div>
 
-  <ng-template #noLogin>
-    <div class="not-login fade-in">
-      Bạn cần đăng nhập để xem voucher
-    </div>
-  </ng-template>
+  <div class="center" *ngIf="hasMore && !loading">
+    <button class="load-more" (click)="loadMore()">Xem thêm...</button>
+  </div>
 
 </div>

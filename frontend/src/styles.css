@@ -4,14 +4,14 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: "Roboto", sans-serif !important;
-  background: #0f172a;
+  background: #ffffff;
 }
 
 app-root {
   display: flex;
   flex-direction: column; 
   min-height: 100vh;
-  background: #0f172a;
+  background: #ffffff;
 }
 
 router-outlet {

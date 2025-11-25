@@ -99,7 +99,7 @@
 .product-title {
   font-size: 32px;
   font-weight: 700;
-  color: #0f172a;
+  color: #000000;
   margin: 0;
 }
 
@@ -397,7 +397,7 @@
   padding: 10px 18px;
   border-radius: 999px;
   font-weight: 600;
-  color: #0f172a;
+  color: #c4c4c4;
   cursor: pointer;
   transition: all 0.2s;
 }

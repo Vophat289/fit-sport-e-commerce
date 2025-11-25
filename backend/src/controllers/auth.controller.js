@@ -33,30 +33,36 @@ export const generateToken = (user) => {
 // đăng nhập
 export const login = async (req, res) => {
     try {
-        const { name, email, password } = req.body; 
-        // tìm user theo name
-        const user = await User.findOne({ $or: [{ name }, { email }] }).select('+password');
+        const { identifier, password } = req.body;
+
+        // tìm theo username hoặc email
+        const user = await User.findOne({
+            $or: [
+                { name: identifier },
+                { email: identifier }
+            ]
+        }).select('+password');
+
         if (!user) {
             return res.status(400).json({ message: 'Tên đăng nhập/email hoặc mật khẩu không đúng.' });
         }
-        // kiểm tra xác minh email
+
         if (!user.isVerified) {
             return res.status(401).json({ message: 'Vui lòng xác minh tài khoản trước khi đăng nhập.' });
         }
-        // so sánh mật khẩu
+
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Tên đăng nhập/email hoặc mật khẩu không đúng.' });
-        }      
-        // tạo token và trả về
+        }
+
         const token = generateToken(user);
-        // loại bỏ password khỏi kết quả trả về
-        const { password: _, ...safeUser } = user.toObject();
+        const { password: temp, ...safeUser } = user.toObject();
 
         return res.status(200).json({
             message: 'Đăng nhập thành công.',
             token,
-            user: safeUser,
+            user: safeUser
         });
 
     } catch (error) {
@@ -64,6 +70,7 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: 'Lỗi server khi đăng nhập.', error: error.message });
     }
 };
+
 
 // đăng ký
 export const register = async (req, res) => {
