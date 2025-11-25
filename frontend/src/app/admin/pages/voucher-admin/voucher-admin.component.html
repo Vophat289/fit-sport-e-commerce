@@ -1,0 +1,106 @@
+<div class="voucher-admin-container">
+  <h2>Quản lý Voucher</h2>
+
+  <div>
+    <input
+      type="text"
+      placeholder="Tìm kiếm theo mã voucher"
+      [(ngModel)]="search"
+      (ngModelChange)="onSearchChange($event)"
+    />
+    <button (click)="openCreateForm()">Tạo mới voucher</button>
+  </div>
+
+  <table *ngIf="!loading && vouchers.length > 0">
+    <thead>
+      <tr>
+        <th>Mã</th>
+        <th>Loại</th>
+        <th>Giá trị</th>
+        <th>Đơn tối thiểu</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Giới hạn lượt dùng</th>
+        <th>Đã dùng</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of vouchers">
+        <td>{{ v.code }}</td>
+        <td>{{ v.type }}</td>
+        <td>
+          {{ v.type === 'percent' ? (v.value + '%') : (v.value | number) + 'k' }}
+        </td>
+        <td>{{ v.min_order_value | number }} đ</td>
+        <td>{{ v.start_date | date: 'yyyy-MM-dd' }}</td>
+        <td>{{ v.end_date | date: 'yyyy-MM-dd' }}</td>
+        <td>{{ v.usage_limit }}</td>
+        <td>{{ v.used_count || 0 }}</td>
+        <td>
+          <button (click)="openEditForm(v)">Sửa</button>
+          <button (click)="deleteVoucher(v.code)">Xóa</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="loading">Đang tải...</div>
+  <div *ngIf="!loading && vouchers.length === 0">Không có voucher nào</div>
+
+  <div class="pagination" *ngIf="total > limit">
+    <button (click)="changePage(page - 1)">Trước</button>
+    <span>Trang {{ page }} / {{ totalPages }}</span>
+    <button (click)="changePage(page + 1)">Sau</button>
+  </div>
+
+ 
+<div *ngIf="showForm" class="modal-overlay" (click)="cancelForm()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ editingVoucherCode ? 'Sửa Voucher' : 'Tạo Voucher' }}</h3>
+    <form (ngSubmit)="submitForm()" [formGroup]="form" novalidate>
+      <label>
+        Mã Voucher:
+        <input type="text" formControlName="code" [readonly]="editingVoucherCode !== null" />
+      </label>
+      <br />
+      <label>
+        Giá trị:
+        <input type="number" formControlName="value" min="0" />
+      </label>
+      <br />
+      <label>
+        Loại:
+        <select formControlName="type">
+          <option value="percent">Phần trăm (%)</option>
+          <option value="fixed">Số tiền cố định</option>
+        </select>
+      </label>
+      <br />
+      <label>
+        Đơn tối thiểu (đ):
+        <input type="number" formControlName="min_order_value" min="0" />
+      </label>
+      <br />
+      <label>
+        Ngày bắt đầu:
+        <input type="date" formControlName="start_date" />
+      </label>
+      <br />
+      <label>
+        Ngày kết thúc:
+        <input type="date" formControlName="end_date" />
+      </label>
+      <br />
+      <label>
+        Giới hạn lượt dùng:
+        <input type="number" formControlName="usage_limit" min="0" />
+      </label>
+      <br />
+      <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+      <button type="submit">{{ editingVoucherCode ? 'Cập nhật' : 'Tạo mới' }}</button>
+      <button type="button" (click)="cancelForm()">Hủy</button>
+    </form>
+  </div>
+</div>
+

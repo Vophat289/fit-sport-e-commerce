@@ -1,0 +1,364 @@
+.voucher-admin-container {
+  max-width: 960px;
+  margin: 40px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.voucher-admin-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 28px;
+  color: #2c3e50;
+}
+
+/* Search + create button container */
+.voucher-admin-container > div:first-child {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.voucher-admin-container input[type="text"] {
+  width: 320px;
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.voucher-admin-container input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+}
+
+.voucher-admin-container button {
+  margin-left: 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  padding: 10px 18px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.voucher-admin-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  font-size: 15px;
+  color: #444;
+}
+
+thead th {
+  background-color: #007bff;
+  color: white;
+  font-weight: 700;
+  padding: 14px 10px;
+  user-select: none;
+  text-align: center;
+  font-size: 14px;
+}
+
+tbody tr {
+  background-color: #f9fbff;
+  transition: background-color 0.3s ease;
+  border-radius: 8px;
+}
+
+tbody tr:hover {
+  background-color: #e6f0ff;
+}
+
+tbody td {
+  padding: 12px 10px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+tbody button:hover {
+  background-color: #218838;
+}
+
+tbody button:last-child {
+  background-color: #dc3545;
+}
+
+tbody button:last-child:hover {
+  background-color: #b02a37;
+}
+
+/* Loading and no data text */
+[voucher-admin-container] > div[ngIf] {
+  text-align: center;
+  font-weight: 600;
+  color: #555;
+  margin-top: 25px;
+}
+
+/* Pagination styles */
+.pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.pagination button {
+  background-color: white;
+  border: 2px solid #007bff;
+  color: #007bff;
+  padding: 8px 16px;
+  margin: 0 8px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.voucher-form {
+  margin-top: 35px;
+  padding: 25px 30px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  background-color: #fdfdfd;
+}
+
+.voucher-form h3 {
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.voucher-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.voucher-form input[type="text"],
+.voucher-form input[type="number"],
+.voucher-form input[type="date"],
+.voucher-form select {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1.8px solid #ccc;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.voucher-form input[type="text"]:focus,
+.voucher-form input[type="number"]:focus,
+.voucher-form input[type="date"]:focus,
+.voucher-form select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.error {
+  color: #e74c3c;
+  font-weight: 700;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.voucher-form button {
+  padding: 10px 20px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin-right: 15px;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.voucher-form button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+}
+
+.voucher-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.voucher-form button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.voucher-form button[type="button"]:hover {
+  background-color: #565e64;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  max-width: 450px;
+  width: 90%;
+  height: 500px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung vượt quá chiều cao */
+}
+
+modal-content h3 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.modal-content label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #555;
+}
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="date"],
+.modal-content select {
+  width: 95%;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  border: 1.8px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="number"]:focus,
+.modal-content input[type="date"]:focus,
+.modal-content select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+/* Thông báo lỗi */
+.modal-content .error {
+  color: #e74c3c;
+  font-weight: 700;
+  margin: 15px 0 25px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.modal-content form > button,
+.modal-content form > button + button {
+  padding: 10px 22px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.modal-content button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  margin-right: 15px;
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+/* Nút hủy */
+.modal-content button[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-content button[type="button"]:hover {
+  background-color: #565e64;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .voucher-admin-container > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .voucher-admin-container input[type="text"] {
+    width: 100%;
+    margin-bottom: 12px;
+    margin-right: 0;
+  }
+
+  .voucher-admin-container button {
+    margin-left: 0;
+  }
+
+  table,
+  tbody tr,
+  thead th,
+  tbody td {
+    font-size: 12px;
+  }
+}
