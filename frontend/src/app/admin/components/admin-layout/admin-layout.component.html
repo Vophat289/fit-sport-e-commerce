@@ -1,8 +1,12 @@
+<!-- Sidebar navigation (fixed bên trái) -->
 <app-admin-sidebar></app-admin-sidebar>
 
+<!-- Main content area (margin-left để tránh sidebar) -->
 <div class="main-content">
+  <!-- Header bar (sticky ở top) -->
   <app-admin-header></app-admin-header>
 
+  <!-- Content wrapper: chứa các page components (dashboard, products, ...) -->
   <div class="content-wrapper">
     <router-outlet></router-outlet>
   </div>

@@ -1,35 +1,18 @@
-<div class="sidebar">
+<aside class="sidebar">
+  <!-- Logo section -->
   <div class="logo">
-    <img src="assets/logo.png" alt="Logo">
+    <img src="assets/images/logo_main_white.png" alt="FITSPORT Logo" onerror="this.src='assets/logo.png'">
   </div>
 
+  <!-- Navigation menu -->
   <ul class="menu">
-    <li class="active">
-      <i class="bx bx-home"></i> Dashboards
-    </li>
-
-    <li>
-      <i class="bx bx-category"></i> Danh Mục
-    </li>
-
-    <li>
-      <i class="bx bx-package"></i> Sản Phẩm
-    </li>
-
-    <li>
-      <i class="bx bx-cart"></i> Đơn Hàng
-    </li>
-
-    <li>
-      <i class="bx bx-user"></i> Tài Khoản
-    </li>
-
-    <li>
-      <i class="bx bx-gift"></i> Vouchers
-    </li>
-
-    <li>
-      <i class="bx bx-news"></i> Bài Viết
+    <!-- Loop qua menuItems để render từng menu item -->
+    <li *ngFor="let item of menuItems" 
+        [class.active]="isActive(item.route)"
+        [routerLink]="item.route"
+        routerLinkActive="active">
+      <i [class]="'bx ' + item.icon"></i> 
+      <span>{{ item.label }}</span>
     </li>
   </ul>
-</div>
+</aside>
