@@ -3,7 +3,6 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './components/admin-layout/admin-layout.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ContactManagementComponent } from './components/contact-management/contact-management.component';
 
 // Cấu hình routing cho admin section
 export const AdminRoutes: Routes = [
@@ -16,8 +15,6 @@ export const AdminRoutes: Routes = [
       // Dashboard route
       { path: 'dashboard', component: DashboardComponent },
 
-      // Route quản lý liên hệ → khớp với sidebar
-      { path: 'contacts', component: ContactManagementComponent }
     ]
   }
 ];

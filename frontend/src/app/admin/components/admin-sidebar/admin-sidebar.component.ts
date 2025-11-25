@@ -30,7 +30,7 @@ export class AdminSidebarComponent implements OnInit {
     { label: 'Tài Khoản', icon: 'bx-user', route: '/admin/users' },
     { label: 'Vouchers', icon: 'bx-gift', route: '/admin/vouchers' },
     { label: 'Bài Viết', icon: 'bx-news', route: '/admin/posts' },
-    { label: 'Liên Hệ', icon: 'bx-message-square-dots', route: '/admin/contacts' }
+    { label: 'Liên Hệ', icon: 'bx-phone', route: '/admin/contacts' }
  
   ];
 
