@@ -1,0 +1,11 @@
+.main-content {
+  margin-left: 260px;
+  min-height: 100vh;
+  background: #0f172a;
+  color: white;
+}
+
+.content-wrapper {
+  padding: 24px;
+  background: #000000;
+}

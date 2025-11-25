@@ -4,7 +4,7 @@ import {
   useVoucher as useVoucherService 
 } from "../services/voucher.service.js";
 
-// Lấy danh sách voucher khả dụng
+// lấy danh sách voucher khả dụng
 export const getAvailable = async (req, res) => {
   try {
     const vouchers = await getAvailableVouchers();
@@ -14,7 +14,7 @@ export const getAvailable = async (req, res) => {
   }
 };
 
-// Kiểm tra voucher
+// kiểm tra voucher
 export const validate = async (req, res) => {
   try {
     const { code, orderTotal } = req.body;
@@ -31,7 +31,7 @@ export const validate = async (req, res) => {
   }
 };
 
-// Tăng used_count khi thanh toán
+// tăng used_count khi thanh toán
 export const useVoucher = async (req, res) => {
   try {
     const { code } = req.body;

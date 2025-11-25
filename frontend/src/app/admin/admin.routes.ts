@@ -1,0 +1,23 @@
+// src/app/admin/admin.routes.ts
+
+import { Routes } from '@angular/router';
+import { AdminLayoutComponent } from './components/admin-layout/admin-layout.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { ContactManagementComponent } from './components/contact-management/contact-management.component';
+
+// Cấu hình routing cho admin section
+export const AdminRoutes: Routes = [
+  {
+    path: 'admin',
+    component: AdminLayoutComponent, // Layout chứa sidebar + header
+    children: [
+      // Redirect /admin → /admin/dashboard
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      // Dashboard route
+      { path: 'dashboard', component: DashboardComponent },
+
+      // Route quản lý liên hệ → khớp với sidebar
+      { path: 'contacts', component: ContactManagementComponent }
+    ]
+  }
+];

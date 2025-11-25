@@ -1,0 +1,96 @@
+<header class="admin-header">
+  <!-- Left section: Page title -->
+  <div class="header-left">
+    <h1 class="page-title">Trang Quản Trị</h1>
+  </div>
+
+  <!-- Center section: Search bar -->
+  <div class="header-center">
+    <div class="search-box">
+      <i class="bx bx-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Tìm kiếm...">
+    </div>
+  </div>
+
+  <!-- Right section: Actions và User -->
+  <div class="header-right">
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <!-- Language selector -->
+      <button class="action-btn" title="Ngôn ngữ">
+        <img src="assets/icons/vn.png" class="flag-icon" alt="VN" onerror="this.style.display='none'">
+      </button>
+
+      <!-- Notifications -->
+      <div class="notification-wrapper">
+        <button class="action-btn notification-btn" (click)="toggleNotifications()" title="Thông báo">
+          <i class="bx bx-bell"></i>
+          <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+        </button>
+
+        <!-- Notifications dropdown -->
+        <div class="notification-dropdown" *ngIf="showNotifications">
+          <div class="dropdown-header">
+            <h3>Thông báo</h3>
+            <button class="mark-read-btn" (click)="markAllAsRead()" *ngIf="notificationCount > 0">
+              Đánh dấu đã đọc
+            </button>
+          </div>
+          <div class="notification-list">
+            <div class="notification-item" 
+                 *ngFor="let notif of notifications"
+                 [class.unread]="!notif.read">
+              <div class="notification-content">
+                <p class="notification-title">{{ notif.title }}</p>
+                <span class="notification-time">{{ notif.time }}</span>
+              </div>
+              <button class="remove-btn" (click)="removeNotification(notif.id)" title="Xóa">
+                <i class="bx bx-x"></i>
+              </button>
+            </div>
+            <div class="empty-notifications" *ngIf="notifications.length === 0">
+              <p>Không có thông báo nào</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <button class="action-btn" title="Cài đặt">
+        <i class="bx bx-cog"></i>
+      </button>
+    </div>
+
+    <!-- User menu -->
+    <div class="user-menu-wrapper">
+      <div class="user-info" (click)="toggleUserMenu()">
+        <img src="assets/user.jpg" 
+             class="user-avatar" 
+             alt="User Avatar"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2218%22 fill=%22%230ea5e9%22/%3E%3Ctext x=%2220%22 y=%2226%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2216%22 font-weight=%22bold%22%3EA%3C/text%3E%3C/svg%3E'">
+        <div class="user-details">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ userRole }}</span>
+        </div>
+        <i class="bx bx-chevron-down dropdown-arrow"></i>
+      </div>
+
+      <!-- User dropdown menu -->
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <a routerLink="/admin/profile" class="dropdown-item">
+          <i class="bx bx-user"></i>
+          <span>Hồ sơ</span>
+        </a>
+        <a routerLink="/admin/settings" class="dropdown-item">
+          <i class="bx bx-cog"></i>
+          <span>Cài đặt</span>
+        </a>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item logout-item" (click)="logout()">
+          <i class="bx bx-log-out"></i>
+          <span>Đăng xuất</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

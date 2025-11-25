@@ -18,24 +18,15 @@ EventEmitter.defaultMaxListeners = 20;
 
 const app = express();
 
-// ======================
-// CORS
-// ======================
 app.use(cors({
     origin: "http://localhost:4200", // frontend Angular
     methods: ["GET", "POST", "PUT", "DELETE"], // hỗ trợ các method
     credentials: true // gửi cookie/token cho xác thực
 }));
 
-// ======================
-// Body parser
-// ======================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ======================
-// Session & Passport
-// ======================
 app.use(session({
     secret: 'secretkey123', // dùng cho session
     resave: false,
@@ -58,8 +49,6 @@ app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contact", contactRoutes);
 
-
-// Test route
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy!");
 });
