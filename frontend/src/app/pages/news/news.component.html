@@ -1,31 +1,59 @@
-<div class="news-grid">
-  <div *ngFor="let post of posts; let i = index" class="post-card">
-    <div class="cover-wrap">
-      <img [src]="post.image" [alt]="post.title">
-    </div>
+<!-- news.component.html – ĐÃ FIX + ĐẸP NHƯ KENH14 -->
+<div class="news-container">
+  <h1 class="page-title">Bài viết mới nhất</h1>
+  <p class="page-subtitle">Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!</p>
 
-    <header class="post-header">
-      <h1 class="post-title">{{ post.title }}</h1>
-      <div class="post-meta">
-        <span class="author">✍️ {{ post.author }}</span>
-        <span class="dot">•</span>
-        <time [attr.datetime]="post.date">{{ post.date }}</time>
-        <span class="dot">•</span>
-        <span class="readtime">{{ post.readTime }}</span>
-      </div>
-      <div class="tags">
-        <span *ngFor="let t of post.tags" class="tag">#{{ t }}</span>
-      </div>
-    </header>
+  <div class="news-grid">
+    <article class="news-card" *ngFor="let item of news">
+      
+      <!-- Thumbnail + hover effect -->
+      <a [routerLink]="['/news', item.slug]" class="thumb-link">
+        <div class="img-box">
+          <img [src]="item.thumbnail || 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT'"
+               [alt]="item.title"
+               loading="lazy">
+          <div class="overlay">
+            <span class="read-more-text">Xem chi tiết</span>
+          </div>
+        </div>
+      </a>
 
-    <section class="article-body">
-      <p class="intro">{{ post.intro }}</p>
-      <div class="content" [class.expanded]="isExpanded[i]" [innerHTML]="post.content"></div>
-      <div class="controls">
-        <button class="btn-readmore" (click)="toggleExpand(i)">
-          {{ isExpanded[i] ? 'Thu gọn' : 'Xem thêm' }}
-        </button>
+      <!-- Nội dung -->
+      <div class="content-box">
+        <!-- Tiêu đề có link – người dùng hay click nhất -->
+        <h2 class="news-title">
+          <a [routerLink]="['/news', item.slug]" 
+             [title]="item.title">
+            {{ item.title }}
+          </a>
+        </h2>
+
+        <!-- Mô tả ngắn -->
+        <p class="news-desc" *ngIf="item.short_desc">
+          {{ item.short_desc }}
+        </p>
+
+        <!-- Thông tin phụ -->
+        <div class="news-meta">
+          <span class="date">
+            {{ item.createdAt | date:'dd/MM/yyyy' }}
+          </span>
+          <span class="separator">•</span>
+          <span class="tag" *ngIf="item.tags && item.tags.length">
+            {{ item.tags[0] }} <!-- Hiển thị tag đầu tiên -->
+          </span>
+        </div>
+
+        <!-- Nút đọc thêm (vẫn giữ cho đẹp) -->
+        <a [routerLink]="['/news-detail', item.slug]" class="readmore">
+          Đọc thêm
+        </a>
       </div>
-    </section>
+    </article>
+  </div>
+
+  <!-- Thông báo khi không có tin tức -->
+  <div class="empty-state" *ngIf="!news || news.length === 0">
+    <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
   </div>
 </div>
