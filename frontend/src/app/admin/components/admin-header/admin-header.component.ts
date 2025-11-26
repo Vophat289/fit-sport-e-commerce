@@ -1,6 +1,8 @@
 import { Component, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AdminThemeService, AdminThemeMode } from '../../services/theme.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-admin-header',
@@ -17,7 +19,6 @@ export class AdminHeaderComponent {
   // State cho dropdowns
   showNotifications: boolean = false;
   showUserMenu: boolean = false;
-  isDarkMode: boolean = true;
 
   // Notifications data
   notificationCount: number = 3;
@@ -27,7 +28,12 @@ export class AdminHeaderComponent {
     { id: 3, title: 'Có tin nhắn mới từ khách hàng', time: 'Hôm qua', read: true }
   ];
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef, private themeService: AdminThemeService) {}
+
+  // Getter để lấy currentTheme$ observable
+  get currentTheme$(): Observable<AdminThemeMode> {
+    return this.themeService.currentTheme$;
+  }
 
   // Toggle notifications dropdown
   toggleNotifications(): void {
@@ -43,8 +49,7 @@ export class AdminHeaderComponent {
 
   // Toggle dark/light mode
   toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
-    // Logic để thay đổi theme sẽ được implement sau
+    this.themeService.toggleTheme();
   }
 
   // Đóng dropdowns khi click bên ngoài

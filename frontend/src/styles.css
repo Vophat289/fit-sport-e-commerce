@@ -17,3 +17,17 @@ app-root {
 router-outlet {
   flex: 1;
 }
+
+body.admin-theme {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.admin-theme-dark {
+  background: #0b1120;
+  color: #f8fafc;
+}
+
+body.admin-theme-light {
+  background: #f1f5f9;
+  color: #0f172a;
+}

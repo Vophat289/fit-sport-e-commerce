@@ -21,6 +21,11 @@
         <img src="assets/icons/vn.png" class="flag-icon" alt="VN" onerror="this.style.display='none'">
       </button>
 
+      <!-- Theme toggle -->
+      <button class="action-btn" title="Đổi giao diện sáng/tối" (click)="toggleTheme()">
+        <i class="bx" [ngClass]="(currentTheme$ | async) === 'dark' ? 'bx-moon' : 'bx-sun'"></i>
+      </button>
+
       <!-- Notifications -->
       <div class="notification-wrapper">
         <button class="action-btn notification-btn" (click)="toggleNotifications()" title="Thông báo">

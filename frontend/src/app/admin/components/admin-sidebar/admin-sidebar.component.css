@@ -9,6 +9,7 @@
   color: #ccc;
   z-index: 1000;
   overflow-y: auto;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .logo {
@@ -60,6 +61,27 @@
 
 .menu li span {
   flex: 1;
+}
+
+:host-context(.admin-theme-light) .sidebar {
+  background: #e8eef2;
+  color: #0f172a;
+  border-right: 1px solid #cbd5e1;
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.05);
+}
+
+:host-context(.admin-theme-light) .menu li {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .menu li:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .menu li.active {
+  background: #2563eb;
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
