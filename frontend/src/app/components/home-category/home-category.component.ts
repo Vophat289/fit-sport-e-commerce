@@ -26,6 +26,8 @@ export class HomeCategoryComponent implements OnInit{
  }
 
  goToCategory(slug: string){
-  this.router.navigate(['/category', slug])
+  this.router.navigate(['/products'], {
+    queryParams: {category: slug},
+  })
  }
 }
