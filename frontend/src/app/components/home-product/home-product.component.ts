@@ -25,7 +25,7 @@ export class HomeProductComponent implements OnInit{
     this.productService.getAll().subscribe({
       //next xử lí khi thành cong
       next: (data) => {
-        this.products = data; 
+        this.products = [...data].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0));
         this.loading = false;
         console.log('Sản phẩm đã tải: ', data);
       },

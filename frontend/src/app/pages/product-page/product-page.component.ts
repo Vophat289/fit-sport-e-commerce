@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import {ProductService, Product} from '@app/services/product.service';
 import {  CategoryService , Category} from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+
 
 @Component({
   selector: 'app-product-page',
@@ -17,7 +18,8 @@ export class ProductPageComponent implements OnInit{
   loading: boolean = true;
   categories: Category[] = [];
   selectedCategory: string | null = null; //lưu lại danh mục khi chọn sp
-
+  
+  
   allProducts: Product[] = [];// Danh sách gốc của sp kh bao giờ thay đổi
   filteredProducts: Product[] = [];// dnah sách thay đổi khi lọc
   availableSizes: string[] = [];
@@ -31,12 +33,17 @@ export class ProductPageComponent implements OnInit{
     }
   }
   
-  constructor(private productService: ProductService, private categoryService: CategoryService) {}
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService, 
+    private route: ActivatedRoute
+  ) {}
 
   //lifecycle hook
   ngOnInit(): void { 
     this.loadProducts();
     this.loadCategories();
+    this.listenToRouteCategory();
   }
   
   loadProducts(): void {
@@ -55,6 +62,7 @@ export class ProductPageComponent implements OnInit{
 
         this.loading = false;
         console.log('Sản phẩm đã tải: ', data);
+        this.handleRouteCategory();
       },
       error: (err) => {
         console.log('Lỗi tải sản phẩm: ', err);
@@ -118,6 +126,29 @@ export class ProductPageComponent implements OnInit{
 
     //cập nhật ds hien thi 
     this.filteredProducts = result;
+  }
+
+  //danh mục đang chờ lọc
+  private pendingCategorySlug: string | null = null;
+
+  //nghe sự kiện khi category thay đổi ngoài trang chủ sẽ lọc sp theo danh mục
+  private listenToRouteCategory(): void{
+    this.route.queryParamMap.subscribe(params => {
+      this.pendingCategorySlug = params.get('category');
+      this.handleRouteCategory();
+    })
+  }
+
+  handleRouteCategory(): void{
+    if(!this.allProducts.length){
+      return; //chưa có du lieu de lọc
+    }
+
+    if(this.pendingCategorySlug){
+      this.filterByCategory(this.pendingCategorySlug);
+    }else {
+      this.resetFilter()
+    }
   }
 
   //lọc sp theo danh mục

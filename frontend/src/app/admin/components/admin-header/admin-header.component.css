@@ -11,6 +11,7 @@
   top: 0;
   z-index: 999;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Left section: Page title */
@@ -410,4 +411,128 @@
     width: 320px;
     right: -20px;
   }
+}
+
+:host-context(.admin-theme-light) .admin-header {
+  background: #e8eef2;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+:host-context(.admin-theme-light) .page-title {
+  background: none;
+  -webkit-text-fill-color: #0f172a;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .search-input {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .search-input::placeholder {
+  color: #94a3b8;
+}
+
+:host-context(.admin-theme-light) .search-icon {
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) .action-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .action-btn:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+:host-context(.admin-theme-light) .notification-badge {
+  border-color: #f8f9fa;
+}
+
+:host-context(.admin-theme-light) .notification-dropdown,
+:host-context(.admin-theme-light) .user-dropdown {
+  background: #f8f9fa;
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+}
+
+:host-context(.admin-theme-light) .dropdown-header {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+:host-context(.admin-theme-light) .notification-item {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+:host-context(.admin-theme-light) .notification-item:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+:host-context(.admin-theme-light) .notification-item.unread {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+:host-context(.admin-theme-light) .notification-title {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .notification-time {
+  color: #64748b;
+}
+
+:host-context(.admin-theme-light) .remove-btn {
+  color: #94a3b8;
+}
+
+:host-context(.admin-theme-light) .remove-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+:host-context(.admin-theme-light) .user-info {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+:host-context(.admin-theme-light) .user-info:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+:host-context(.admin-theme-light) .user-name {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .user-role {
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) .dropdown-arrow {
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) .dropdown-item {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .dropdown-item:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+:host-context(.admin-theme-light) .dropdown-divider {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+:host-context(.admin-theme-light) .logout-item {
+  color: #b91c1c;
+}
+
+:host-context(.admin-theme-light) .logout-item:hover {
+  background: rgba(239, 68, 68, 0.12);
 }

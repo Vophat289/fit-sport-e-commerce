@@ -1,11 +1,24 @@
 .main-content {
   margin-left: 260px;
   min-height: 100vh;
-  background: #c4c4c4;
-  color: white;
+  background: #0f172a;
+  color: #f8fafc;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .content-wrapper {
   padding: 24px;
   background: #000000;
+  min-height: calc(100vh - 72px);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+:host-context(.admin-theme-light) .main-content {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .content-wrapper {
+  background: #e2e8f0;
+  color: inherit;
 }
