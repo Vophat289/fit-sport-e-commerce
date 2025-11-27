@@ -19,7 +19,7 @@ router.post('/login', login);
 router.post('/logout', logout);
 router.post("/verify-pin", verifyPin);
 
-// Quên mật khẩu bằng mã PIN
+// quên mật khẩu bằng mã PIN
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/verify-reset-pin', verifyResetPin);

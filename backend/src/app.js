@@ -22,24 +22,15 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// ======================
-// CORS
-// ======================
 app.use(cors({
     origin: "http://localhost:4200",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
-// ======================
-// Body parser
-// ======================
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));        
 app.use(express.urlencoded({ extended: true }));
 
-// ======================
-// Session & Passport
-// ======================
 app.use(session({
     secret: 'secretkey123',
     resave: false,
@@ -50,14 +41,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ======================
-// Static folder uploads
-// ======================
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// ======================
-// Mount routes
-// ======================
+
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
@@ -65,11 +51,10 @@ app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contact", contactRoutes);
-app.use("/api/news", newsRoutes); 
+app.use("/api/news", newsRoutes);  
 
-// Test route
 app.get("/", (req, res) => {
-    res.send("Backend + MongoDB đang chạy!");
+    res.send("Backend + MongoDB đang chạy mượt mà!");
 });
 
 export default app;

@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent  {
-  username: string = '';
+  identifier: string = '';
   password: string = '';
   message: string | null = null;
   isError: boolean = false;
@@ -25,7 +25,6 @@ export class LoginComponent  {
 
 
   ngOnInit() {
-    // ✅ Khi đăng nhập qua Google, backend redirect về /login?user=...&token=...
     const params = new URLSearchParams(window.location.search);
     const user = params.get('user');
     const token = params.get('token');
@@ -42,20 +41,21 @@ export class LoginComponent  {
   login() {
     this.message = null;
 
-    if (!this.username || !this.password) {
+    if (!this.identifier || !this.password) {
       this.isError = true;
       this.message = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
       return;
     }
 
     this.isLoading = true;
-    this.authService.login(this.username, this.password).subscribe({
+    this.authService.login(this.identifier, this.password).subscribe({
       next: (res) => {
         localStorage.setItem('user', JSON.stringify(res.user));
         localStorage.setItem('token', res.token);
         this.authService['currentUserSubject'].next(res.user);
         this.toastr.success('Đăng nhập thành công');
         this.isLoading = false;
+
         this.router.navigate(['/home']);
       },
       error: (err) => {
