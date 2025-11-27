@@ -1,0 +1,70 @@
+<!-- Loading -->
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Đang tải...</span>
+</div>
+
+<!-- Nội dung bài viết -->
+<div *ngIf="!loading && article; else notFound" class="news-container">
+  <div class="news-content">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a routerLink="/">Trang chủ</a> / 
+      <a routerLink="/news">Tin tức</a> / 
+      <span class="current">{{ article.title }}</span>
+    </nav>
+
+    <!-- Tiêu đề bài viết -->
+    <h1 class="news-title">{{ article.title }}</h1>
+
+    <!-- Meta info -->
+    <div class="news-meta">
+      <span class="author">Tác giả: {{ article.author || 'Admin' }}</span>
+      <span class="separator">|</span>
+      <span class="date">{{ article.createdAt | date:'HH:mm, dd/MM/yyyy' }}</span>
+      <span class="badge" *ngIf="article.category">{{ article.category }}</span>
+    </div>
+
+    <!-- Sapo / Mô tả ngắn -->
+    <p class="sapo" *ngIf="article.short_desc">{{ article.short_desc }}</p>
+
+    <!-- Ảnh đại diện -->
+    <figure class="news-figure" *ngIf="article.thumbnail">
+      <img [src]="article.thumbnail" [alt]="article.title" class="news-img">
+      <figcaption class="figure-caption" *ngIf="article.caption">{{ article.caption }}</figcaption>
+    </figure>
+
+    <!-- Nội dung bài viết -->
+    <div class="news-body" [innerHTML]="article.content"></div>
+
+    <!-- Thẻ tag -->
+    <div class="related-tags" *ngIf="article.tags && article.tags.length">
+      <strong>Thẻ liên quan:</strong>
+      <a *ngFor="let tag of article.tags"
+         [routerLink]="['/news']"
+         [queryParams]="{ tag: tag }"
+         class="tag-pill">{{ tag }}</a>
+    </div>
+
+    <!-- Hành động: chia sẻ -->
+    <div class="actions">
+      <button class="btn btn-share" (click)="share()">
+        <span class="icon">🔗</span> Chia sẻ
+      </button>
+      <a routerLink="/" class="btn btn-back">
+        <span class="icon">🏠</span> Quay về Trang chủ
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Nếu không tìm thấy bài viết -->
+<ng-template #notFound>
+  <div class="not-found">
+    <h2>Không tìm thấy bài viết</h2>
+    <p>Bài viết bạn đang tìm không tồn tại hoặc đã bị xóa.</p>
+    <a routerLink="/" class="btn-primary">Quay về Trang chủ</a>
+  </div>
+</ng-template>
