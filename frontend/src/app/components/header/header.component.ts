@@ -80,7 +80,7 @@ export class HeaderComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.loading = true;reactjs
     this.showResults = true;
 
     this.productService.searchProducts(query).subscribe({
