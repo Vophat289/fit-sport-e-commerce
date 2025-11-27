@@ -21,7 +21,7 @@ const app = express();
 
 app.use(cors({
     origin: "http://localhost:4200", // frontend Angular
-    methods: ["GET", "POST", "PUT", "DELETE"], // hỗ trợ các method
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"], // hỗ trợ các method
     credentials: true // gửi cookie/token cho xác thực
 }));
 
@@ -43,6 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // User
+app.use('/api', authRoutes)
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);

@@ -15,15 +15,18 @@ export class ProductAdminComponent implements OnInit {
   products: Product[] = [];
   categories: Category[] = [];
 
-  totalPages: number =1
+  totalPages: number = 1;
 
   productForm!: FormGroup;
   isEdit: boolean = false;
   selectedProductId: string | null = null;
 
-  previewImages: string[] = [];
-  selectedFiles: File[] = [];
+  // Tách biệt: ảnh cũ (URL) và ảnh mới (File + preview)
+  existingImages: string[] = [];        // ảnh từ DB còn giữ
+  newFiles: File[] = [];               // file mới được chọn
+  newFilePreviews: string[] = [];      // preview base64 cho newFiles
 
+  // deprecated fields removed (selectedFiles / previewImages original)
   searchTerm: string = '';
   isLoading = false;
   showForm = false;
@@ -45,6 +48,11 @@ export class ProductAdminComponent implements OnInit {
     this.loadProducts();
     this.loadCategories();
     this.initForm();
+  }
+
+  // getter dùng trong HTML để render preview (ảnh cũ + preview ảnh mới)
+  get previewImages(): string[] {
+    return [...this.existingImages, ...this.newFilePreviews];
   }
 
   loadProducts() {
@@ -84,14 +92,14 @@ export class ProductAdminComponent implements OnInit {
     );
   }
 
-updatePagedProducts() {
-  const filtered = this.getFilteredProducts();
-  this.totalPages = Math.ceil(filtered.length / this.pageSize) || 1;
-  this.currentPage = Math.min(this.currentPage, this.totalPages); 
+  updatePagedProducts() {
+    const filtered = this.getFilteredProducts();
+    this.totalPages = Math.ceil(filtered.length / this.pageSize) || 1;
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
 
-  const startIndex = (this.currentPage - 1) * this.pageSize;
-  this.pagedProducts = filtered.slice(startIndex, startIndex + this.pageSize);
-}
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    this.pagedProducts = filtered.slice(startIndex, startIndex + this.pageSize);
+  }
 
   changePage(page: number) {
     if (page < 1) page = 1;
@@ -110,9 +118,22 @@ updatePagedProducts() {
   openCreate() {
     this.isEdit = false;
     this.selectedProductId = null;
-    this.previewImages = [];
-    this.selectedFiles = [];
-    this.productForm.reset();
+
+    // reset rõ ràng
+    this.existingImages = [];
+    this.newFiles = [];
+    this.newFilePreviews = [];
+
+    this.productForm.reset({
+      name: '',
+      price: 0,
+      description: '',
+      category: '',
+      colors: '',
+      sizes: '',
+      images: null
+    });
+
     this.showForm = true;
   }
 
@@ -120,8 +141,11 @@ updatePagedProducts() {
     this.isEdit = true;
     this.selectedProductId = product._id || null;
 
-    this.previewImages = product.image || [];
-    this.selectedFiles = [];
+    // ảnh cũ từ DB (URL strings)
+    this.existingImages = product.image ? [...product.image] : [];
+    // xóa các file mới / preview nếu có
+    this.newFiles = [];
+    this.newFilePreviews = [];
 
     this.productForm.patchValue({
       name: product.name,
@@ -131,19 +155,29 @@ updatePagedProducts() {
       colors: product.colors?.join(', ') || '',
       sizes: product.sizes?.join(', ') || '',
     });
+
     this.showForm = true;
   }
 
+  // Khi người dùng chọn file
   onFileChange(event: any) {
-    const files = event.target.files;
-    this.selectedFiles = Array.from(files);
+    const files: FileList = event.target.files;
+    if (!files || files.length === 0) return;
 
-    this.previewImages = [];
-    for (let file of this.selectedFiles) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files.item(i);
+      if (!file) continue;
+      this.newFiles.push(file); // giữ file để gửi lên server
+
       const reader = new FileReader();
-      reader.onload = (e: any) => this.previewImages.push(e.target.result);
+      reader.onload = (e: any) => {
+        // thêm preview tương ứng, không đụng tới existingImages
+        this.newFilePreviews.push(e.target.result);
+      };
       reader.readAsDataURL(file);
     }
+    // reset input value để cùng file có thể chọn lại nếu cần
+    event.target.value = '';
   }
 
   submit() {
@@ -160,7 +194,11 @@ updatePagedProducts() {
     formData.append('colors', JSON.stringify(values.colors.split(',').map((c: string) => c.trim())));
     formData.append('sizes', JSON.stringify(values.sizes.split(',').map((s: string) => s.trim())));
 
-    this.selectedFiles.forEach((file) => formData.append('images', file));
+    // GỬI danh sách ảnh cũ mà user muốn giữ (existingImages)
+    formData.append('existingImages', JSON.stringify(this.existingImages));
+
+    // Gửi file mới (nếu có)
+    this.newFiles.forEach((file) => formData.append('images', file));
 
     const request$ = this.isEdit
       ? this.productService.updateProduct(this.selectedProductId!, formData)
@@ -204,6 +242,17 @@ updatePagedProducts() {
     }
     return '';
   }
+
+  // Xóa ảnh theo index hiển thị (index tham chiếu tới previewImages = existingImages + newFilePreviews)
+  removeImage(index: number) {
+    if (index < this.existingImages.length) {
+      // Xóa ảnh cũ (URL) khỏi existingImages
+      this.existingImages.splice(index, 1);
+    } else {
+      // Xóa ảnh mới (file + preview)
+      const newIndex = index - this.existingImages.length;
+      this.newFiles.splice(newIndex, 1);
+      this.newFilePreviews.splice(newIndex, 1);
+    }
+  }
 }
-
-
