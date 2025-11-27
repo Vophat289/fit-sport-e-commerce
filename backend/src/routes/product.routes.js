@@ -10,7 +10,7 @@ router.get("/category/:slug", getProductsByCategory);
 router.post("/:slug/view", incrementViewCount);
 
 router.post("/",upload.array("images", 5), createProduct);
-router.post("/:id",upload.array("images", 5), updateProduct);
+router.put("/:id",upload.array("images", 5), updateProduct);
 router.delete("/:id", deleteProduct);
 
 export default router;

@@ -30,39 +30,45 @@ export const generateToken = (user) => {
         { expiresIn: '1d' }
     );
 };
+
 // đăng nhập
 export const login = async (req, res) => {
-    try {
-        const { name, email, password } = req.body; 
-        // tìm user theo name
-        const user = await User.findOne({ $or: [{ name }, { email }] }).select('+password');
-        if (!user) {
-            return res.status(400).json({ message: 'Tên đăng nhập/email hoặc mật khẩu không đúng.' });
-        }
-        // kiểm tra xác minh email
-        if (!user.isVerified) {
-            return res.status(401).json({ message: 'Vui lòng xác minh tài khoản trước khi đăng nhập.' });
-        }
-        // so sánh mật khẩu
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Tên đăng nhập/email hoặc mật khẩu không đúng.' });
-        }      
-        // tạo token và trả về
-        const token = generateToken(user);
-        // loại bỏ password khỏi kết quả trả về
-        const { password: _, ...safeUser } = user.toObject();
+  try {
+    const { email, password } = req.body;
 
-        return res.status(200).json({
-            message: 'Đăng nhập thành công.',
-            token,
-            user: safeUser,
-        });
-
-    } catch (error) {
-        console.error("Lỗi đăng nhập:", error);
-        return res.status(500).json({ message: 'Lỗi server khi đăng nhập.', error: error.message });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Vui lòng nhập email và mật khẩu.' });
     }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+    if (!user) {
+      return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng.' });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({ message: 'Vui lòng xác minh tài khoản trước khi đăng nhập.' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng.' });
+    }
+
+    const token = generateToken(user);
+    const { password: _, ...safeUser } = user.toObject();
+
+    return res.status(200).json({
+      message: 'Đăng nhập thành công.',
+      token,
+      user: safeUser,
+    });
+
+  } catch (error) {
+    console.error("Lỗi đăng nhập:", error);
+    return res.status(500).json({ message: 'Lỗi server khi đăng nhập.', error: error.message });
+  }
 };
 
 // đăng ký

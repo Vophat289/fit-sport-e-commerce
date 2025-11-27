@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 interface Voucher {
   code: string;
@@ -27,13 +29,23 @@ export class VoucherComponent implements OnInit {
 
   loading = true;
   activeFilter: string = "all";  
-  isLoggedIn = false;   // kiểm tra người dùng đăng nhập
+  isLoggedIn = false;
 
-  constructor(private http: HttpClient) {}
+  currentPage = 1;
+  pageSize = 5;
+  hasMore = true;
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.checkLogin();
-    this.fetchVouchers();
+    if(this.isLoggedIn) {
+      this.fetchVouchers(1);
+    }
   }
 
   checkLogin() {
@@ -41,17 +53,26 @@ export class VoucherComponent implements OnInit {
     this.isLoggedIn = !!token;
   }
 
-  fetchVouchers() {
-    this.http.get<any>("http://localhost:3000/api/vouchers")
+  fetchVouchers(page: number = 1) {
+    this.loading = true;
+    this.http.get<any>(`http://localhost:3000/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
       .subscribe({
         next: (res) => {
-          this.vouchers = res.vouchers || [];
-          this.applyFilter("all");
+          if(page === 1) {
+            this.vouchers = res.vouchers || [];
+          } else {
+            this.vouchers.push(...(res.vouchers || []));
+          }
+          this.applyFilter(this.activeFilter);
           this.loading = false;
+          this.hasMore = this.vouchers.length < (res.total || 0);
+          this.currentPage = page;
         },
         error: () => {
           this.loading = false;
           this.vouchers = [];
+          this.filteredVouchers = [];
+          this.hasMore = false;
         }
       });
   }
@@ -68,7 +89,7 @@ export class VoucherComponent implements OnInit {
       case "expiring":
         this.filteredVouchers = this.vouchers.filter(v => {
           const end = new Date(v.end_date).getTime();
-          return end > now && end - now < 5 * 24 * 60 * 60 * 1000; // 5 ngày
+          return end > now && end - now < 5 * 24 * 60 * 60 * 1000;
         });
         break;
 
@@ -86,9 +107,26 @@ export class VoucherComponent implements OnInit {
     alert("Đã sao chép mã: " + code);
   }
 
-  logout() {
-  localStorage.removeItem("token");
-  window.location.reload();
-}
+  loadMore() {
+    if (!this.hasMore || this.loading) return;
+    this.fetchVouchers(this.currentPage + 1);
+  }
 
+  logout() {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+      this.authService.logout().subscribe({
+        next: () => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+
+          this.isLoggedIn = false;
+          this.vouchers = [];
+          this.filteredVouchers = [];
+          this.hasMore = false;
+
+          this.router.navigate(['/voucher']);
+        }
+      });
+    }
+  }
 }

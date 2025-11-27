@@ -141,22 +141,51 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, category } = req.body;
+    const { name, price, description, category, colors, sizes } = req.body;  // lấy colors, sizes
 
-    //tìm product theo id
+    // Tìm sản phẩm
     const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
     }
 
-    //tạo slug mới khi tên thay đổi
+    // Xử lý colors
+    let newColors = product.colors;
+    if (colors !== undefined) {
+      if (typeof colors === "string") {
+        try {
+          newColors = JSON.parse(colors);
+        } catch {
+          newColors = colors.split(",").map(c => c.trim());
+        }
+      } else if (Array.isArray(colors)) {
+        newColors = colors;
+      }
+      product.colors = newColors;
+    }
+
+    // Xử lý sizes (tương tự)
+    let newSizes = product.sizes;
+    if (sizes !== undefined) {
+      if (typeof sizes === "string") {
+        try {
+          newSizes = JSON.parse(sizes);
+        } catch {
+          newSizes = sizes.split(",").map(s => s.trim());
+        }
+      } else if (Array.isArray(sizes)) {
+        newSizes = sizes;
+      }
+      product.sizes = newSizes;
+    }
+
+    // Các phần cập nhật khác
     if (name && name.trim() !== product.name) {
       const newSlug = slugify(name, {
         lower: true,
         locale: "vi",
       });
 
-      //kiểm tra slug cập nhật có bị trùng k
       const exitingProduct = await Product.findOne({
         slug: newSlug,
         _id: { $ne: id },
@@ -167,7 +196,6 @@ export const updateProduct = async (req, res) => {
           .json({ message: "Tên sản phẩm này đã được sử dụng" });
       }
 
-      //cập nhật
       product.name = name.trim();
       product.slug = newSlug;
     }
@@ -175,33 +203,29 @@ export const updateProduct = async (req, res) => {
     if (description !== undefined) product.description = description;
     if (category !== undefined) product.category = category;
 
-    //cập nhật ảnh
+    // Xử lý ảnh
     if (req.files && req.files.length > 0) {
       const newImageUrls = [];
-
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
           folder: "products",
         });
-
         newImageUrls.push(result.secure_url);
         fs.unlinkSync(file.path);
       }
-
       product.image = newImageUrls;
     }
-    //lưu vào database
+
     await product.save();
     await product.populate("category", "name");
-    res
-      .status(200)
-      .json({ message: "Cập nhật sản phẩm thành công !", product });
+    res.status(200).json({ message: "Cập nhật sản phẩm thành công !", product });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Lỗi khi cập nhật sản phẩm: ", error: error.message });
   }
 };
+
 
 //xóa sản phẩm
 export const deleteProduct = async (req, res) => {

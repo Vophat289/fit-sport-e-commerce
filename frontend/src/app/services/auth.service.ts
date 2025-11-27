@@ -28,17 +28,18 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { name: username, password }).pipe(
-      tap(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-        this.currentUserSubject.next(res.user);
-      })
-    );
-  }
-// auth.service.ts
-verifyPin(email: string, pin: string): Observable<any> { // ⭐ FIX 1: Thêm email
+login(email: string, password: string) {
+  return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
+    tap(res => {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      this.currentUserSubject.next(res.user);
+    })
+  );
+}
+
+
+verifyPin(email: string, pin: string): Observable<any> { 
     // Gửi cả email và pin lên server 
     return this.http.post(`${this.apiUrl}/verify-pin`, { email, pin }); 
 }

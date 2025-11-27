@@ -1,4 +1,3 @@
-// src/app.js
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -8,11 +7,13 @@ import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import authRoutes from './routes/auth.routes.js';
 
-import accountRoutes from './routes/account.routes.js'; // thêm account routes
+import accountRoutes from './routes/account.routes.js'; 
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import { EventEmitter } from 'events';
 import contactRoutes from './routes/contact.routes.js';
+
+import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 
 EventEmitter.defaultMaxListeners = 20;
 
@@ -41,6 +42,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// User
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
@@ -48,6 +50,9 @@ app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contact", contactRoutes);
+
+// Admin
+app.use("/api/admin/vouchers", adminVoucherRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy!");
