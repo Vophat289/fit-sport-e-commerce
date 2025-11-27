@@ -34,6 +34,7 @@
 .breadcrumb span {
   color: #9095b1;
 }
+
 /* ================================
    🔹 SIDEBAR FILTER (Bên trái)
 ================================ */
@@ -205,12 +206,12 @@
   border-color: #007bff;
 }
 
-.size-checkbox input:checked ~ .checkbox-custom {
+.size-checkbox input:checked~.checkbox-custom {
   background: #007bff;
   border-color: #007bff;
 }
 
-.size-checkbox input:checked ~ .checkbox-custom::after {
+.size-checkbox input:checked~.checkbox-custom::after {
   content: '✓';
   display: block;
   color: white;
@@ -330,7 +331,8 @@
   pointer-events: all;
   position: relative;
   z-index: 5;
-  margin-top: -6px; /* Căn giữa thumb với track (track 8px, thumb 20px + border 6px = 26px, cần lên 9px để căn giữa) */
+  margin-top: -6px;
+  /* Căn giữa thumb với track (track 8px, thumb 20px + border 6px = 26px, cần lên 9px để căn giữa) */
 }
 
 .slider-min::-webkit-slider-thumb:hover {
@@ -349,7 +351,8 @@
   pointer-events: all;
   position: relative;
   z-index: 5;
-  margin-top: -6px; /* Căn giữa thumb với track */
+  margin-top: -6px;
+  /* Căn giữa thumb với track */
 }
 
 /* Thumb (nút kéo) - Max */
@@ -367,7 +370,8 @@
   pointer-events: all;
   position: relative;
   z-index: 4;
-  margin-top: -6px; /* Căn giữa thumb với track */
+  margin-top: -6px;
+  /* Căn giữa thumb với track */
 }
 
 .slider-max::-webkit-slider-thumb:hover {
@@ -386,7 +390,8 @@
   pointer-events: all;
   position: relative;
   z-index: 4;
-  margin-top: -6px; /* Căn giữa thumb với track */
+  margin-top: -6px;
+  /* Căn giữa thumb với track */
 }
 
 /* Track (thanh slider) - Min */
@@ -444,7 +449,7 @@
   /* Sẽ được tính toán bằng JavaScript hoặc CSS variable */
   left: var(--slider-min-percent, 0%);
   width: calc(var(--slider-max-percent, 100%) - var(--slider-min-percent, 0%));
-}                       
+}
 
 .price-display {
   display: flex;
@@ -540,8 +545,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -553,25 +563,30 @@
 /* Product List */
 .product-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  /* ✅ 4 cột cố định */
+  gap: 28px;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-/* Product Card (giữ nguyên style cũ hoặc cải thiện) */
+/* Product Card (giống trang chủ) */
 .product-card {
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  /* ✅ Đảm bảo các card có chiều cao bằng nhau */
 }
 
 .product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .product-image {
@@ -579,30 +594,34 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f8f9fa;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.3s ease;
 }
 
 .product-card:hover .product-img {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.45);
   opacity: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   transition: opacity 0.3s ease;
 }
 
@@ -612,16 +631,14 @@
 
 .btn-detail,
 .btn-buy {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
+  padding: 9px 15px;
   border: none;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  min-width: 110px;
 }
 
 .btn-detail {
@@ -631,42 +648,70 @@
 
 .btn-detail:hover {
   background: #f1f1f1;
-  transform: scale(1.05);
 }
 
 .btn-buy {
-  background: #007bff;
+  background: #0081fa;
   color: #fff;
 }
 
 .btn-buy:hover {
-  background: #0056d2;
+  background: #0054d3;
   transform: scale(1.05);
 }
 
 .product-info {
   padding: 16px;
-  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* ✅ Khoảng cách đều giữa các phần tử */
+  flex-grow: 1;
+  /* ✅ Cho phép phần info chiếm hết không gian còn lại */
 }
 
 .product-name {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 8px;
+  color: #222;
+  margin: 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  /* ✅ Giới hạn 2 dòng */
   line-clamp: 2;
+  /* ✅ Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 42px;
+  /* ✅ Đảm bảo chiều cao cố định cho tên */
 }
 
 .product-price {
   color: #e63946;
   font-weight: 700;
   font-size: 18px;
-  margin-bottom: 12px;
+  margin: 0;
+}
+
+/* ================================
+   🔹 LƯỢT XEM
+================================ */
+.product-views {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-views i {
+  color: #888;
+  /* ✅ Icon màu xám */
+  font-size: 14px;
 }
 
 /* ================================
@@ -693,7 +738,7 @@
 .color-dot:hover {
   transform: scale(1.15);
   border-color: #444;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ================================
@@ -797,13 +842,13 @@
   .product-container {
     flex-direction: column;
   }
-  
+
   .filter-sidebar {
     width: 100%;
     position: static;
     max-height: none;
   }
-  
+
   .product-list {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
@@ -813,12 +858,12 @@
   .product-section {
     padding: 20px 10px;
   }
-  
+
   .product-list {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 16px;
   }
-  
+
   .filter-sidebar {
     padding: 20px;
   }

@@ -1,7 +1,6 @@
-
 .product-section {
   width: 100%;
- 
+
 
   box-sizing: border-box;
   display: flex;
@@ -14,10 +13,13 @@
 ================================ */
 .product-list {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 cột */
-  gap: 28px; /* ✅ khoảng cách thoáng hơn */
+  grid-template-columns: repeat(6, 1fr);
+  /* 6 cột */
+  gap: 28px;
+  /* ✅ khoảng cách thoáng hơn */
   justify-content: center;
-  max-width: 1440px; /* ✅ rộng ra */
+  max-width: 1440px;
+  /* ✅ rộng ra */
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
@@ -30,17 +32,18 @@
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  height: 100%;
+  /* ✅ Đảm bảo các card có chiều cao bằng nhau */
 }
 
 .product-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* ================================
@@ -73,7 +76,7 @@
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   opacity: 0;
   display: flex;
   flex-direction: column;
@@ -124,20 +127,55 @@
 .product-info {
   padding: 16px;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* ✅ Khoảng cách đều giữa các phần tử */
+  flex-grow: 1;
+  /* ✅ Cho phép phần info chiếm hết không gian còn lại */
 }
 
 .product-name {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
   color: #222;
-  margin-bottom: 5px;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* ✅ Giới hạn 2 dòng */
+  line-clamp: 2;
+  /* ✅ Standard property */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 42px;
+  /* ✅ Đảm bảo chiều cao cố định cho tên */
 }
 
 .product-price {
   color: #e63946;
   font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 12px;
+  font-size: 18px;
+  margin: 0;
+}
+
+/* ================================
+   🔹 LƯỢT XEM
+================================ */
+.product-views {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-views i {
+  color: #888;
+  /* ✅ Icon màu xám */
+  font-size: 14px;
 }
 
 /* ================================
@@ -212,7 +250,7 @@
 .btn-cart:hover {
   background: linear-gradient(135deg, #0056d2, #0041a8);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* ================================
