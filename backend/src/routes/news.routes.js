@@ -6,7 +6,8 @@ import {
   getNewsBySlug,
   createNews,
   updateNews,
-  deleteNews
+  deleteNews,
+  getLatestNews
 } from '../controllers/news.controller.js';
 
 const router = express.Router();
@@ -14,9 +15,9 @@ const router = express.Router();
 router.get('/', getAllNews);
 router.get('/id/:id', getNewsById);
 router.get('/slug/:slug', getNewsBySlug);
-// BỎ upload.single('thumbnail') đi luôn
+
 router.post('/', createNews);
 router.put('/:id', updateNews);
 router.delete('/:id', deleteNews);
-
+router.get('/latest', getLatestNews);   
 export default router;

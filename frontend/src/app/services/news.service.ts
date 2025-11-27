@@ -34,8 +34,8 @@ export class NewsService {
 
   constructor(private http: HttpClient) {}
   getAllNews(): Observable<News[]> {
-    return this.http.get<News[]>(this.API_URL);
-  }
+  return this.http.get<News[]>(`${this.API_URL}`);  // không có /latest
+}
 
   getNewsBySlug(slug: string) {
   return this.http.get<any>(`${this.API_URL}/news/slug/${slug}`);
@@ -92,5 +92,9 @@ export class NewsService {
   }
   deleteNews(id: string): Observable<any> {
     return this.http.delete(`${this.API_URL}/${id}`);
+  }
+
+  getLatestNews(): Observable<News[]> {
+    return this.http.get<News[]>(`${this.API_URL}/latest`);
   }
 }

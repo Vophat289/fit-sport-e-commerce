@@ -24,16 +24,49 @@ const generateUniqueSlug = async (title) => {
   return slug;
 };
 
-// LẤY TẤT CẢ TIN TỨC
+// LẤY TẤT CẢ TIN TỨC + PHÂN TRANG
 export const getAllNews = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50; 
+    const skip = (page - 1) * limit;
+
+    const total = await News.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
     const news = await News.find()
       .select('title short_desc thumbnail author tags createdAt slug')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json(news);
+    res.status(200).json({
+      data: news,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: total,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    });
   } catch (error) {
     console.error("Lỗi getAllNews:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+// === LẤY 4 BÀI VIẾT MỚI NHẤT (dùng cho trang chủ) ===
+export const getLatestNews = async (req, res) => {
+  try {
+    const latestNews = await News.find()
+      .select('title short_desc thumbnail author createdAt slug')
+      .sort({ createdAt: -1 })
+      .limit(12);                     
+
+    res.status(200).json(latestNews);
+  } catch (error) {
+    console.error("Lỗi getLatestNews:", error);
     res.status(500).json({ message: "Lỗi server" });
   }
 };
