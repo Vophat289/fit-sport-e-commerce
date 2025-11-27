@@ -1,8 +1,14 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 * {
   box-sizing: border-box;
 }
 
-.voucher-admin {
+.product-admin {
   padding: 24px;
   background: #000000;
   min-height: calc(100vh - 72px);
@@ -34,63 +40,6 @@
   color: #ffffff;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 0;
-  font-family: "Roboto", sans-serif;
-}
-
-.page-btn {
-  background-color: #2563eb; /* màu nút chính */
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.15s ease;
-  user-select: none;
-}
-
-.page-btn:hover:not(:disabled) {
-  background-color: #1d39c4;
-  transform: translateY(-2px);
-}
-
-.page-btn:disabled {
-  background-color: #a0a0a0;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.page-btn.active {
-  background-color: #ef4444; 
-  cursor: default;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-}
-
-.page-btn:first-child,
-.page-btn:last-child {
-  font-weight: 700;
-}
-
-@media (max-width: 480px) {
-  .pagination {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .page-btn {
-    padding: 5px 10px;
-    font-size: 13px;
-  }
-}
-
-
 .header-actions {
   display: flex;
   gap: 12px;
@@ -121,6 +70,7 @@
   font-size: 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
 
 .search-box input:focus {
   outline: none;
@@ -281,11 +231,11 @@ code {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 20px;
 }
 
 .modal {
@@ -295,11 +245,15 @@ code {
   border-radius: 18px;
   border: 1px solid #27272a;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
-  overflow: hidden;
-  animation: fadeIn 0.25s ease, slideUp 0.25s ease;
+  overflow-y: auto;
+  animation: fadeIn 0.25s ease;
+  z-index: 2100;
+  position: relative;
   display: flex;
   flex-direction: column;
+  margin: auto;
 }
+
 
 .modal-header {
   display: flex;
@@ -379,6 +333,150 @@ code {
   padding-top: 12px;
 }
 
+.modal-body textarea[formControlName="description"] {
+  background-color: #000;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 8px;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.modal-body input[type="file"] {
+  background-color: #000;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-body input[type="file"]:hover {
+  background-color: #222;
+}
+
+.modal-body textarea[formControlName="description"]:focus {
+  outline: 2px solid #1890ff;
+  background-color: #111;
+}
+
+.modal-body input[type="file"]:focus {
+  outline: 2px solid #1890ff;
+}
+
+.color-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+  border-radius: 3px;
+}
+
+.color-preview {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+  border-radius: 3px;
+}
+
+.thumb {
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #2f2f32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.preview-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.preview-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1c1c1e;
+  border: 1px solid #27272a;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+small.error {
+  color: #f87171;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  user-select: none;
+  font-family: "Roboto", sans-serif;
+}
+
+.pagination button {
+  background-color: #2f54eb; /* màu nút chính */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #1d39c4;
+}
+
+.pagination button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background-color: red;
+  font-weight: 600;
+  cursor: default;
+}
+
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -390,7 +488,7 @@ code {
 
 @keyframes slideUp {
   from {
-    transform: translateY(15px);
+    transform: translateY(0);
   }
   to {
     transform: translateY(0);
@@ -398,7 +496,7 @@ code {
 }
 
 @media (max-width: 768px) {
-  .voucher-admin {
+  .product-admin {
     padding: 16px;
   }
 

@@ -57,8 +57,7 @@
         <tr *ngFor="let v of vouchers; let i = index">
           <td>{{ i + 1 }}</td>
           <td><code>{{ v.code }}</code></td>
-          <td>{{ v.value }}{{ v.type === 'percent' ? '%' : 'k' }}</td>
-
+          <td>{{ v.type === 'percent' ? (v.value + '%') : (v.value | number:'1.0-0') + ' đ' }}</td>
           <td>
             <span class="tag" [class.percent]="v.type === 'percent'" [class.fixed]="v.type === 'fixed'">
               {{ v.type === 'percent' ? 'Theo %' : 'Giảm giá cố định' }}
@@ -82,13 +81,29 @@
         </tr>
       </tbody>
     </table>
+    
+    <div class="pagination" *ngIf="total > pageSize">
+      <button
+      class="page-btn"
+      [disabled]="page === 1"
+      (click)="changePage(page - 1)">‹ Trước
+    </button>
+    
+    <button
+    *ngFor="let page of [].constructor(totalPages); let i = index"
+    class="page-btn"
+    [class.active]="page === i + 1"
+    (click)="changePage(i + 1)">
+    {{ i + 1 }}
+  </button>
+  
+  <button
+    class="page-btn"
+    [disabled]="page === totalPages"
+    (click)="changePage(page + 1)">Tiếp ›
+  </button>
+</div>
 
-    <div class="pagination" *ngIf="total > limit">
-      <button (click)="changePage(page - 1)" [disabled]="page === 1">Prev</button>
-      <span>Page {{ page }} / {{ totalPages }}</span>
-      <button (click)="changePage(page + 1)" [disabled]="page === totalPages">Next</button>
-    </div>
-  </div>
 
   <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
     <div class="modal" (click)="$event.stopPropagation()">

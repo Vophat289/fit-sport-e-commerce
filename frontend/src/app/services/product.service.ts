@@ -9,7 +9,7 @@ export interface Product{
   slug?: string;
   price: number;
   description?: string;
-  category?: Category | string;
+  category?: Category;
   image?: string[];
   colors?: string[];
   sizes?: string[];
@@ -28,7 +28,7 @@ export class ProductService {
   private apiUrl = "http://localhost:3000/api/products"
 
   constructor(private http: HttpClient) { }
-
+  
   getAll(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl); //Observable<Product[]> là kiểu dữ liệu trả vè mảng
   }
@@ -45,5 +45,21 @@ export class ProductService {
   }
   searchProducts(query: string): Observable<{query: string; count: number; products: Product[]}>{
     return this.http.get<{query: string; count: number; products: Product[]}>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
+  }
+
+  getAllProducts() {
+    return this.http.get<any>(this.apiUrl);
+  }
+
+  createProduct(data: any) {
+    return this.http.post<any>(this.apiUrl, data);
+  }
+
+  updateProduct(id: string, data: any) {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteProduct(id: string) {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }

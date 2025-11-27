@@ -14,7 +14,8 @@
 
       <div class="header" [style.background]="v.type === 'percent' ? '#00AEEF' : '#FF5252'">
         <h3>
-          {{ v.type === 'percent' ? ('Giảm ' + v.value + '%') : ('Giảm ' + v.value + 'k') }}
+          {{ v.type === 'percent' ? ('Giảm ' + v.value + '%'): ('Giảm ' + (v.value | number:'1.0-0') + ' VNĐ') }}
+
         </h3>
       </div>
 
