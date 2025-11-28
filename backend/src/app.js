@@ -5,13 +5,17 @@ import passport from './config/auth.js';
 import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import authRoutes from './routes/auth.routes.js';
+
 import accountRoutes from './routes/account.routes.js'; 
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsRoutes from './routes/news.routes.js';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
+import adminRoutes from './routes/admin.routes.js';
+
 import { EventEmitter } from 'events';
 
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
@@ -59,6 +63,10 @@ app.use("/api/news", newsRoutes);
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes)
 
+
+// Kết nối route admin
+app.use('/api/admin', adminRoutes);
+// Test route
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
 });

@@ -29,11 +29,13 @@ export const getProfile = async (req, res) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Unauthorized: Missing user payload.' });
         }
+
         const userId = req.user._id || req.user.id; 
         console.log('DEBUG-TOKEN-ID:', userId); 
         if (!userId) {
              return res.status(401).json({ message: 'Invalid token payload: User ID missing.' });
         }   
+
         // 1. Tìm thông tin User 
         const user = await findUserByIdOrOauth(userId);
 
@@ -41,20 +43,26 @@ export const getProfile = async (req, res) => {
             console.warn(`DEBUG-RESULT: User not found for ID: ${userId}`);
             return res.status(404).json({ message: 'Không tìm thấy hồ sơ người dùng.' });
         }
-        
-        // 2. Tìm Địa chỉ mặc định
-        // const defaultAddress = await Address.findOne({ user: userId, isDefault: true });
-        // 3.Profile
-        const profile = {
-            name: user.name || '',
-            email: user.email,
 
+        // 2. Tìm Địa chỉ mặc định (nếu có)
+        let defaultAddress = null;
+        try {
+            defaultAddress = await Address.findOne({ user: userId, isDefault: true });
+        } catch (err) {
+            console.warn('Không tìm thấy defaultAddress, sẽ bỏ qua.', err.message);
+        }
+
+        // 3. Tạo profile trả về
+        const profile = {
+            name: user.name || '', // nếu user.name rỗng thì trả về chuỗi rỗng thay vì "Unknown"
+            email: user.email || '',
             phone: user.phone || defaultAddress?.phone || '', 
             gender: user.gender || '',
             dob: user.dob ? user.dob.toISOString().split('T')[0] : '', 
             avatarUrl: user.avatarUrl || '',
-            role: user.role,
+            role: user.role || 'user',
         };
+
         res.json(profile); 
     } catch (error) {
         console.error('LỖI TRONG GET PROFILE (Controller):', error.message, error.stack); 
@@ -64,6 +72,7 @@ export const getProfile = async (req, res) => {
         });
     }
 };
+
 
 export const updateProfile = async (req, res) => {
     try {

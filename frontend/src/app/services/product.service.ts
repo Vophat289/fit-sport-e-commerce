@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Category } from './category.service';
 
 export interface Product{
+
   _id?: string;
   name: string;
   slug?: string;
@@ -19,12 +20,14 @@ export interface Product{
   averageRating?: number;
   totalRatings?: number;
   _displayIndex?: number; 
+
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root'
 })
 export class ProductService {
+private adminApiUrl = "http://localhost:3000/api/admin";
 
   private apiUrl = "/api/products"
 
@@ -64,3 +67,4 @@ export class ProductService {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
+

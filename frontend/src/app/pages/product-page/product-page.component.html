@@ -162,13 +162,14 @@
 
           <!-- Nút thêm giỏ -->
           <div class="product-action">
-            <button class="btn-cart" (click)="addToCart(product)">
-              <i class="fa-solid fa-cart-plus"></i>
-              Thêm vào giỏ hàng
-            </button>
-          </div>
+                <button class="btn-cart" (click)="openVariantModal(product)">
+                    Thêm vào giỏ hàng
+                </button>
+            </div>
         </div>
       </div>
+
+      
 
       <!-- Empty State -->
       <div *ngIf="!loading && filteredProducts.length === 0" class="empty-container">
