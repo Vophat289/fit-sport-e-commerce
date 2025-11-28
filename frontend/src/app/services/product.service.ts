@@ -18,6 +18,7 @@ export interface Product{
   viewCount?: number;
   averageRating?: number;
   totalRatings?: number;
+  _displayIndex?: number; 
 }
 
 @Injectable({

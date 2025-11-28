@@ -379,6 +379,13 @@ code {
   padding-top: 12px;
 }
 
+small.error {
+  color: #f87171;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

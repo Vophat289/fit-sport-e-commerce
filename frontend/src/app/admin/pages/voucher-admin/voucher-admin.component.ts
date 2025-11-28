@@ -28,12 +28,12 @@
     constructor(private voucherService: VoucherService, private fb: FormBuilder) {
       this.form = this.fb.group({
         code: ['', Validators.required],
-        value: [0, [Validators.required, Validators.min(0)]],
+        value: [1, [Validators.required, Validators.min(1)]],
         type: ['percent', Validators.required],
         min_order_value: [0, Validators.min(0)],
         start_date: ['', Validators.required],
         end_date: ['', Validators.required],
-        usage_limit: [0, Validators.min(0)],
+        usage_limit: [1, Validators.min(1)],
       });
     }
 
@@ -74,6 +74,7 @@
         end_date: '',
         usage_limit: 0,
       });
+       this.form.markAllAsTouched();
     }
 
     openEditForm(voucher: Voucher) {
@@ -97,7 +98,8 @@
 
     submitForm() {
       if (this.form.invalid) {
-        this.errorMsg = 'Vui lòng nhập đầy đủ và đúng dữ liệu.';
+        this.form.markAllAsTouched();
+        this.errorMsg = '';
         return;
       }
       this.errorMsg = '';
