@@ -55,7 +55,7 @@ export class VoucherComponent implements OnInit {
 
   fetchVouchers(page: number = 1) {
     this.loading = true;
-    this.http.get<any>(`http://localhost:3000/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
+    this.http.get<any>(`/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
       .subscribe({
         next: (res) => {
           if(page === 1) {

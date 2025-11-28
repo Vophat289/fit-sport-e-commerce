@@ -54,7 +54,7 @@ export class ContactComponent {
     };
 
     // Gửi đến backend (hoặc thay bằng EmailJS, Formspree, v.v.)
-    this.http.post('http://localhost:3000/api/contact', payload).subscribe({
+    this.http.post('/api/contact', payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.showSuccessMessage.set(true);

@@ -30,7 +30,7 @@ export type UpdateNewsData = Partial<CreateNewsData>;
   providedIn: 'root'
 })
 export class NewsService {
-  private readonly API_URL = 'http://localhost:3000/api/news';
+  private readonly API_URL = '/api/news';
 
   constructor(private http: HttpClient) {}
   getAllNews(): Observable<News[]> {

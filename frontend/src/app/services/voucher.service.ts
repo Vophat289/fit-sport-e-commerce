@@ -26,7 +26,7 @@ interface VoucherListResponse {
   providedIn: 'root'
 })
 export class VoucherService {
-  private apiUrl = 'http://localhost:3000/api/admin/vouchers'; 
+  private apiUrl = '/api/admin/vouchers'; 
 
   constructor(private http: HttpClient) {}
 

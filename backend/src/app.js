@@ -25,7 +25,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:4200", 
+    origin: ["http://localhost:4200", "https://fitsport.io.vn", "https://www.fitsport.io.vn"], 
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"], 
     credentials: true // gửi cookie/token cho xác thực
 }));

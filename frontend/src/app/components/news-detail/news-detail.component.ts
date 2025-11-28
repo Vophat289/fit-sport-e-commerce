@@ -27,7 +27,7 @@ export class NewsDetailComponent {
   ngOnInit() {
     const slug = this.route.snapshot.paramMap.get('slug');
     if (slug) {
-      this.http.get(`http://localhost:3000/api/news/slug/${slug}`).subscribe({
+      this.http.get(`/api/news/slug/${slug}`).subscribe({
         next: (res: any) => {
           this.article = res.data ?? res;
           this.loading = false;
