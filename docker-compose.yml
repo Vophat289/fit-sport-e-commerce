@@ -2,15 +2,63 @@ version: "3.9"
 
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: vohongphat/backend:latest
     container_name: backend
     restart: always
     ports:
       - "3000:3000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - fitsport-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     image: vohongphat/frontend:latest
     container_name: frontend
     restart: always
     ports:
+      - "4200:80"
+    networks:
+      - fitsport-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    networks:
+      - fitsport-network
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  fitsport-network:
+    driver: bridge
+
+volumes:
+  uploads:
