@@ -84,7 +84,7 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ message: "Sản phẩm đã tồn tại" });
     }
 
-    //ảnh gửi lên uplaod tưng file ảnh lên Cloudinary
+    // ảnh gửi lên uplaod tưng file ảnh lên Cloudinary
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -141,7 +141,7 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, category, colors, sizes } = req.body;  // lấy colors, sizes
+    const { name, price, description, category, colors, sizes, existingImages } = req.body;  
 
     // Tìm sản phẩm
     const product = await Product.findById(id);
@@ -204,6 +204,19 @@ export const updateProduct = async (req, res) => {
     if (category !== undefined) product.category = category;
 
     // Xử lý ảnh
+
+            let keptImages = [];
+    if (existingImages) {
+      try {
+        keptImages = JSON.parse(existingImages);
+      } catch {
+        keptImages = [];
+      }
+    }
+    const imagesToDelete = product.image.filter(img => !keptImages.includes(img));
+    product.image = keptImages;
+    
+
     if (req.files && req.files.length > 0) {
       const newImageUrls = [];
       for (const file of req.files) {
@@ -213,7 +226,7 @@ export const updateProduct = async (req, res) => {
         newImageUrls.push(result.secure_url);
         fs.unlinkSync(file.path);
       }
-      product.image = newImageUrls;
+      product.image = [...product.image, ...newImageUrls]
     }
 
     await product.save();
@@ -225,7 +238,6 @@ export const updateProduct = async (req, res) => {
       .json({ message: "Lỗi khi cập nhật sản phẩm: ", error: error.message });
   }
 };
-
 
 //xóa sản phẩm
 export const deleteProduct = async (req, res) => {

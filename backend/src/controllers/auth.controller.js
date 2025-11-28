@@ -31,6 +31,16 @@ export const generateToken = (user) => {
     );
 };
 
+// lấy danh sách tất cả user
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // bỏ trường password ra khỏi kết quả
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách user', error: error.message });
+  }
+};
+
 // đăng nhập
 export const login = async (req, res) => {
   try {
@@ -49,6 +59,10 @@ export const login = async (req, res) => {
 
     if (!user.isVerified) {
       return res.status(401).json({ message: 'Vui lòng xác minh tài khoản trước khi đăng nhập.' });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ message: 'Tài khoản này đã bị chặn, vui lòng liên hệ quản trị viên.' });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -229,6 +243,61 @@ export const resetPassword = async (req, res) => {
         console.error('Lỗi resetPassword:', error.message);
         res.status(500).json({ message: 'Lỗi server khi đặt lại mật khẩu.' });
     }
+};
+
+// chặn hoặc bỏ chặn tài khoản user
+export const blockUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { block } = req.body; // boolean: true => chặn, false => bỏ chặn
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
+
+    user.isBlocked = !!block;
+    await user.save();
+
+    return res.status(200).json({
+      message: block ? 'Tài khoản đã bị chặn' : 'Tài khoản đã được bỏ chặn',
+      user,
+    });
+  } catch (error) {
+    console.error('Lỗi blockUser:', error);
+    return res.status(500).json({ message: 'Lỗi server khi cập nhật trạng thái chặn', error: error.message });
+  }
+};
+
+// phân quyền user/admin
+export const changeUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body; // 'user' hoặc 'admin'
+
+    if (!['user', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Vai trò không hợp lệ' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
+
+    user.role = role;
+    await user.save();
+
+    return res.status(200).json({ message: 'Cập nhật phân quyền thành công', user });
+  } catch (error) {
+    console.error('Lỗi changeUserRole:', error);
+    return res.status(500).json({ message: 'Lỗi server khi cập nhật phân quyền', error: error.message });
+  }
+};
+
+export const unblockUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { isBlocked: false }, { new: true });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error unblocking user', error: error.message });
+  }
 };
 
 // đăng xuất 

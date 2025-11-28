@@ -24,9 +24,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:4200",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    origin: "http://localhost:4200", 
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"], 
+    credentials: true // gửi cookie/token cho xác thực
 }));
 
 app.use(express.json({ limit: '10mb' }));        
@@ -41,8 +41,10 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// User
+app.use('/api', authRoutes)
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);

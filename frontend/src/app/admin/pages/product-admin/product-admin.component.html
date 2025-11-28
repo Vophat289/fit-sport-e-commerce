@@ -227,9 +227,10 @@
       </label>
 
       <label>
-        Ảnh sản phẩm (có thể chọn nhiều)
+        Ảnh sản phẩm 
         <input
           type="file"
+          name="images"
           (change)="onFileChange($event)"
           multiple
           accept="image/*"
@@ -237,11 +238,15 @@
       </label>
 
       <!-- Preview ảnh -->
-      <div class="preview-images" *ngIf="previewImages.length > 0">
-        <div *ngFor="let img of previewImages" class="preview-image">
-          <img [src]="img" alt="Ảnh preview" />
-        </div>
-      </div>
+<div class="preview-images" *ngIf="previewImages.length > 0">
+  <div *ngFor="let img of previewImages; let i = index" class="preview-image">
+    <img [src]="img" alt="Ảnh preview" (error)="onImageError($event)" />
+    <button type="button" (click)="removeImage(i)" aria-label="Xóa ảnh">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </div>
+</div>
+
 
       <div class="modal-actions">
         <button
