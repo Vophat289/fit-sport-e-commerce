@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DashboardService } from '@app/admin/services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,11 +9,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit{
   // Thống kê tổng quan (sẽ lấy từ API sau)
   stats = {
-    totalUsers: 60,        // Tổng số người dùng
-    totalOrders: 40,       // Tổng số đơn hàng
+    totalUsers: 0,        
+    totalOrders: 0,       
     totalRevenue: 15000000, // Tổng doanh thu
     totalProducts: 50      // Tổng số sản phẩm
   };
@@ -35,6 +36,24 @@ export class DashboardComponent {
 
   // Tìm giá trị max để scale biểu đồ
   maxRevenue = Math.max(...this.chartData.map(d => d.revenue));
+
+  constructor(private dashboardService: DashboardService){}
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void{
+    this.dashboardService.getDashboardData().subscribe({
+      next: (response) => {
+        if(response.success) {
+          //update từ api
+          this.stats.totalUsers = response.data.totalUsers;
+          this.stats.totalProducts = response.data.totalProducts;
+        }
+      },
+    })
+  }
 
   // Format số tiền theo định dạng Việt Nam (15.000.000)
   formatCurrency(value: number): string {
