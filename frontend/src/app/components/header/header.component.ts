@@ -1,55 +1,66 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule  } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
-
+import { Subscription } from 'rxjs';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, FormsModule, RouterModule ],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   userName: string | null = null;
+  cartCount: number = 0;
+
+  private userSub: Subscription = new Subscription();
+  private cartSub: Subscription = new Subscription();
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService
-) {}
+    private cartService: CartService
+  ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe((user) => {
-      console.log('User object:', user);
-      if (user) {
-        this.userName = typeof user.displayName === 'string' ? user.displayName : (user.name || 'Người dùng');
-      } else {
-        this.userName = null;
-      }
+    this.userSub = this.authService.currentUser$.subscribe((user) => {
+      this.userName = user?.displayName || user?.name || null;
     });
+
+    // ✅ Lắng nghe số lượng sản phẩm trong giỏ
+    this.cartSub = this.cartService.cartCount$.subscribe((count) => {
+      this.cartCount = count;
+    });
+  }
+
+  ngOnDestroy() {
+    this.userSub.unsubscribe();
+    this.cartSub.unsubscribe();
   }
 
   goToLogin() {
     this.router.navigate(['/login']);
   }
- logout() {
-  if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) { 
-    this.authService.logout().subscribe({
-        next: () => {
-            alert('Đăng xuất thành công'); 
 
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            
-            this.router.navigate(['/home']);
-        },
-        error: (err) => {
-            alert('Đăng xuất thất bại. Vui lòng thử lại.');
-        }
-    });
+  goToCart() {
+    this.router.navigate(['/cart']);
   }
-}
+
+  logout() {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+      this.authService.logout().subscribe({
+        next: () => {
+          this.cartService.clearCart(); // ✅ reset số lượng
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.router.navigate(['/home']);
+        },
+        error: () => alert('Đăng xuất thất bại. Vui lòng thử lại.'),
+      });
+    }
+  }
 }

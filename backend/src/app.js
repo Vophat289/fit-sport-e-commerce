@@ -8,57 +8,49 @@ import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import authRoutes from './routes/auth.routes.js';
 
-import accountRoutes from './routes/account.routes.js'; // thêm account routes
+import accountRoutes from './routes/account.routes.js'; 
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import { EventEmitter } from 'events';
 
 EventEmitter.defaultMaxListeners = 20;
 
 const app = express();
 
-// ======================
 // CORS
-// ======================
 app.use(cors({
-    origin: "http://localhost:4200", // frontend Angular
-    methods: ["GET", "POST", "PUT", "DELETE"], // hỗ trợ các method
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true // gửi cookie/token cho xác thực
 }));
 
-// ======================
-// Body parser
-// ======================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ======================
-// Session & Passport
-// ======================
+
 app.use(session({
-    secret: 'secretkey123', // dùng cho session
-    resave: false,
+    secret: 'secretkey123', 
     saveUninitialized: false,
     cookie: {
-        secure: false, // đổi true nếu dùng HTTPS
+        secure: false, 
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 // 1 ngày
+        maxAge: 1000 * 60 * 60 * 24 
     }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ======================
 // ROUTES
-// ======================
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
-
+// Kết nối route admin
+app.use('/api/admin', adminRoutes);
 // Test route
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy!");

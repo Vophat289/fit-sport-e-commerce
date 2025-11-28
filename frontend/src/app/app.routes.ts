@@ -11,7 +11,8 @@ import { HomeCategoryComponent } from './components/home-category/home-category.
 import { ProductPageComponent } from './pages/product-page/product-page.component'
 import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
 import { AccountPageComponent } from './pages/account-page/account-page.component';
-
+import { CartPageComponent } from './pages/cart-page/cart-page.component';
+import { DataSeederComponent } from './pages/admin-seeder/data-seeder.component';
 export const routes: Routes = [
   { path: 'home', component: HomeComponent }, 
 
@@ -21,8 +22,8 @@ export const routes: Routes = [
 
   { path: 'account', component: AccountPageComponent }, 
   {path: 'gioi-thieu', component: GioiThieuComponent},
-
-
+  { path: 'cart', component: CartPageComponent },
+{ path: 'admin/seed', component: DataSeederComponent },
   { path: 'login', component: LoginComponent },
   { path: 'verify-pin', component: VerifyPinComponent},
   { path: 'register', component: RegisterComponent },

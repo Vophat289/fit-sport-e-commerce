@@ -1,195 +1,243 @@
-import Cart from "../models/cart.model.js";
-import Product from "../models/product.model.js"; 
-import Voucher from "../models/voucher.model.js"; 
+// src/controllers/cart.controller.js
+import Oders from '../models/oders.model.js';
+import OdersDetails from '../models/odersDetails.model.js';
+import ProductsVariant from '../models/productsVariant.model.js';
+import mongoose from 'mongoose'; 
+import Size from '../models/size.model.js'; 
+import Color from '../models/color.model.js'; 
 
-function recalcCartTotals(cart) {
-  let total = 0;
-  cart.products.forEach(p => {
-    p.total = Number((p.price * p.quantity).toFixed(0));
-    total += p.total;
-  });
-  cart.cart_total = Number(total - (cart.voucher?.discount || 0));
-  if (cart.cart_total < 0) cart.cart_total = 0;
-}
 
-// GET /api/cart/:user_id
-export const getCart = async (req, res) => {
-  try {
-    const { user_id } = req.params;
-    let cart = await Cart.findOne({ user_id }).populate("products.product_id", "name price");
-    if (!cart) {
-      return res.json({ success: true, cart: { products: [], cart_total: 0, voucher: { code: null, discount: 0 } } });
-    }
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+// Hàm hỗ trợ tạo mã đơn hàng
+const generateOrderCode = () => {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `FS-${timestamp}-${random}`;
 };
 
-// POST /api/cart/add
+// =======================================================
+// HÀM 1: THÊM VÀO GIỎ HÀNG (ADD TO CART)
+// =======================================================
 export const addToCart = async (req, res) => {
-  try {
-    const { user_id, product_id, quantity = 1, size = null, color = null } = req.body;
-    if (!user_id || !product_id) return res.status(400).json({ success: false, message: "user_id and product_id required" });
+    try {
+        const userId = req.user._id || req.user.id; 
+        const { productId, sizeId, colorId, quantity } = req.body; // sizeId và colorId là ObjectId thật
 
-    const product = await Product.findById(product_id);
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+        if (!productId || !sizeId || !colorId || !quantity || quantity <= 0) {
+            return res.status(400).json({ message: 'Dữ liệu sản phẩm không hợp lệ.' });
+        }
 
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) {
-      cart = new Cart({ user_id, products: [], cart_total: 0, voucher: { code: null, discount: 0 } });
+        // 1. Xác định Variant và kiểm tra tồn kho
+        // Frontend đã gửi ID thật, nên ta truy vấn trực tiếp
+        const variant = await ProductsVariant.findOne({ 
+            product_id: productId, 
+            size_id: sizeId, 
+            color_id: colorId 
+        });
+
+        if (!variant) {
+            return res.status(404).json({ message: 'Không tìm thấy biến thể sản phẩm phù hợp.' });
+        }
+        if (variant.quantity < quantity) {
+            return res.status(400).json({ message: `Số lượng tồn kho chỉ còn ${variant.quantity}.` });
+        }
+        
+        // 2. Tìm/Tạo Giỏ hàng (Order status: 'CART')
+        let cart = await Oders.findOne({ user_id: userId, status: 'CART' });
+
+        if (!cart) {
+            cart = await Oders.create({ 
+                user_id: userId, 
+                order_code: generateOrderCode(),
+                status: 'CART',
+                total_price: 0, 
+                delivery_fee: 0, 
+            });
+        }
+        
+        // 3. Thêm/Cập nhật chi tiết Giỏ hàng
+        let item = await OdersDetails.findOne({ order_id: cart._id, variant_id: variant._id });
+
+        if (item) {
+            item.quantity += quantity;
+            item.price = variant.price; 
+            await item.save();
+        } else {
+            await OdersDetails.create({
+                order_id: cart._id,
+                variant_id: variant._id,
+                price: variant.price, 
+                quantity: quantity
+            });
+        }
+        
+        // 4. Cập nhật tồn kho (Giảm số lượng)
+        variant.quantity -= quantity;
+        await variant.save();
+
+        return res.status(200).json({ message: 'Đã thêm sản phẩm vào giỏ hàng thành công.', cartId: cart._id });
+
+    } catch (error) {
+        console.error('Lỗi khi thêm vào giỏ hàng:', error.message, error.stack);
+        // Xử lý lỗi CastError nếu ID không hợp lệ (ví dụ: client gửi string rỗng)
+        if (error.name === 'CastError') {
+             return res.status(400).json({ message: 'Lỗi định dạng ID sản phẩm.' });
+        }
+        return res.status(500).json({ message: 'Lỗi server khi xử lý giỏ hàng.' });
     }
-
-    const idx = cart.products.findIndex(p => p.product_id.toString() === product_id.toString() && p.size === size && p.color === color);
-
-    if (idx >= 0) {
-      cart.products[idx].quantity += Number(quantity);
-    } else {
-      cart.products.push({
-        product_id,
-        name: product.name || "",
-        price: product.price || 0,
-        quantity: Number(quantity),
-        size,
-        color,
-        total: (product.price || 0) * Number(quantity)
-      });
-    }
-
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, message: "Added to cart", cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 };
 
-// POST /api/cart/increase
-export const increaseQty = async (req, res) => {
-  try {
-    const { user_id, product_id, size = null, color = null } = req.body;
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
+// =======================================================
+// HÀM 2: XEM GIỎ HÀNG (GET CART)
+// =======================================================
+export const getCart = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
 
-    const item = cart.products.find(p => p.product_id.toString() === product_id && p.size === size && p.color === color);
-    if (!item) return res.status(404).json({ success: false, message: "Product not in cart" });
+        const cart = await Oders.findOne({ user_id: userId, status: 'CART' });
 
-    item.quantity += 1;
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+        if (!cart) {
+            return res.status(200).json({ items: [], totalAmount: 0, message: 'Giỏ hàng trống.' });
+        }
+        
+        const cartDetails = await OdersDetails.find({ order_id: cart._id })
+            // Thêm tùy chọn lean() để tăng tốc độ và tránh lỗi khi xử lý các Object ID bị hỏng
+            .lean() 
+            .populate({
+                path: 'variant_id', 
+                select: 'product_id size_id color_id image_url price',
+                populate: [
+                    // Mongoose có thể gặp lỗi nếu 'product_id' không được định kiểu đúng
+                    { path: 'product_id', select: 'name slug' }, 
+                    { path: 'size_id', model: 'Size', select: 'name' }, 
+                    { path: 'color_id', model: 'Color', select: 'name hex_code' }
+                ]
+            });
+            
+        // 1. LỌC: Chỉ giữ lại các item mà populate thành công (variant_id không bị null)
+        const validCartDetails = cartDetails.filter(item => item.variant_id);
 
-// POST /api/cart/decrease
-export const decreaseQty = async (req, res) => {
-  try {
-    const { user_id, product_id, size = null, color = null } = req.body;
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
+        // 2. TÍNH TOÁN TỔNG TIỀN AN TOÀN
+        const totalAmount = validCartDetails.reduce((sum, item) => {
+            // Sử dụng các giá trị item.price và item.quantity từ OdersDetails (an toàn)
+            const price = item.price || 0;
+            const quantity = item.quantity || 0;
+            return sum + (price * quantity);
+        }, 0);
 
-    const idx = cart.products.findIndex(p => p.product_id.toString() === product_id && p.size === size && p.color === color);
-    if (idx === -1) return res.status(404).json({ success: false, message: "Product not in cart" });
 
-    if (cart.products[idx].quantity > 1) {
-      cart.products[idx].quantity -= 1;
-    } else {
-      cart.products.splice(idx, 1);
+        return res.status(200).json({
+            cartId: cart._id, 
+            items: validCartDetails, 
+            totalAmount: totalAmount,
+        });
+
+    } catch (error) {
+        console.error('LỖI GỐC TRONG GET CART:', error.message, error.stack);
+        // Trả về lỗi server 500 nếu có lỗi không phải do dữ liệu (ví dụ: lỗi DB)
+        return res.status(500).json({ message: 'Lỗi server khi lấy thông tin giỏ hàng.', error: error.message });
     }
-
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 };
+// =======================================================
+// HÀM 3: CẬP NHẬT SỐ LƯỢNG (UPDATE CART ITEM)
+// =======================================================
+export const updateCartItem = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const itemId = req.params.itemId; 
+        const { quantity: newQuantity } = req.body; 
 
-// POST /api/cart/remove
-export const removeItem = async (req, res) => {
-  try {
-    const { user_id, product_id, size = null, color = null } = req.body;
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
+        if (!newQuantity || newQuantity < 1) {
+            return res.status(400).json({ message: 'Số lượng không hợp lệ.' });
+        }
 
-    cart.products = cart.products.filter(p => !(p.product_id.toString() === product_id && p.size === size && p.color === color));
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+        // 1. Tìm item chi tiết giỏ hàng và xác minh quyền sở hữu
+        const itemDetail = await OdersDetails.findOne({ _id: itemId }).populate({
+            path: 'order_id',
+            match: { user_id: userId, status: 'CART' } 
+        });
 
-// DELETE /api/cart/clear/:user_id
-export const clearCart = async (req, res) => {
-  try {
-    const { user_id } = req.params;
-    await Cart.findOneAndDelete({ user_id });
-    res.json({ success: true, message: "Cart cleared" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+        if (!itemDetail || !itemDetail.order_id) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm hoặc bạn không có quyền sửa.' });
+        }
+        
+        // 2. Tìm Variant và tính toán sự thay đổi tồn kho
+        const variant = await ProductsVariant.findById(itemDetail.variant_id);
+        
+        if (!variant) {
+             return res.status(404).json({ message: 'Lỗi: Không tìm thấy biến thể gốc của sản phẩm.' });
+        }
 
-// POST /api/cart/apply-voucher
-export const applyVoucher = async (req, res) => {
-  try {
-    const { user_id, code } = req.body;
-    if (!user_id || !code) return res.status(400).json({ success: false, message: "user_id and code required" });
+        const quantityDifference = newQuantity - itemDetail.quantity; 
 
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
+        // 3. Kiểm tra tồn kho trước khi tăng số lượng
+        if (quantityDifference > 0 && variant.quantity < quantityDifference) {
+            return res.status(400).json({ message: `Không đủ tồn kho. Chỉ còn ${variant.quantity} sản phẩm có thể thêm.` });
+        }
 
-    const voucher = await Voucher.findOne({ code });
-    if (!voucher) return res.status(400).json({ success: false, message: "Voucher not found" });
+        // 4. Cập nhật số lượng và Tồn kho
+        itemDetail.quantity = newQuantity;
+        variant.quantity -= quantityDifference; 
 
-    const now = new Date();
-    if (now < voucher.start_date || now > voucher.end_date) {
-      return res.status(400).json({ success: false, message: "Voucher expired or not started" });
+        await itemDetail.save();
+        await variant.save();
+
+        return res.status(200).json({ message: 'Cập nhật số lượng thành công.' });
+
+    } catch (error) {
+        console.error('Lỗi khi cập nhật giỏ hàng:', error.message, error.stack);
+        if (error.name === 'CastError') {
+             return res.status(400).json({ message: 'Lỗi định dạng ID sản phẩm.' });
+        }
+        return res.status(500).json({ message: 'Lỗi server khi cập nhật giỏ hàng.' });
     }
-    if (voucher.usage_limit > 0 && voucher.used_count >= voucher.usage_limit) {
-      return res.status(400).json({ success: false, message: "Voucher usage limit reached" });
-    }
-
-    let subtotal = 0;
-    cart.products.forEach(p => subtotal += p.price * p.quantity);
-
-    if (subtotal < voucher.min_order_value) {
-      return res.status(400).json({ success: false, message: `Minimum order ${voucher.min_order_value}` });
-    }
-
-    let discount = 0;
-    if (voucher.type === "percent") discount = Math.floor((subtotal * voucher.value) / 100);
-    else discount = voucher.value;
-
-    if (discount > subtotal) discount = subtotal;
-    cart.voucher = { code: voucher.code, discount };
-    recalcCartTotals(cart);
-    await cart.save();
-
-    res.json({ success: true, message: "Voucher applied", discount, cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 };
 
-// POST /api/cart/remove-voucher
-export const removeVoucher = async (req, res) => {
-  try {
-    const { user_id } = req.body;
-    let cart = await Cart.findOne({ user_id });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
+// =======================================================
+// HÀM 4: XÓA ITEM KHỎI GIỎ HÀNG (DELETE CART ITEM)
+// =======================================================
+export const deleteCartItem = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const itemId = req.params.itemId; // ID của OdersDetails
 
-    cart.voucher = { code: null, discount: 0 };
-    recalcCartTotals(cart);
-    await cart.save();
-    res.json({ success: true, message: "Voucher removed", cart });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+        // 1. Tìm item để lấy thông tin hoàn lại tồn kho và order_id
+        const itemDetail = await OdersDetails.findOne({ _id: itemId });
+
+        if (!itemDetail) {
+            return res.status(404).json({ message: 'Không tìm thấy sản phẩm cần xóa trong giỏ hàng.' });
+        }
+        
+        // 2. Xác minh quyền sở hữu
+        const cart = await Oders.findOne({ _id: itemDetail.order_id, user_id: userId, status: 'CART' });
+        
+        if (!cart) {
+            return res.status(403).json({ message: 'Bạn không có quyền xóa sản phẩm này.' });
+        }
+        
+        // 3. Hoàn lại tồn kho
+        const variant = await ProductsVariant.findById(itemDetail.variant_id);
+        
+        if (variant) {
+            variant.quantity += itemDetail.quantity; 
+            await variant.save();
+        }
+        
+        // 4. Xóa item
+        await OdersDetails.deleteOne({ _id: itemId });
+
+        // 5. Kiểm tra và xóa Giỏ hàng (nếu trống)
+        const remainingItemsCount = await OdersDetails.countDocuments({ order_id: cart._id });
+        if (remainingItemsCount === 0) {
+            await Oders.findByIdAndDelete(cart._id);
+        }
+
+        return res.status(200).json({ message: 'Xóa sản phẩm khỏi giỏ hàng thành công.' });
+
+    } catch (error) {
+        console.error('Lỗi khi xóa giỏ hàng:', error.message, error.stack);
+        if (error.name === 'CastError') {
+             return res.status(400).json({ message: 'Lỗi định dạng ID sản phẩm.' });
+        }
+        return res.status(500).json({ message: 'Lỗi server khi xóa sản phẩm.' });
+    }
 };

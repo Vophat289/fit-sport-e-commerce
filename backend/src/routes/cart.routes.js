@@ -1,30 +1,24 @@
-import express from "express";
-import * as CartController from "../controllers/cart.controller.js";
+import express from 'express';
+import { 
+  addToCart, 
+  getCart, 
+  updateCartItem, 
+  deleteCartItem 
+} from '../controllers/cart.controller.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// Lấy giỏ hàng
-router.get("/:user_id", CartController.getCart);
-
 // Thêm sản phẩm vào giỏ hàng
-router.post("/add", CartController.addToCart);
+router.post('/add', authMiddleware, addToCart);
 
-// Tăng số lượng sản phẩm
-router.post("/increase", CartController.increaseQty);
+// Xem giỏ hàng
+router.get('/', authMiddleware, getCart);
 
-// Giảm số lượng sản phẩm
-router.post("/decrease", CartController.decreaseQty);
+// Cập nhật số lượng sản phẩm trong giỏ
+router.patch('/update/:itemId', authMiddleware, updateCartItem);
 
 // Xóa sản phẩm khỏi giỏ hàng
-router.post("/remove", CartController.removeItem);
-
-// Xóa toàn bộ giỏ hàng
-router.delete("/clear/:user_id", CartController.clearCart);
-
-// Áp dụng voucher
-router.post("/apply-voucher", CartController.applyVoucher);
-
-// Xóa voucher
-router.post("/remove-voucher", CartController.removeVoucher);
+router.delete('/delete/:itemId', authMiddleware, deleteCartItem);
 
 export default router;
