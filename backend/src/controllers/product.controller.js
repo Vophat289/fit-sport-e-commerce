@@ -75,42 +75,61 @@ export const createProduct = async (req, res) => {
   try {
     const { name, price, description, category } = req.body;
     let { colors, sizes } = req.body;
+
+    if (!name || name.trim() === "")
+      return res.status(400).json({ message: "Vui lòng nhập tên sản phẩm" });
+
+    if (!price)
+      return res.status(400).json({ message: "Vui lòng nhập giá sản phẩm" });
+
+    if (!category)
+      return res.status(400).json({ message: "Vui lòng chọn danh mục" });
+
+    if (!colors || (Array.isArray(colors) && colors.length === 0)) {
+      return res.status(400).json({ message: "Vui lòng nhập màu sắc sản phẩm" });
+    }
+
+    if (!sizes || (Array.isArray(sizes) && sizes.length === 0)) {
+      return res.status(400).json({ message: "Vui lòng nhập kích cỡ sản phẩm" });
+    }
+
     const imageUrls = [];
     const slug = slugify(name, { lower: true, locale: "vi" });
 
-    //kiểm tra slug đã tồn tại chưa
+    // Kiểm tra slug đã tồn tại chưa
     const exitingProduct = await Product.findOne({ slug });
     if (exitingProduct) {
       return res.status(400).json({ message: "Sản phẩm đã tồn tại" });
     }
 
-    // ảnh gửi lên uplaod tưng file ảnh lên Cloudinary
+    // Upload ảnh
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
           folder: "products",
         });
-
         imageUrls.push(result.secure_url);
         fs.unlinkSync(file.path);
       }
     } else {
-      console.log("không có ảnh nào được gửi lên");
+      return res.status(400).json({ message: "Vui lòng tải lên ít nhất 1 hình ảnh" });
     }
 
+    // Xử lý colors
     if (typeof colors === "string") {
       try {
-        colors = JSON.parse(colors); //chuyển chuỗi json thành mảng thật
+        colors = JSON.parse(colors);
       } catch {
         colors = [colors];
       }
     }
 
+    // Xử lý sizes
     if (typeof sizes === "string") {
       try {
-        sizes = JSON.parse(sizes); //chuyển chuỗi json thành mảng thật
+        sizes = JSON.parse(sizes);
       } catch {
-        sizes = [sizes]; //nếu parse lỗi thì bọc lại thành mảng luon
+        sizes = [sizes];
       }
     }
 
@@ -125,15 +144,13 @@ export const createProduct = async (req, res) => {
       image: imageUrls,
     });
 
-    //lưu vào database
     const savedProduct = await newProduct.save();
-    res
-      .status(201)
-      .json({ message: "Thêm sản phẩm thành công", product: savedProduct });
+    res.status(201).json({
+      message: "Thêm sản phẩm thành công",
+      product: savedProduct,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi thêm sản phẩm", error: error.message });
+    res.status(500).json({ message: "Lỗi khi thêm sản phẩm", error: error.message });
   }
 };
 
@@ -141,22 +158,38 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, category, colors, sizes, existingImages } = req.body;  
+    const {
+      name,
+      price,
+      description,
+      category,
+      colors,
+      sizes,
+      existingImages,
+    } = req.body;
 
-    // Tìm sản phẩm
+    if (!name || name.trim() === "")
+      return res.status(400).json({ message: "Tên sản phẩm không được để trống" });
+
+    if (!price)
+      return res.status(400).json({ message: "Giá sản phẩm không được để trống" });
+
+    if (!category)
+      return res.status(400).json({ message: "Danh mục không được để trống" });
+
+    // Tìm sản phẩm cũ
     const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
     }
 
-    // Xử lý colors
     let newColors = product.colors;
     if (colors !== undefined) {
       if (typeof colors === "string") {
         try {
           newColors = JSON.parse(colors);
         } catch {
-          newColors = colors.split(",").map(c => c.trim());
+          newColors = colors.split(",").map((c) => c.trim());
         }
       } else if (Array.isArray(colors)) {
         newColors = colors;
@@ -164,14 +197,13 @@ export const updateProduct = async (req, res) => {
       product.colors = newColors;
     }
 
-    // Xử lý sizes (tương tự)
     let newSizes = product.sizes;
     if (sizes !== undefined) {
       if (typeof sizes === "string") {
         try {
           newSizes = JSON.parse(sizes);
         } catch {
-          newSizes = sizes.split(",").map(s => s.trim());
+          newSizes = sizes.split(",").map((s) => s.trim());
         }
       } else if (Array.isArray(sizes)) {
         newSizes = sizes;
@@ -179,12 +211,8 @@ export const updateProduct = async (req, res) => {
       product.sizes = newSizes;
     }
 
-    // Các phần cập nhật khác
     if (name && name.trim() !== product.name) {
-      const newSlug = slugify(name, {
-        lower: true,
-        locale: "vi",
-      });
+      const newSlug = slugify(name, { lower: true, locale: "vi" });
 
       const exitingProduct = await Product.findOne({
         slug: newSlug,
@@ -199,13 +227,12 @@ export const updateProduct = async (req, res) => {
       product.name = name.trim();
       product.slug = newSlug;
     }
+
     if (price !== undefined) product.price = price;
     if (description !== undefined) product.description = description;
     if (category !== undefined) product.category = category;
 
-    // Xử lý ảnh
-
-            let keptImages = [];
+    let keptImages = [];
     if (existingImages) {
       try {
         keptImages = JSON.parse(existingImages);
@@ -213,9 +240,13 @@ export const updateProduct = async (req, res) => {
         keptImages = [];
       }
     }
-    const imagesToDelete = product.image.filter(img => !keptImages.includes(img));
+
+    // ảnh bị xóa
+    const imagesToDelete = product.image.filter(
+      (img) => !keptImages.includes(img)
+    );
+
     product.image = keptImages;
-    
 
     if (req.files && req.files.length > 0) {
       const newImageUrls = [];
@@ -226,16 +257,21 @@ export const updateProduct = async (req, res) => {
         newImageUrls.push(result.secure_url);
         fs.unlinkSync(file.path);
       }
-      product.image = [...product.image, ...newImageUrls]
+      product.image = [...product.image, ...newImageUrls];
     }
 
     await product.save();
     await product.populate("category", "name");
-    res.status(200).json({ message: "Cập nhật sản phẩm thành công !", product });
+
+    res.status(200).json({
+      message: "Cập nhật sản phẩm thành công!",
+      product,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi cập nhật sản phẩm: ", error: error.message });
+    res.status(500).json({
+      message: "Lỗi khi cập nhật sản phẩm",
+      error: error.message,
+    });
   }
 };
 

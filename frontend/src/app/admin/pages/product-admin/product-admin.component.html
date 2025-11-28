@@ -67,7 +67,7 @@
         </tr>
 
         <tr *ngFor="let product of pagedProducts; let i = index">
-          <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+          <td>{{ product._displayIndex ? product._displayIndex : ((currentPage - 1) * pageSize + i + 1) }}</td>
           <td>
             <div class="thumb">
               <img
@@ -164,79 +164,117 @@
       (ngSubmit)="submit()"
       novalidate
     >
-      <label>
-        Tên sản phẩm <span class="required"></span>
-        <input type="text" formControlName="name" />
-        <small
-          *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched"
-          class="error"
-        >
-          Vui lòng nhập tên sản phẩm
-        </small>
-      </label>
+ <label>
+    Tên sản phẩm <span class="required"></span>
+    <input type="text" formControlName="name" />
+    <small
+      *ngIf="productForm.get('name')?.invalid && (productForm.get('name')?.touched || productForm.get('name')?.dirty)"
+      class="error">
+      Vui lòng nhập tên sản phẩm
+    </small>
+  </label>
 
-      <label>
-        Giá <span class="required"></span>
-        <input type="number" formControlName="price" />
-        <small
-          *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched"
-          class="error"
-        >
-          Giá phải lớn hơn 0
-        </small>
-      </label>
+  <!-- PRICE -->
+  <label>
+    Giá <span class="required"></span>
+    <input type="number" formControlName="price" />
+    <small
+      *ngIf="productForm.get('price')?.errors?.['required'] && productForm.get('price')?.touched"
+      class="error">
+      Giá không được để trống
+    </small>
 
-      <label>
-        Mô tả
-        <textarea formControlName="description" rows="3"></textarea>
-      </label>
+    <small
+      *ngIf="productForm.get('price')?.errors?.['min'] && productForm.get('price')?.touched"
+      class="error">
+      Giá phải lớn hơn 0
+    </small>
+  </label>
 
-      <label>
-        Danh mục <span class="required"></span>
-        <select formControlName="category">
-          <option value="">-- Chọn danh mục --</option>
-          <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
-        </select>
-        <small
-          *ngIf="
-            productForm.get('category')?.invalid &&
-            productForm.get('category')?.touched
-          "
-          class="error"
-        >
-          Vui lòng chọn danh mục
-        </small>
-      </label>
+  <!-- DESCRIPTION -->
+  <label>
+    Mô tả
+    <textarea formControlName="description" rows="3"></textarea>
+  </label>
 
-      <label>
-        Màu sắc 
-        <input
-          type="text"
-          formControlName="colors"
-          placeholder="Ví dụ: đỏ, xanh, vàng"
-        />
-      </label>
+  <!-- CATEGORY -->
+  <label>
+    Danh mục <span class="required"></span>
+    <select formControlName="category">
+      <option value="">-- Chọn danh mục --</option>
+      <option *ngFor="let c of categories" [value]="c._id">
+        {{ c.name }}
+      </option>
+    </select>
 
-      <label>
-        Kích cỡ 
-        <input
-          type="text"
-          formControlName="sizes"
-          placeholder="Ví dụ: S, M, L, XL"
-        />
-      </label>
+    <small
+      *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+      class="error">
+      Vui lòng chọn danh mục
+    </small>
+  </label>
 
-      <label>
-        Ảnh sản phẩm 
-        <input
-          type="file"
-          name="images"
-          (change)="onFileChange($event)"
-          multiple
-          accept="image/*"
-        />
-      </label>
+<!-- COLORS -->
+<label>
+  Màu sắc <span class="required"></span>
+  <input
+    type="text"
+    formControlName="colors"
+    placeholder="Ví dụ: #ffffff, #121212,..."
+  />
+  <small
+    *ngIf="productForm.get('colors')?.errors?.['required'] && (productForm.get('colors')?.touched || productForm.get('colors')?.dirty)"
+    class="error"
+  >
+    Vui lòng nhập màu sắc
+  </small>
+  <small
+    *ngIf="productForm.get('colors')?.errors?.['pattern'] && (productForm.get('colors')?.touched || productForm.get('colors')?.dirty)"
+    class="error"
+  >
+    Màu sắc phải ở dạng: #ffffff, #000000,...
+  </small>
+</label>
 
+<!-- SIZES -->
+<label>
+  Kích cỡ <span class="required"></span>
+  <input
+    type="text"
+    formControlName="sizes"
+    placeholder="Ví dụ: S, M, L, XL"
+  />
+  <small
+    *ngIf="productForm.get('sizes')?.errors?.['required'] && (productForm.get('sizes')?.touched || productForm.get('sizes')?.dirty)"
+    class="error"
+  >
+    Vui lòng nhập kích cỡ
+  </small>
+  <small
+    *ngIf="productForm.get('sizes')?.errors?.['pattern'] && (productForm.get('sizes')?.touched || productForm.get('sizes')?.dirty)"
+    class="error"
+  >
+    Kích cỡ phải dạng: S, M, L, XL
+  </small>
+</label>
+
+<!-- ẢNH SẢN PHẨM -->
+<label>
+  Ảnh sản phẩm <span class="required"></span>
+  <input
+    type="file"
+    name="images"
+    (change)="onFileChange($event)"
+    multiple
+    accept="image/*"
+  />
+  <small
+    *ngIf="productForm.get('images')?.errors?.['required'] && (productForm.get('images')?.touched || productForm.get('images')?.dirty)"
+    class="error"
+  >
+    Vui lòng tải lên ít nhất 1 hình ảnh
+  </small>
+</label>
       <!-- Preview ảnh -->
 <div class="preview-images" *ngIf="previewImages.length > 0">
   <div *ngFor="let img of previewImages; let i = index" class="preview-image">
@@ -246,7 +284,6 @@
     </button>
   </div>
 </div>
-
 
       <div class="modal-actions">
         <button
