@@ -1,0 +1,96 @@
+.sidebar {
+  width: 260px;
+  background: #1e1e1e;
+  height: 100vh;
+  padding: 20px 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  color: #ccc;
+  z-index: 1000;
+  overflow-y: auto;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  width: 180px;
+  height: 60px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  padding: 14px 25px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  margin: 0 10px;
+  border-radius: 6px;
+}
+
+.menu li:hover {
+  background: #2a2a2a;
+  color: white;
+}
+
+.menu li.active {
+  background: #0d6efd;
+  color: white;
+  font-weight: 600;
+}
+
+.menu li span {
+  flex: 1;
+}
+
+:host-context(.admin-theme-light) .sidebar {
+  background: #e8eef2;
+  color: #0f172a;
+  border-right: 1px solid #cbd5e1;
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.05);
+}
+
+:host-context(.admin-theme-light) .menu li {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .menu li:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .menu li.active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,270 @@
+.contact-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  border-radius: 16px;
+  /* Bỏ shadow */
+  box-shadow: none;
+  text-align: center;
+}
+
+/* Header */
+.header {
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 8px 0;
+}
+
+.header .address {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+}
+
+/* Layout Map trái - Form phải */
+.main-content {
+  display: flex;
+  justify-content: center; /* căn giữa cả map và form */
+  align-items: flex-start; /* căn top */
+  gap: 40px; /* khoảng cách giữa map và form */
+  text-align: left;
+  flex-wrap: wrap; /* cho responsive xuống hàng khi màn hình nhỏ */
+}
+
+.map-section {
+  flex: 1;
+  min-width: 450px;
+  max-width: 600px;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  /* căn giữa map nếu nó nhỏ hơn container */
+  margin: 0 auto;
+}
+
+.map-section iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Form Section */
+.form-section {
+  flex: 1 1 48%;
+  min-width: 350px;
+}
+
+.form-card {
+  flex: 1;
+  min-width: 420px;
+  max-width: 600px;
+  margin: 0 auto; /* căn giữa form */
+  background-color: #fff;
+  padding: 40px 36px;
+  border-radius: 16px;
+}
+
+/* Form Elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #444;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #aaa;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.form-group textarea {
+  min-height: 150px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 13.5px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 16px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #0069d9;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.4);
+}
+
+.submit-btn:disabled {
+  background-color: #88bfff;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Success Screen */
+.success-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 30px;
+  background-color: #fff;
+}
+
+.success-icon {
+  background-color: #d4edda;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  animation: bounceIn 0.7s ease;
+}
+
+.success-icon svg {
+  width: 56px;
+  height: 56px;
+  stroke: #28a745;
+  stroke-width: 3;
+}
+
+.success-screen h2 {
+  font-size: 30px;
+  font-weight: bold;
+  color: #155724;
+  margin: 0 0 16px 0;
+}
+
+.success-screen p {
+  font-size: 17px;
+  color: #555;
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 40px;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.btn {
+  padding: 16px 24px;
+  border-radius: 50px;
+  font-size: 17.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn.primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #0056b3;
+}
+
+.btn.secondary {
+  background-color: white;
+  color: #007bff;
+  border: 2px solid #007bff;
+}
+
+.btn.secondary:hover {
+  background-color: #f0f8ff;
+  color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Animation & Responsive */
+@keyframes bounceIn {
+  0%, 20%, 40%, 60%, 80%, 100% { transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  20% { transform: scale3d(1.1, 1.1, 1.1); }
+  40% { transform: scale3d(0.9, 0.9, 0.9); }
+  60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+  80% { transform: scale3d(0.97, 0.97, 0.97); }
+  100% { opacity: 1; transform: scale3d(1, 1, 1); }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    flex-direction: column; /* map lên trên, form xuống dưới */
+    align-items: center;
+    gap: 32px;
+  }
+
+  .map-section, .form-card {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .map-section {
+    height: 420px;
+  }
+}
+@media (max-width: 576px) {
+  .header h1 { font-size: 24px; }
+  .form-card { padding: 32px 24px; }
+  .submit-btn { font-size: 17px; padding: 15px; }
+}

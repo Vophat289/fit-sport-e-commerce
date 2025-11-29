@@ -1,0 +1,164 @@
+<div class="category-admin">
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Danh mục</p>
+      <h2 class="page-title">Quản lý danh mục</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input
+          type="text"
+          placeholder="Tìm kiếm danh mục..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+
+      <button class="btn btn-primary" (click)="createAdminForm()">
+        <i class="bx bx-plus"></i>
+        Thêm danh mục
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="alert"
+    *ngIf="message"
+    [class.success]="message.type === 'success'"
+    [class.error]="message.type === 'error'"
+  >
+    <i class="bx" [class.bx-check-circle]="message.type === 'success'" [class.bx-error-circle]="message.type === 'error'"></i>
+    <span>{{ message.text }}</span>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <i class="bx bx-loader bx-spin"></i>
+    <span>Đang xử lý...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Ảnh</th>
+          <th>Tên danh mục</th>
+          <th>Mô tả</th>
+          <th>Slug</th>
+          <th>Ngày tạo</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="getFilteredCategories().length === 0">
+          <td colspan="7" class="empty">
+            <i class="bx bx-package"></i>
+            <p>Chưa có danh mục nào</p>
+          </td>
+        </tr>
+
+        <tr
+          *ngFor="let category of getFilteredCategories(); let i = index"
+          class="table-row"
+        >
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="thumb">
+              <img
+                [src]="category.image || placeholderImage"
+                [alt]="category.name"
+                (error)="onImageError($event)"
+              />
+            </div>
+          </td>
+          <td>
+            <div class="name-cell">
+              <span class="name">{{ category.name }}</span>
+            </div>
+          </td>
+          <td>{{ category.description || 'Chưa có mô tả' }}</td>
+          <td><code>{{ category.slug || 'N/A' }}</code></td>
+          <td>{{ category.createdAt | date: 'dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button class="btn icon" (click)="updateAdminForm(category)" title="Chỉnh sửa">
+              <i class="bx bx-edit-alt"></i>
+            </button>
+            <button class="btn icon danger" (click)="deleteAdminForm(category._id!)" title="Xóa">
+              <i class="bx bx-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="showForm" (click)="showForm = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <p class="sub-title">{{ editCategory ? 'Chỉnh sửa' : 'Tạo mới' }}</p>
+          <h3>{{ editCategory ? 'Cập nhật danh mục' : 'Thêm danh mục mới' }}</h3>
+        </div>
+        <button class="btn icon" (click)="showForm = false">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
+
+      <form class="modal-body" (ngSubmit)="submitForm()">
+        <label>
+          Tên danh mục <span class="required">*</span>
+          <input
+            type="text"
+            [(ngModel)]="categoryForm.name"
+            name="name"
+            placeholder="Nhập tên danh mục"
+            required
+          />
+        </label>
+
+        <label>
+          Mô tả
+          <textarea
+            rows="4"
+            [(ngModel)]="categoryForm.description"
+            name="description"
+            placeholder="Mô tả ngắn gọn"
+          ></textarea>
+        </label>
+
+        <label>
+          URL ảnh
+          <input
+            type="text"
+            [(ngModel)]="categoryForm.image"
+            name="image"
+            placeholder="https://..."
+          />
+        </label>
+
+        <div class="image-preview" *ngIf="categoryForm.image">
+          <img
+            [src]="categoryForm.image"
+            alt="category preview"
+            onerror="this.style.display='none'"
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn ghost"
+            (click)="showForm = false"
+          >
+            Hủy
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <i class="bx bx-loader-alt bx-spin" *ngIf="isLoading"></i>
+            {{ editCategory ? 'Cập nhật' : 'Thêm mới' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,309 @@
+<div class="product-admin">
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Sản phẩm</p>
+      <h2 class="page-title">Quản lý sản phẩm</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input
+          type="text"
+          placeholder="Tìm kiếm sản phẩm..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchTermChange()"
+          aria-label="Tìm kiếm sản phẩm"
+        />
+      </div>
+
+      <button class="btn btn-primary" (click)="openCreate()">
+        <i class="bx bx-plus"></i>
+        Thêm sản phẩm
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="alert"
+    *ngIf="message"
+    [class.success]="message.type === 'success'"
+    [class.error]="message.type === 'error'"
+  >
+    <i
+      class="bx"
+      [class.bx-check-circle]="message.type === 'success'"
+      [class.bx-error-circle]="message.type === 'error'"
+    ></i>
+    <span>{{ message.text }}</span>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <i class="bx bx-loader bx-spin"></i>
+    <span>Đang xử lý...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Ảnh</th>
+          <th>Tên sản phẩm</th>
+          <th>Giá</th>
+          <th>Danh mục</th>
+          <th>Màu sắc</th>
+          <th>Kích cỡ</th>
+          <th>Mô tả</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="pagedProducts.length === 0">
+          <td colspan="9" class="empty">
+            <i class="bx bx-box"></i>
+            <p>Chưa có sản phẩm nào</p>
+          </td>
+        </tr>
+
+        <tr *ngFor="let product of pagedProducts; let i = index">
+          <td>{{ product._displayIndex ? product._displayIndex : ((currentPage - 1) * pageSize + i + 1) }}</td>
+          <td>
+            <div class="thumb">
+              <img
+                [src]="product.image && product.image.length ? product.image[0] : placeholderImage"
+                [alt]="product.name"
+                (error)="onImageError($event)"
+              />
+            </div>
+          </td>
+          <td class="name">{{ product.name }}</td>
+          <td>{{ product.price | number:'1.0-0' }}đ</td>
+          <td>{{ getCategoryName(product.category) }}</td>
+          <td>
+            <span *ngIf="product.colors?.length; else noColors">
+                <span *ngFor="let color of product.colors" class="color-box" [style.background-color]="color"></span>
+            </span>
+
+            <ng-template #noColors>-</ng-template>
+          </td>
+          <td>
+            <span *ngIf="product.sizes?.length; else noSizes">{{ product.sizes?.join(', ') }}</span>
+            <ng-template #noSizes>-</ng-template>
+          </td>
+          <td>
+            <span
+              [title]="product.description"
+              >{{ product.description
+                ? (product.description | slice : 0 : 30) +
+                  (product.description.length > 30 ? '...' : '')
+                : '-' }}</span
+            >
+          </td>
+          <td class="actions">
+            <button class="btn icon" (click)="openEdit(product)" title="Chỉnh sửa">
+              <i class="bx bx-edit-alt"></i>
+            </button>
+            <button
+              class="btn icon danger"
+              (click)="delete(product._id!)"
+              title="Xóa"
+            >
+              <i class="bx bx-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PHÂN TRANG -->
+    <div class="pagination" *ngIf="getFilteredProducts().length > pageSize">
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)">‹ Trước
+      </button>
+      
+      <button
+      *ngFor="let page of [].constructor(totalPages); let i = index"
+      class="page-btn"
+      [class.active]="currentPage === i + 1"
+      (click)="changePage(i + 1)">{{ i + 1 }}
+    </button>
+    
+    <button class="page-btn" 
+    [disabled]="currentPage === totalPages"
+    (click)="changePage(currentPage + 1)">  Tiếp ›
+        </button>
+
+    </div>
+    </div>
+
+  <div class="modal-overlay" *ngIf="showForm" (click)="showForm = false">
+  <div
+    class="modal"
+    *ngIf="showForm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <div>
+        <p class="sub-title">{{ isEdit ? 'Chỉnh sửa' : 'Tạo mới' }}</p>
+        <h3 id="modal-title">{{ isEdit ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới' }}</h3>
+      </div>
+      <button class="btn icon" (click)="showForm = false" aria-label="Đóng">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+
+    <form
+      class="modal-body"
+      [formGroup]="productForm"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+ <label>
+    Tên sản phẩm <span class="required"></span>
+    <input type="text" formControlName="name" />
+    <small
+      *ngIf="productForm.get('name')?.invalid && (productForm.get('name')?.touched || productForm.get('name')?.dirty)"
+      class="error">
+      Vui lòng nhập tên sản phẩm
+    </small>
+  </label>
+
+  <!-- PRICE -->
+  <label>
+    Giá <span class="required"></span>
+    <input type="number" formControlName="price" />
+    <small
+      *ngIf="productForm.get('price')?.errors?.['required'] && productForm.get('price')?.touched"
+      class="error">
+      Giá không được để trống
+    </small>
+
+    <small
+      *ngIf="productForm.get('price')?.errors?.['min'] && productForm.get('price')?.touched"
+      class="error">
+      Giá phải lớn hơn 0
+    </small>
+  </label>
+
+  <!-- DESCRIPTION -->
+  <label>
+    Mô tả
+    <textarea formControlName="description" rows="3"></textarea>
+  </label>
+
+  <!-- CATEGORY -->
+  <label>
+    Danh mục <span class="required"></span>
+    <select formControlName="category">
+      <option value="">-- Chọn danh mục --</option>
+      <option *ngFor="let c of categories" [value]="c._id">
+        {{ c.name }}
+      </option>
+    </select>
+
+    <small
+      *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+      class="error">
+      Vui lòng chọn danh mục
+    </small>
+  </label>
+
+<!-- COLORS -->
+<label>
+  Màu sắc <span class="required"></span>
+  <input
+    type="text"
+    formControlName="colors"
+    placeholder="Ví dụ: #ffffff, #121212,..."
+  />
+  <small
+    *ngIf="productForm.get('colors')?.errors?.['required'] && (productForm.get('colors')?.touched || productForm.get('colors')?.dirty)"
+    class="error"
+  >
+    Vui lòng nhập màu sắc
+  </small>
+  <small
+    *ngIf="productForm.get('colors')?.errors?.['pattern'] && (productForm.get('colors')?.touched || productForm.get('colors')?.dirty)"
+    class="error"
+  >
+    Màu sắc phải ở dạng: #ffffff, #000000,...
+  </small>
+</label>
+
+<!-- SIZES -->
+<label>
+  Kích cỡ <span class="required"></span>
+  <input
+    type="text"
+    formControlName="sizes"
+    placeholder="Ví dụ: S, M, L, XL"
+  />
+  <small
+    *ngIf="productForm.get('sizes')?.errors?.['required'] && (productForm.get('sizes')?.touched || productForm.get('sizes')?.dirty)"
+    class="error"
+  >
+    Vui lòng nhập kích cỡ
+  </small>
+  <small
+    *ngIf="productForm.get('sizes')?.errors?.['pattern'] && (productForm.get('sizes')?.touched || productForm.get('sizes')?.dirty)"
+    class="error"
+  >
+    Kích cỡ phải dạng: S, M, L, XL
+  </small>
+</label>
+
+<!-- ẢNH SẢN PHẨM -->
+<label>
+  Ảnh sản phẩm <span class="required"></span>
+  <input
+    type="file"
+    name="images"
+    (change)="onFileChange($event)"
+    multiple
+    accept="image/*"
+  />
+  <small
+    *ngIf="productForm.get('images')?.errors?.['required'] && (productForm.get('images')?.touched || productForm.get('images')?.dirty)"
+    class="error"
+  >
+    Vui lòng tải lên ít nhất 1 hình ảnh
+  </small>
+</label>
+      <!-- Preview ảnh -->
+<div class="preview-images" *ngIf="previewImages.length > 0">
+  <div *ngFor="let img of previewImages; let i = index" class="preview-image">
+    <img [src]="img" alt="Ảnh preview" (error)="onImageError($event)" />
+    <button type="button" (click)="removeImage(i)" aria-label="Xóa ảnh">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </div>
+</div>
+
+      <div class="modal-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="productForm.invalid || isLoading"
+        >
+          <i class="bx bx-loader-alt bx-spin" *ngIf="isLoading"></i>
+          {{ isEdit ? 'Cập nhật' : 'Thêm mới' }}
+        </button>
+        <button
+          type="button"
+          class="btn ghost"
+          (click)="showForm = false"
+          [disabled]="isLoading"
+        >
+          Hủy
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>

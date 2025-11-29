@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
@@ -12,60 +12,76 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent  {
-  username: string = '';
+export class LoginComponent implements OnInit {
+  email: string = '';
   password: string = '';
   message: string | null = null;
   isError: boolean = false;
   isLoading: boolean = false;
 
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
 
-
   ngOnInit() {
-    // ✅ Khi đăng nhập qua Google, backend redirect về /login?user=...&token=...
-    const params = new URLSearchParams(window.location.search);
-    const user = params.get('user');
-    const token = params.get('token');
+    this.route.queryParams.subscribe(params => {
+      const userStr = params['user'];
+      const token = params['token'];
 
-    if (user && token) {
-      const parsedUser = JSON.parse(user);
-      localStorage.setItem('user', JSON.stringify(parsedUser));
-      localStorage.setItem('token', token);
-      this.authService['currentUserSubject'].next(parsedUser);
-      this.router.navigate(['/home']);
-    }
+      if (userStr && token) {
+        try {
+          const user = JSON.parse(decodeURIComponent(userStr));
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+          this.authService.updateCurrentUser(user);
+
+          this.toastr.success('Đăng nhập Google thành công!');
+
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/home']);
+          }
+        } catch (error) {
+          this.toastr.error('Lỗi xử lý dữ liệu đăng nhập Google');
+        }
+      }
+    });
   }
 
   login() {
     this.message = null;
 
-    if (!this.username || !this.password) {
+    if (!this.email || !this.password) {
       this.isError = true;
-      this.message = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
+      this.message = 'Vui lòng nhập đầy đủ email và mật khẩu.';
       return;
     }
 
+    const email = this.email.trim().toLowerCase();
+
+    console.log('Gửi dữ liệu đăng nhập:', { email, password: this.password });
+
     this.isLoading = true;
-    this.authService.login(this.username, this.password).subscribe({
+    this.authService.login(email, this.password).subscribe({
       next: (res) => {
-        localStorage.setItem('user', JSON.stringify(res.user));
-        localStorage.setItem('token', res.token);
-        this.authService['currentUserSubject'].next(res.user);
         this.toastr.success('Đăng nhập thành công');
         this.isLoading = false;
         this.router.navigate(['/home']);
       },
       error: (err) => {
         this.isLoading = false;
-        this.isError = true;
+        if (err.status === 403 && err.error?.message.includes('chặn')) {
+        this.message = 'Tài khoản của bạn đã bị chặn. Vui lòng liên hệ quản trị viên.';
+      } else {
         this.message = err.error?.message || 'Đăng nhập thất bại, vui lòng thử lại.';
-        this.toastr.error(this.message ?? 'Lỗi');
+      }
+      this.toastr.error(this.message ?? 'Lỗi');
       },
     });
   }
+
   loginWithGoogle() {
     window.location.href = 'http://localhost:3000/api/auth/google';
   }

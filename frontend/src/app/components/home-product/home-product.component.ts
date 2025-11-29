@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product } from '@app/services/product.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-product',
@@ -13,7 +14,10 @@ export class HomeProductComponent implements OnInit{
   loading = true; //loading chờ sp
 
   //khởi tạo service
-  constructor(private productService: ProductService){}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ){}
 
   ngOnInit(): void {
     this.loadProducts(); // hàm load sản phẩm
@@ -25,7 +29,7 @@ export class HomeProductComponent implements OnInit{
     this.productService.getAll().subscribe({
       //next xử lí khi thành cong
       next: (data) => {
-        this.products = data; 
+        this.products = [...data].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0));
         this.loading = false;
         console.log('Sản phẩm đã tải: ', data);
       },
@@ -35,6 +39,10 @@ export class HomeProductComponent implements OnInit{
 
       }
     });
+  }
+
+  viewProductDetail(product: Product): void{
+    this.router.navigate(['/products', product.slug]);
   }
 
   //UI Tĩnh test 

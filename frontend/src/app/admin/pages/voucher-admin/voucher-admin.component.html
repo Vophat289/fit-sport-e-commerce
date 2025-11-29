@@ -1,0 +1,182 @@
+<div class="voucher-admin">
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Khuyến mãi</p>
+      <h2 class="page-title">Quản lý Voucher</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input type="text" placeholder="Tìm voucher..." [(ngModel)]="search" (ngModelChange)="onSearchChange($event)" />
+      </div>
+
+      <button class="btn btn-primary" (click)="openCreateForm()">
+        <i class="bx bx-plus"></i>
+        Thêm voucher
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="alert"
+    *ngIf="errorMsg"
+    class="error"
+  >
+    <span>{{ errorMsg }}</span>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <i class="bx bx-loader bx-spin"></i>
+    <span>Đang tải...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Mã</th>
+          <th>Giảm giá</th>
+          <th>Loại</th>
+          <th>Số lượng</th>
+          <th>Đã dùng</th>
+          <th>HSD</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="vouchers.length === 0">
+          <td colspan="8" class="empty">
+            <i class="bx bx-gift"></i>
+            <p>Chưa có voucher nào</p>
+          </td>
+        </tr>
+
+        <tr *ngFor="let v of vouchers; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><code>{{ v.code }}</code></td>
+          <td>{{ v.type === 'percent' ? (v.value + '%') : (v.value | number:'1.0-0') + ' đ' }}</td>
+          <td>
+            <span class="tag" [class.percent]="v.type === 'percent'" [class.fixed]="v.type === 'fixed'">
+              {{ v.type === 'percent' ? 'Theo %' : 'Giảm giá cố định' }}
+            </span>
+          </td>
+
+          <td>{{ v.usage_limit }}</td>
+          <td>{{ v.used_count }}</td>
+
+          <td>{{ v.end_date | date: 'dd/MM/yyyy' }}</td>
+
+          <td class="actions">
+            <button class="btn icon" (click)="openEditForm(v)">
+              <i class="bx bx-edit-alt"></i>
+            </button>
+
+            <button class="btn icon danger" (click)="deleteVoucher(v.code)">
+              <i class="bx bx-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="pagination" *ngIf="total > pageSize">
+      <button
+      class="page-btn"
+      [disabled]="page === 1"
+      (click)="changePage(page - 1)">‹ Trước
+    </button>
+    
+    <button
+    *ngFor="let page of [].constructor(totalPages); let i = index"
+    class="page-btn"
+    [class.active]="page === i + 1"
+    (click)="changePage(i + 1)">
+    {{ i + 1 }}
+  </button>
+  
+  <button
+    class="page-btn"
+    [disabled]="page === totalPages"
+    (click)="changePage(page + 1)">Tiếp ›
+  </button>
+</div>
+
+
+  <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <p class="sub-title">{{ editingVoucherCode ? 'Chỉnh sửa' : 'Tạo mới' }}</p>
+          <h3>{{ editingVoucherCode ? 'Cập nhật voucher' : 'Thêm voucher mới' }}</h3>
+        </div>
+        <button class="btn icon" (click)="cancelForm()">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
+
+<form class="modal-body" [formGroup]="form" (ngSubmit)="submitForm()">
+
+  <label>
+    Mã Voucher <span class="required"></span>
+    <input type="text" formControlName="code" />
+    <small class="error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
+      <span *ngIf="form.get('code')?.errors?.['required']">Mã voucher là bắt buộc</span>
+    </small>
+  </label>
+
+  <label>
+    Giảm giá (%) hoặc số tiền <span class="required"> </span>
+    <input type="number" formControlName="value" />
+    <small class="error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">
+      <span *ngIf="form.get('value')?.errors?.['min']">Giá trị phải lớn hơn 0</span>
+    </small>
+  </label>
+
+  <label>
+    Loại giảm giá
+    <select formControlName="type">
+      <option value="percent">Giảm theo %</option>
+      <option value="fixed">Giảm giá cố định</option>
+    </select>
+  </label>
+
+  <label>
+    Số lượng
+    <input type="number" formControlName="usage_limit" />
+    <small class="error" *ngIf="form.get('usage_limit')?.invalid && form.get('usage_limit')?.touched">
+      <span *ngIf="form.get('usage_limit')?.errors?.['min']">Số lượng phải lớn hơn 0</span>
+    </small>
+  </label>
+
+  <label>
+    Ngày bắt đầu <span class="required"></span>
+    <input type="date" formControlName="start_date" />
+    <small class="error" *ngIf="form.get('start_date')?.invalid && form.get('start_date')?.touched">
+      <span *ngIf="form.get('start_date')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
+    </small>
+  </label>
+
+  <label>
+    Hạn sử dụng <span class="required"></span>
+    <input type="date" formControlName="end_date" />
+    <small class="error" *ngIf="form.get('end_date')?.invalid && form.get('end_date')?.touched">
+      <span *ngIf="form.get('end_date')?.errors?.['required']">Hạn sử dụng là bắt buộc</span>
+    </small>
+  </label>
+
+  <div class="modal-actions">
+    <button type="button" class="btn ghost" (click)="cancelForm()">Hủy</button>
+    <button class="btn btn-primary" [disabled]="loading || form.invalid">
+      <i class="bx bx-loader-alt bx-spin" *ngIf="loading"></i>
+      {{ editingVoucherCode ? 'Cập nhật' : 'Thêm mới' }}
+    </button>
+  </div>
+
+</form>
+
+    </div>
+  </div>
+</div>

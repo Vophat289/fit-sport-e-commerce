@@ -1,54 +1,166 @@
 <section class="product-section">
-    <div class="category-bar" *ngIf="categories.length > 0">
-        <button (click)="resetFilter()" [class.active]="!selectedCategory">
-            Tất cả
-        </button>
-        <button
-            *ngFor="let cat of categories"
-            (click)="filterByCategory(cat.slug!)"
-            [class.active]="selectedCategory === cat.slug"
-        >
-            {{ cat.name }}
-        </button>
-    </div>
+    <div class="product-container">
 
-    <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
+        <aside class="filter-sidebar">
 
-    <div class="product-list" *ngIf="!loading && products.length > 0">
-        <div class="product-card" *ngFor="let product of products">
-            <div class="product-image">
-                <img
-                    [src]="
-                        product.image && product.image.length
-                            ? product.image[0]
-                            : 'assets/images/placeholder.jpg'
-                    "
-                    [alt]="product.name"
-                    class="product-img"
-                />
-                <div class="product-overlay">
-                    <button class="btn-detail">Xem chi tiết</button>
-                    <button class="btn-buy">Mua ngay</button>
+            <div class="filter-header">
+                <h2 class="filter-header-title">
+                    <i class="fa-solid fa-filter"></i>
+                    Bộ lọc
+                </h2>
+                <button class="btn-reset" (click)="resetFilters()">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Xóa bộ lọc
+                </button>
+            </div>
+
+            <div class="filter-group">
+                <h3 class="filter-title">
+                    <i class="fa-solid fa-tags"></i>
+                    Danh mục
+                </h3>
+                <div class="filter-buttons">
+                    <button (click)="filterByCategory(null)" [class.active]="!filters.category" class="filter-btn">
+                        <i class="fa-solid fa-th"></i>
+                        Tất cả
+                    </button>
+                    <button *ngFor="let cat of categories" (click)="filterByCategory(cat.slug!)"
+                        [class.active]="filters.category === cat.slug" class="filter-btn">
+                        {{ cat.name }}
+                    </button>
                 </div>
             </div>
 
-            <div class="product-info">
-                <h3 class="product-name">{{ product.name }}</h3>
-                <p class="product-price">{{ product.price | number }} ₫</p>
+            <div class="filter-group">
+                <h3 class="filter-title">
+                    <i class="fa-solid fa-ruler"></i>
+                    Kích thước
+                </h3>
+                <div class="size-options">
+                    <label *ngFor="let size of availableSizes" class="size-checkbox"
+                        [class.checked]="filters.sizes.includes(size)">
+                        <input type="checkbox" [checked]="filters.sizes.includes(size)" (change)="toggleSize(size)">
+                        <span class="checkbox-custom"></span>
+                        <span class="size-label">{{ size }}</span>
+                    </label>
+                </div>
             </div>
 
-            <div class="product-action">
-                <button class="btn-cart" (click)="openVariantModal(product)">
-                    Thêm vào giỏ hàng
+            <div class="filter-group">
+                <h3 class="filter-title">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    CHỌN GIÁ
+                </h3>
+                <div class="price-slider">
+                    <div class="price-input-group">
+                        <label class="price-label">Từ</label>
+                        <input type="number" [(ngModel)]="filters.priceRange.min"
+                            (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                            class="price-input" [min]="20000" [max]="5000000">
+                        <span class="price-unit">₫</span>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" [min]="20000" [max]="5000000" [(ngModel)]="filters.priceRange.min"
+                            (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                            class="slider slider-min">
+
+                        <input type="range" [min]="20000" [max]="5000000" [(ngModel)]="filters.priceRange.max"
+                            (input)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                            class="slider slider-max">
+                    </div>
+
+                    <div class="price-input-group">
+                        <label class="price-label">Đến</label>
+                        <input type="number" [(ngModel)]="filters.priceRange.max"
+                            (ngModelChange)="updatePriceRange(filters.priceRange.min, filters.priceRange.max)"
+                            class="price-input" [min]="20000" [max]="5000000">
+                        <span class="price-unit">₫</span>
+                    </div>
+                </div>
+
+                <div class="price-display">
+                    <span class="price-display-label">Khoảng giá:</span>
+                    <span class="price-display-value">
+                        {{ filters.priceRange.min | number }} ₫ -
+                        {{ filters.priceRange.max | number }} ₫
+                    </span>
+                </div>
+            </div>
+
+        </aside>
+
+        <div class="product-content">
+
+            <nav class="breadcrumb">
+                <a routerLink="/home">Trang chủ</a>
+                <span>/</span>
+                <a routerLink="/products">Sản phẩm</a>
+            </nav>
+            <div class="product-header">
+                <h2 class="product-header-title">
+                    Sản phẩm
+                    <span class="product-count" *ngIf="!loading">
+                        ({{ filteredProducts.length }} sản phẩm)
+                    </span>
+                </h2>
+            </div>
+
+            <div *ngIf="loading" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Đang tải sản phẩm...</p>
+            </div>
+
+            <div class="product-list" *ngIf="!loading && filteredProducts.length > 0">
+                <div class="product-card" *ngFor="let product of filteredProducts">
+                    <div class="product-image">
+                        <img [src]="
+                                product.image && product.image.length
+                                    ? product.image[0]
+                                    : 'assets/images/placeholder.jpg'
+                            " [alt]="product.name" class="product-img" />
+                        <div class="product-overlay">
+                            <button class="btn-detail">
+                                <i class="fa-solid fa-eye"></i>
+                                <a [routerLink]="['/products', product.slug]">
+                                    Xem chi tiết
+                                </a>
+                            </button>
+                            <button class="btn-buy">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                Mua ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-price">{{ product.price | number }} ₫</p>
+                        <p class="product-views">
+                            <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
+                        </p>
+                    </div>
+
+                    <div class="product-action">
+                        <button class="btn-cart" (click)="openVariantModal(product)">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!loading && filteredProducts.length === 0" class="empty-container">
+                <i class="fa-solid fa-box-open empty-icon"></i>
+                <p class="empty-text">Không có sản phẩm nào phù hợp với bộ lọc.</p>
+                <button class="btn-empty-reset" (click)="resetFilters()">
+                    Xóa bộ lọc
                 </button>
             </div>
+
         </div>
+
     </div>
-
-    <p *ngIf="!loading && products.length === 0" class="empty">
-        Không có sản phẩm nào trong danh mục này.
-    </p>
-
 
     <div class="modal-overlay" *ngIf="isModalOpen && selectedProduct">
         <div class="modal-content">
@@ -61,8 +173,8 @@
                 
                 <div class="product-preview">
                     <img [src]="selectedProduct.image && selectedProduct.image.length ? selectedProduct.image[0] : 'assets/images/placeholder.jpg'" 
-                         [alt]="selectedProduct.name" 
-                         class="preview-img">
+                            [alt]="selectedProduct.name" 
+                            class="preview-img">
                     <div class="preview-info">
                         <p class="preview-price">{{ (currentVariantDetails?.price || selectedProduct?.price) | number }} ₫</p>
                         <p class="preview-stock">Tồn kho: {{ currentVariantDetails?.quantity || 'Hết' }}</p> 
@@ -72,7 +184,7 @@
                 <div class="variant-selection">
                     <label>Kích cỡ:</label>
                     <div class="options-container">
-                        <button *ngFor="let size of availableSizes"
+                        <button *ngFor="let size of availableVariantSizes"
                                 [class.selected]="selectedSizeName === size.name"
                                 (click)="selectedSizeName = size.name; updateVariantDetails()">
                             {{ size.name }}
@@ -96,22 +208,22 @@
                     <div class="quantity-input-group">
                         <button (click)="decrementQuantity()">-</button>
                         <input type="number" 
-                               [(ngModel)]="quantityToAdd" 
-                               min="1" 
-                               max="99" 
-                               (change)="onQuantityChange($event)"> <button (click)="incrementQuantity()">+</button>
+                                [(ngModel)]="quantityToAdd" 
+                                min="1" 
+                                max="99" 
+                                (change)="onQuantityChange($event)"> <button (click)="incrementQuantity()">+</button>
                     </div>
                 </div>
-
-                <div class="modal-footer">
-                    <button class="btn-cancel" (click)="closeModal()">Hủy</button>
-                    <button class="btn-confirm" 
-                            [disabled]="!currentVariantDetails || quantityToAdd < 1 || quantityToAdd > currentVariantDetails.quantity" 
-                            (click)="confirmAddToCart()">
-                        Xác nhận và Thêm vào Giỏ
-                    </button>
-                </div>
+            </div> 
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Hủy</button>
+                <button class="btn-confirm" 
+                        [disabled]="!currentVariantDetails || quantityToAdd < 1 || quantityToAdd > currentVariantDetails.quantity" 
+                        (click)="confirmAddToCart()">
+                    Xác nhận và Thêm vào Giỏ
+                </button>
             </div>
         </div>
     </div>
+
 </section>

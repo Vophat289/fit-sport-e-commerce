@@ -1,0 +1,90 @@
+<div class="user-admin">
+
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Người dùng</p>
+      <h2 class="page-title">Quản lý người dùng</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          placeholder="Tìm người dùng..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="onSearchChange($event)" 
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <i class="bx bx-loader bx-spin"></i>
+    <span>Đang tải...</span>
+  </div>
+
+  <div class="table-container" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Họ tên</th>
+          <th>Email</th>
+          <th>Quyền</th>
+          <th>Trạng thái</th>
+          <th>Xác thực</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="6" class="empty">
+            <i class="bx bx-user-x"></i>
+            <p>Không tìm thấy người dùng</p>
+          </td>
+        </tr>
+
+        <tr *ngFor="let u of filteredUsers">
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span class="role" [class.admin]="u.role === 'admin'">
+              {{ u.role === 'admin' ? 'Admin' : 'User' }}
+            </span>
+          </td>
+          <td>
+            <span class="status" [class.blocked]="u.isBlocked">
+              {{ u.isBlocked ? 'Bị chặn' : 'Hoạt động' }}
+            </span>
+          </td>
+          <td>
+            <span class="verify" [class.not-verify]="!u.isVerified">
+              {{ u.isVerified ? 'Đã xác thực' : 'Chưa xác thực' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button 
+              type="button"
+              class="btn block-btn"
+              [class.unblock]="u.isBlocked"
+              (click)="toggleBlock(u)"
+              [disabled]="loading"
+            >
+              {{ u.isBlocked ? 'Mở chặn' : 'Chặn' }}
+            </button>
+
+            <button 
+              class="btn role-btn"
+              (click)="toggleRole(u)"
+              [disabled]="loading"
+            >
+              {{ u.role === 'admin' ? 'Hạ quyền' : 'Nâng quyền' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

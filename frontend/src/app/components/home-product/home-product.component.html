@@ -7,43 +7,38 @@
   <div class="product-list" *ngIf="!loading && products.length > 0">
 
     <div class="product-card" *ngFor="let product of products">
-      
+
       <!-- ẢNH SẢN PHẨM -->
       <div class="product-image">
-        <img 
-          [src]="product.image && product.image.length > 0 ? product.image[0] : 'assets/images/placeholder.jpg'" 
-          [alt]="product.name"
-          class="product-img"
-        />
+        <img [src]="product.image && product.image.length > 0 ? product.image[0] : 'assets/images/placeholder.jpg'"
+          [alt]="product.name" class="product-img" />
 
         <!-- Overlay khi hover -->
         <div class="product-overlay">
-          <button class="btn-detail">Xem chi tiết</button>
+          <button class="btn-detail" (click)="viewProductDetail(product)">Xem chi tiết</button>
           <button class="btn-buy">Mua ngay</button>
         </div>
-      </div>  
+      </div>
 
       <!-- THÔNG TIN SẢN PHẨM -->
       <div class="product-info">
+        <!-- LƯỢT XEM -->
+        
+
+        <!-- TÊN SẢN PHẨM -->
         <h3 class="product-name">{{ product.name }}</h3>
+
+        <!-- GIÁ SẢN PHẨM -->
         <p class="product-price">{{ product.price | number }} ₫</p>
-
-        <div *ngIf="product?.colors?.length" class="product-colors">
-          <span *ngFor="let c of product.colors"
-                class="color-dot"
-                [style.backgroundColor]="c"
-                [title]="c"></span>
-        </div>
-
-        <div *ngIf="product?.sizes?.length" class="product-sizes">
-          <span *ngFor="let s of product.sizes" class="size-tag">{{ s }}</span>             
-        </div>
+        <p class="product-views">
+          <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
+        </p>
       </div>
 
       <!-- ✅ NÚT THÊM VÀO GIỎ -->
       <div class="product-action">
         <button class="btn-cart" onclick="addToCart(product)">
-           Thêm vào giỏ hàng
+          Thêm vào giỏ hàng
         </button>
       </div>
 

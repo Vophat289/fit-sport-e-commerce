@@ -1,0 +1,264 @@
+/* Toàn cục */
+* {
+  box-sizing: border-box;
+}
+
+.user-admin {
+  padding: 24px;
+  background: #000000;
+  min-height: calc(100vh - 72px);
+  color: #f4f6fb;
+  font-family: "Roboto", sans-serif;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.sub-title {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+}
+
+.page-title {
+  margin: 4px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Header actions & search box */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 280px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 14px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  background: #1c1c1e;
+  border: 1px solid #2f2f32;
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  padding: 40px 0;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Bảng & container */
+.table-container {
+  background: #1c1c1e;
+  border-radius: 16px;
+  border: 1px solid #27272a;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  margin-top: 16px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+thead {
+  background: #232327;
+}
+
+th {
+  text-align: left;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #2f2f32;
+  color: #f1f5f9;
+  white-space: nowrap;
+}
+
+
+tbody tr:hover {
+  background: #252529;
+}
+
+/* Role tag */
+.role {
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: #333;
+  color: #bbb;
+  font-weight: 600;
+  text-transform: capitalize;
+  user-select: none;
+}
+
+.role.admin {
+  background: #2563eb;
+  color: #e0e7ff;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  user-select: none;
+  color: #22c55e; /* xanh lá */
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.status.blocked {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.verify {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  user-select: none;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.verify.not-verify {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.15);
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.block-btn {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.block-btn.unblock {
+  background-color: #22c55e;
+  color: #fff;
+}
+
+.block-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.role-btn {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+.role-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Khi không có dữ liệu */
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #94a3b8;
+}
+
+.empty i {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .user-admin {
+    padding: 16px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  table {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  table {
+    min-width: 500px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}

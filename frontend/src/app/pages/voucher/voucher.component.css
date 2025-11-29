@@ -1,0 +1,181 @@
+/* ============================
+   PREMIUM MODERN VOUCHER UI
+   ============================ */
+
+.voucher-page {
+  padding: 20px 24px;
+  max-width: 1260px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+  color: #2d2d2d;
+  animation: fadein 0.35s ease;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* List layout */
+.voucher-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+/* Card */
+.voucher-card {
+  position: relative;
+  background: white;
+  border-radius: 14px;
+  padding-bottom: 10px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.voucher-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+}
+
+/* Header gradient */
+.header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 0 10px;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Pattern overlay */
+.header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: url("https://www.transparenttextures.com/patterns/diagmonds.png");
+}
+
+/* Card body */
+.body {
+  padding: 16px 18px;
+  font-size: 15px;
+  color: #444;
+}
+
+.body p {
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+/* Code row */
+.code-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  background: #eef4ff;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.code {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0058ff;
+}
+
+/* Copy button */
+.copy-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #0058ff;
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.copy-btn:hover {
+  background: #003ec7;
+  transform: scale(1.04);
+}
+
+/* Load more button */
+.center {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.load-more {
+  padding: 12px 28px;
+  background: linear-gradient(135deg,#007bff,#0046c2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,91,255,0.35);
+  transition: 0.3s ease;
+}
+
+.load-more:hover {
+  transform: scale(1.06);
+  background: linear-gradient(135deg,#0068d4,#003a9c);
+}
+
+.load-more:active {
+  transform: scale(0.94);
+}
+
+/* Empty state */
+.empty {
+  font-size: 18px;
+  opacity: 0.7;
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* Loader (simple animated dots) */
+.loader {
+  margin: 30px 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #0058ff;
+}
+
+.loader::after {
+  content: "...";
+  animation: blink 0.8s infinite;
+}
+
+/* Animations */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .voucher-card {
+    border-radius: 18px;
+  }
+}

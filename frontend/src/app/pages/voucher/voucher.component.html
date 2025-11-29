@@ -1,0 +1,40 @@
+<div class="voucher-page fade-in">
+
+  <h2 class="title">Voucher</h2>
+
+  <div *ngIf="loading" class="loader"></div>
+
+  <div *ngIf="!loading && filteredVouchers.length === 0" class="empty">
+    Không có voucher nào
+  </div>
+  
+  <div class="voucher-list" *ngIf="!loading && filteredVouchers.length > 0">
+
+    <div *ngFor="let v of filteredVouchers" class="voucher-card slide-up">
+
+      <div class="header" [style.background]="v.type === 'percent' ? '#00AEEF' : '#FF5252'">
+        <h3>
+          {{ v.type === 'percent' ? ('Giảm ' + v.value + '%'): ('Giảm ' + (v.value | number:'1.0-0') + ' VNĐ') }}
+
+        </h3>
+      </div>
+
+      <div class="body">
+        <p>Đơn tối thiểu {{ v.min_order_value | number }}đ</p>
+        <p>HSD: {{ v.end_date | date:'dd/MM/yyyy' }}</p>
+
+        <div class="code-row">
+          <h4 class="code">{{ v.code }}</h4>
+          <button class="copy-btn" (click)="copyCode(v.code)">Copy</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="center" *ngIf="hasMore && !loading">
+    <button class="load-more" (click)="loadMore()">Xem thêm...</button>
+  </div>
+
+</div>

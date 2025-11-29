@@ -15,6 +15,10 @@ export interface Product{
   sizes?: string[];
   createdAt?: string;
   updatedAt?: string;
+  viewCount?: number;
+  averageRating?: number;
+  totalRatings?: number;
+  _displayIndex?: number;
 }
 
 @Injectable({
@@ -24,30 +28,50 @@ export class ProductService {
 private adminApiUrl = "http://localhost:3000/api/admin";
   private apiUrl = "http://localhost:3000/api/products"; // API chính cho sản phẩm
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
+  
+  getAll(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.apiUrl); //Observable<Product[]> là kiểu dữ liệu trả vè mảng
+  }
 
-  getAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
-  }
+  getBySlugProduct(slug: string): Observable<Product>{
+    return this.http.get<Product>(`${this.apiUrl}/${slug}`); //<Product> trả về 1 product (k phải array)
+  }
 
-  getBySlugProduct(slug: string): Observable<Product>{
-    return this.http.get<Product>(`${this.apiUrl}/${slug}`);
-  }
+  getByCategorySlug(slug: string): Observable<Product[]>{
+    return this.http.get<Product[]>(`${this.apiUrl}/category/${slug}`);
+  }
+  incrementView(slug: string): Observable<{viewCount: number}>{
+    return this.http.post<{ viewCount: number }>(`${this.apiUrl}/${slug}/view`, {});
+  }
+  searchProducts(query: string): Observable<{query: string; count: number; products: Product[]}>{
+    return this.http.get<{query: string; count: number; products: Product[]}>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
+  }
 
-  getByCategorySlug(slug: string): Observable<Product[]>{
-    return this.http.get<Product[]>(`${this.apiUrl}/category/${slug}`);
-  }
+  getAllProducts() {
+    return this.http.get<any>(this.apiUrl);
+  }
+
+  createProduct(data: any) {
+    return this.http.post<any>(this.apiUrl, data);
+  }
+
+  updateProduct(id: string, data: any) {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteProduct(id: string) {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
 
   // ✅ HÀM LẤY BIẾN THỂ KHẢ DỤNG (Cho Modal Frontend)
   getAvailableVariants(productId: string): Observable<any> {
     // GET /api/products/variants/:productId
     return this.http.get<any>(`${this.adminApiUrl}/variants/${productId}`); 
   }
-  
-  // ✅ HÀM LẤY CHI TIẾT BIẾN THỂ (Giá và Tồn kho)
+
   getVariantDetails(productId: string, sizeId: string, colorId: string): Observable<any> {
     // GET /api/products/variant-details?product=...
     const url = `${this.adminApiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
         return this.http.get(url);
-  }
-}
+}}

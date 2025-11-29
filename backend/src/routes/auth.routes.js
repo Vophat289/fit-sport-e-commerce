@@ -1,6 +1,9 @@
 import express from 'express';
 import passport from 'passport'; // Đã sửa lỗi: Dùng import thay cho require
-import { generateToken } from "../controllers/auth.controller.js";
+import { getAllUsers } from '../controllers/auth.controller.js';
+import { blockUser, changeUserRole, generateToken } from "../controllers/auth.controller.js";
+import { authMiddleware, isAdmin } from '../middlewares/auth.middleware.js';
+import { adminMiddleware } from '../middlewares/admin.middleware.js';
 
 import {
   register,
@@ -14,15 +17,27 @@ import {
 
 const router = express.Router();
 
+router.get('/users', authMiddleware, adminMiddleware, getAllUsers);
+//  authMiddleware, adminMiddleware,  
+
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post("/verify-pin", verifyPin);
 
-// Quên mật khẩu bằng mã PIN
+// quên mật khẩu bằng mã PIN
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/verify-reset-pin', verifyResetPin);
+
+// chặn/bỏ chặn tài khoản (admin)
+router.put('/users/:id/block', authMiddleware, isAdmin, blockUser); // authMiddleware, isAdmin,
+
+//  phân quyền (admin)
+router.put('/users/:id/role',  authMiddleware, isAdmin, changeUserRole); //  authMiddleware, isAdmin,
+
+// router.put('/users/:id/unblock', authMiddleware, isAdmin,  blockUser); // authMiddleware, isAdmin,
+
 
 router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email'],

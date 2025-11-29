@@ -1,0 +1,346 @@
+/* ===== Font và nền chung ===== */
+.news-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.news-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+/* ===== Loading ===== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #dc2626;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+  padding: 1rem 1.5rem;
+  background: #f1f1f1;
+  font-size: 0.9rem;
+  color: #555;
+  border-bottom: 1px solid #eee;
+}
+
+.breadcrumb a {
+  color: #d0021b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb span {
+  margin: 0 0.5rem;
+  color: #999;
+}
+
+.breadcrumb .current {
+  color: #222;
+  font-weight: 600;
+}
+
+/* ===== Tiêu đề ===== */
+.news-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #111;
+  line-height: 1.25;
+  padding: 2rem 1.5rem 1rem;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* ===== Meta info ===== */
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem 1.5rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.news-meta .author {
+  color: #d0021b;
+  font-weight: 600;
+}
+
+.news-meta .separator {
+  color: #ccc;
+}
+
+.news-meta .badge {
+  background: linear-gradient(135deg, #ff4757, #ff6b7d);
+  color: #fff;
+  padding: 0.35rem 0.9rem;
+  border-radius: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Sapo (trích dẫn đầu bài) ===== */
+.sapo {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.6;
+  padding: 1.8rem 2rem;
+  margin: 2rem 1.5rem;
+  background: linear-gradient(135deg, #fff8f0, #fff0f0);
+  border-left: 6px solid #dc2626;
+  border-radius: 0 12px 12px 0;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+}
+
+.sapo::before {
+  content: '“';
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  font-size: 6rem;
+  color: #dc2626;
+  opacity: 0.15;
+  font-family: Georgia, serif;
+}
+
+/* ===== Ảnh đại diện ===== */
+.news-figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.news-img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.figure-caption {
+  margin-top: 1rem;
+  font-style: italic;
+  color: #777;
+  font-size: 0.95rem;
+}
+
+/* ===== Nội dung bài viết ===== */
+.news-body {
+  padding: 0 1.5rem 2rem;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  color: #222;
+}
+
+.news-body p {
+  margin-bottom: 1.5rem;
+}
+
+.news-body h2 {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #111;
+  margin: 3rem 0 1.5rem;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.news-body h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 90px;
+  height: 5px;
+  background: linear-gradient(90deg, #dc2626, #f97316);
+  border-radius: 3px;
+}
+
+.news-body h3 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #222;
+  margin: 2.5rem 0 1rem;
+}
+
+.news-body blockquote {
+  margin: 3rem 0;
+  padding: 2rem 2.5rem;
+  background: #fff8f0;
+  border-left: 8px solid #dc2626;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: #333;
+  position: relative;
+}
+
+.news-body blockquote::before {
+  content: '“';
+  font-size: 5rem;
+  color: #dc2626;
+  opacity: 0.2;
+  position: absolute;
+  top: -10px;
+  left: 10px;
+}
+
+/* ===== Tags ===== */
+.related-tags {
+  padding: 2rem 1.5rem;
+  border-top: 1px dashed #ddd;
+  margin-top: 3rem;
+}
+
+.related-tags strong {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.tag-pill {
+  display: inline-flex;
+  padding: 0.6rem 1.2rem;
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+  border: 2px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 2rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.tag-pill:hover {
+  background: #dc2626;
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
+}
+
+/* ===== Nút hành động ===== */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  border-top: 1px solid #eee;
+  background: #f9f9f9;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.8rem;
+  font-weight: 700;
+  border-radius: 3rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.btn-share {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #fff;
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+}
+
+.btn-share:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(220, 38, 38, 0.4);
+}
+
+.btn-back {
+  background: #374151;
+  color: #fff;
+}
+
+.btn-back:hover {
+  background: #1f2937;
+  transform: translateY(-3px);
+}
+
+/* ===== 404 Page ===== */
+.not-found {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #555;
+}
+
+.not-found h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #dc2626;
+}
+
+.btn-primary {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background: #dc2626;
+  color: #fff;
+  border-radius: 3rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .news-title { font-size: 2.2rem; padding: 1.5rem 1rem 0.5rem; }
+  .sapo { font-size: 1.2rem; padding: 1.5rem; }
+}
+
+@media (max-width: 640px) {
+  .news-content { border-radius: 0; }
+  .actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}

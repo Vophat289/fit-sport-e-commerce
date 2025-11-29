@@ -14,12 +14,13 @@
     <li><a class="menu-link" href="/home">TRANG CHỦ</a></li>
     <li><a class="menu-link" href="/gioi-thieu">GIỚI THIỆU</a></li>
     <li><a class="menu-link" href="/products">SẢN PHẨM</a></li>
-    <li><a class="menu-link" href="#">BÀI VIẾT</a></li>
-    <li><a class="menu-link" href="#">LIÊN HỆ</a></li>
+    <li><a class="menu-link" href="/news">BÀI VIẾT</a></li>
+    <li><a class="menu-link" routerLink="/contact">LIÊN HỆ</a></li>
   </ul>
 
   <div class="actions">
     <div class="search">
+<<<<<<< HEAD
       <input type="text" placeholder="Tìm kiếm..." />
       <button>
         <svg viewBox="0 0 24 24">
@@ -38,7 +39,55 @@
             fill="none"
           />
         </svg>
+=======
+      <input 
+        type="text" 
+        placeholder="Tìm kiếm sản phẩm..." 
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput($event)"
+        (keyup.enter)="onSearchSubmit()"
+        (focus)="showResults = true"
+        (blur)="hideResults()">
+      <button (click)="onSearchSubmit()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" stroke="black" stroke-width="1.5" fill="none"/><path d="M21 21l-4.35-4.35" stroke="black" stroke-width="1.5" fill="none"/></svg>
+>>>>>>> 650ccf56b176434fb1a4feff716805beb8562154
       </button>
+      
+      <!-- Dropdown kết quả tìm kiếm -->
+      <div class="search-results" *ngIf="showResults && (searchResults.length > 0 || loading)">
+        <div *ngIf="loading" class="search-loading">
+          <p>Đang tìm kiếm...</p>
+        </div>
+        
+        <div *ngIf="!loading && searchResults.length > 0" class="results-list">
+          <div 
+            *ngFor="let product of searchResults" 
+            class="result-item"
+            (click)="goToProduct(product.slug!)">
+            <img 
+              [src]="product.image && product.image[0] ? product.image[0] : 'assets/images/placeholder.jpg'" 
+              [alt]="product.name"
+              class="result-image">
+            <div class="result-info">
+              <h4>{{ product.name }}</h4>
+              <p class="result-price">{{ product.price | number }} ₫</p>
+            </div>
+          </div>
+          
+          <div class="result-footer" *ngIf="searchResults.length >= 5">
+            <button (click)="onSearchSubmit()">
+              <i class="fa-solid fa-arrow-right" style="margin-right: 6px;"></i>
+              Xem tất cả kết quả
+            </button>
+          </div>
+        </div>
+        
+        <div *ngIf="!loading && searchResults.length === 0 && searchQuery" class="no-results">
+          <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; color: #ccc; margin-bottom: 12px; display: block;"></i>
+          <p>Không tìm thấy sản phẩm nào</p>
+          <p style="font-size: 12px; color: #999; margin-top: 4px;">Thử tìm kiếm với từ khóa khác</p>
+        </div>
+      </div>
     </div>
 
     <div class="header-actions">
