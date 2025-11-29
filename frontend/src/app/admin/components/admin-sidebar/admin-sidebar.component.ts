@@ -31,6 +31,7 @@ export class AdminSidebarComponent implements OnInit {
     { label: 'Vouchers', icon: 'bx-gift', route: '/admin/vouchers' },
     { label: 'Bài Viết', icon: 'bx-news', route: '/admin/posts' },
     { label: 'Liên Hệ', icon: 'bx-phone', route: '/admin/contacts' }
+ 
   ];
 
   constructor(private router: Router) {}

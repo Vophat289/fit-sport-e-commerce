@@ -1,0 +1,66 @@
+<div class="container">
+  <h2 class="title">Quản lý liên hệ</h2>
+
+  <!-- Search box -->
+  <div class="search-box">
+    <input
+      type="text"
+      placeholder="Tìm theo tên, email..."
+      [(ngModel)]="search"
+      (keyup.enter)="onSearch()"
+    />
+    <button (click)="onSearch()">Tìm kiếm</button>
+  </div>
+
+  <!-- Loading -->
+  <p *ngIf="loading" class="loading">Đang tải dữ liệu...</p>
+
+  <!-- Error -->
+  <p *ngIf="errorMsg" class="error">{{ errorMsg }}</p>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!loading && contacts.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Họ Tên</th>
+          <th>Email</th>
+          <th>Số điện thoại</th>
+          <th>Nội dung</th>
+          <th>Ngày tạo</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of contacts">
+          <td>{{ c.fullName }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.phone }}</td>
+          <td>{{ c.content }}</td>
+          <td>{{ c.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <span [ngClass]="{'visible': c.isVisible, 'hidden': !c.isVisible}">
+              {{ c.isVisible ? 'Hiển thị' : 'Đã ẩn' }}
+            </span>
+          </td>
+          <td>
+            <button (click)="toggleVisibility(c)">
+              {{ c.isVisible ? 'Ẩn' : 'Hiện' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No data -->
+  <p *ngIf="!loading && contacts.length === 0" class="no-data">Không có dữ liệu</p>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="contacts.length > 0">
+    <button (click)="prevPage()" [disabled]="page === 1">Trước</button>
+    <span>Trang {{ page }} / {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="page === totalPages">Sau</button>
+  </div>
+</div>
