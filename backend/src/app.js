@@ -5,21 +5,18 @@ import passport from './config/auth.js';
 import productRoutes from './routes/product.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import authRoutes from './routes/auth.routes.js';
-
 import accountRoutes from './routes/account.routes.js'; 
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsRoutes from './routes/news.routes.js';
-
 import path from 'path';
 import { fileURLToPath } from 'url';
 import adminRoutes from './routes/admin.routes.js';
-
 import { EventEmitter } from 'events';
-
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
+import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 
 EventEmitter.defaultMaxListeners = 20;
 
@@ -30,8 +27,8 @@ const app = express();
 
 app.use(cors({
     origin: ["http://localhost:4200", "https://fitsport.io.vn", "https://www.fitsport.io.vn"], 
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"], 
-    credentials: true // gửi cookie/token cho xác thực
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], 
+    credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));        
@@ -50,9 +47,9 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // User
 app.use('/api', authRoutes)
+app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
@@ -61,11 +58,12 @@ app.use("/api/news", newsRoutes);
 
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
-app.use("/api/admin/dashboard", adminDashboardRoutes)
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/contacts", adminContactRoutes);
 
-
-// Kết nối route admin
+// Kết nối route admin khác
 app.use('/api/admin', adminRoutes);
+
 // Test route
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
