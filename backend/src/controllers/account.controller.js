@@ -31,7 +31,7 @@ export const getProfile = async (req, res) => {
         }
 
         const userId = req.user._id || req.user.id; 
-        console.log('DEBUG-TOKEN-ID:', userId); 
+
         if (!userId) {
              return res.status(401).json({ message: 'Invalid token payload: User ID missing.' });
         }   
