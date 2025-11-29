@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import {ProductService, Product} from '@app/services/product.service';
 import {  CategoryService , Category} from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -36,7 +36,8 @@ export class ProductPageComponent implements OnInit{
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService, 
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   //lifecycle hook
@@ -237,6 +238,11 @@ export class ProductPageComponent implements OnInit{
   //test add cart
    addToCart(product: Product): void {
     console.log('🛒 Đã thêm vào giỏ:', product.name);
+  }
+
+  // Navigate to product detail page for variant selection
+  openVariantModal(product: Product): void {
+    this.router.navigate(['/products', product.slug || product._id]);
   }
 
 }

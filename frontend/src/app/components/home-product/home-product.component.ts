@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProductService, Product } from '@app/services/product.service';
 
 @Component({
@@ -13,7 +14,10 @@ export class HomeProductComponent implements OnInit{
   loading = true; //loading chờ sp
 
   //khởi tạo service
-  constructor(private productService: ProductService){}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ){}
 
   ngOnInit(): void {
     this.loadProducts(); // hàm load sản phẩm
@@ -39,7 +43,11 @@ export class HomeProductComponent implements OnInit{
 
   //UI Tĩnh test 
   addToCart(product: any) {
-  console.log('🛒 Đã thêm vào giỏ:', product.name);
-  
+    console.log('🛒 Đã thêm vào giỏ:', product.name);
   } 
+
+  // Navigate to product detail page
+  viewProductDetail(product: Product): void {
+    this.router.navigate(['/products', product.slug || product._id]);
+  }
 }
