@@ -37,32 +37,9 @@ services:
     depends_on:
       - backend
 
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: n8n
-    restart: always
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme123}
-      - N8N_HOST=fitsport.io.vn
-      - N8N_PROTOCOL=http
-      - N8N_PORT=5678
-      - WEBHOOK_URL=http://fitsport.io.vn/
-      - GENERIC_TIMEZONE=Asia/Ho_Chi_Minh
-    volumes:
-      - n8n_data:/home/node/.n8n
-    networks:
-      - fitsport-network
-    depends_on:
-      - backend
-
 networks:
   fitsport-network:
     driver: bridge
 
 volumes:
   uploads:
-  n8n_data:
