@@ -22,11 +22,29 @@ fi
 
 echo -e "${GREEN}✅ Environment file found${NC}"
 
+# Backup .env file if exists
+if [ -f "./backend/.env" ]; then
+    echo "💾 Backing up .env file..."
+    cp ./backend/.env ./backend/.env.backup
+    # Tell git to ignore local .env changes
+    git update-index --assume-unchanged backend/.env 2>/dev/null || true
+fi
+
 # Pull latest code
 echo "📥 Pulling latest code from repository..."
 git pull origin main || {
-    echo -e "${YELLOW}⚠️  Git pull failed or not in a git repository. Continuing anyway...${NC}"
+    echo -e "${YELLOW}⚠️  Git pull failed. Attempting to resolve...${NC}"
+    # If pull fails due to .env conflict, reset and restore
+    git reset --hard origin/main
 }
+
+# Restore .env file if backup exists
+if [ -f "./backend/.env.backup" ]; then
+    echo "♻️  Restoring .env file..."
+    cp ./backend/.env.backup ./backend/.env
+    rm ./backend/.env.backup
+    git update-index --assume-unchanged backend/.env 2>/dev/null || true
+fi
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
