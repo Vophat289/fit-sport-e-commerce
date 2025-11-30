@@ -27,7 +27,7 @@ export class AdminSidebarComponent implements OnInit {
     { label: 'Danh Mục', icon: 'bx-category', route: '/admin/category-admin' },
     { label: 'Sản Phẩm', icon: 'bx-package', route: '/admin/products' },
     { label: 'Đơn Hàng', icon: 'bx-cart', route: '/admin/orders' },
-    { label: 'Tài Khoản', icon: 'bx-user', route: '/admin/users' },
+    { label: 'Tài Khoản', icon: 'bx-user', route: '/admin/manager-user' },
     { label: 'Vouchers', icon: 'bx-gift', route: '/admin/vouchers' },
     { label: 'Bài Viết', icon: 'bx-news', route: '/admin/posts' },
     { label: 'Liên Hệ', icon: 'bx-phone', route: '/admin/contacts' }
