@@ -13,7 +13,6 @@ import newsRoutes from './routes/news.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import adminRoutes from './routes/admin.routes.js';
 import { EventEmitter } from 'events';
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
