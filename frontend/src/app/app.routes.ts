@@ -1,18 +1,25 @@
 import { Routes } from '@angular/router';
 import { ClientLayoutComponent } from './components/client-layout/client-layout.component';
+
 import { HomeComponent } from './components/home/home.component';
+import { HomeCategoryComponent } from './components/home-category/home-category.component';
+import { ProductPageComponent } from './pages/product-page/product-page.component';
+import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
+import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
+import { AccountPageComponent } from './pages/account-page/account-page.component';
+import { ContactComponent } from './pages/contact/contact.component';
+import { VoucherComponent } from './pages/voucher/voucher.component';
+import { CartPageComponent } from './pages/cart-page/cart-page.component';
+import { DataSeederComponent } from './pages/admin-seeder/data-seeder.component';
+
+// Auth pages
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
-import { HomeCategoryComponent } from './components/home-category/home-category.component';
-import { ProductPageComponent } from './pages/product-page/product-page.component';
-import { ProductDetailComponent } from './pages/product-detail/product-detail.component'
-import { GioiThieuComponent } from './pages/gioi-thieu/gioi-thieu.component';
-import { AccountPageComponent } from './pages/account-page/account-page.component';
-import { ContactComponent } from './pages/contact/contact.component';
-import { VoucherComponent } from './pages/voucher/voucher.component';
+
+// Admin routes 
 import { AdminRoutes } from './admin/admin.routes';
 
 export const routes: Routes = [
@@ -38,7 +45,9 @@ export const routes: Routes = [
       { path: 'forgot-password', component: ForgotPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
 
-      // Route mặc định khi vào /
+      { path: 'admin/seed', component: DataSeederComponent },
+      { path: 'cart', component: CartPageComponent },
+
       { path: '', redirectTo: '/home', pathMatch: 'full' },
     ]
   },
