@@ -1,13 +1,13 @@
 import express from "express";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import { getAllContacts, toggleContactVisibility } from "../../controllers/admin/contact.admin.controller.js";
+import { getAllContacts, deleteContact } from "../../controllers/admin/contact.admin.controller.js";
 
 const router = express.Router();
 
-// GET danh sách contact với phân trang và search
+// GET danh sách contact
 router.get("/", authMiddleware, getAllContacts);
 
-// PATCH ẩn/hiện contact
-router.patch("/:id/toggle", authMiddleware, toggleContactVisibility);
+// DELETE xóa liên hệ
+router.delete("/:id", authMiddleware, deleteContact);
 
 export default router;

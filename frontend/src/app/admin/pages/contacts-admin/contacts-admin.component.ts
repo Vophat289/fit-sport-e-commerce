@@ -10,7 +10,6 @@ interface Contact {
   phone: string;
   content: string;
   createdAt: string;
-  isVisible: boolean;
 }
 
 @Component({
@@ -46,25 +45,23 @@ export class ContactsAdminComponent implements OnInit {
         this.totalPages = res.totalPages;
         this.loading = false;
       },
-      error: (err: any) => {
-        console.error(err);
-        this.errorMsg = 'Lỗi tải danh sách hoặc token không hợp lệ';
+      error: () => {
+        this.errorMsg = 'Không thể tải dữ liệu hoặc token không hợp lệ';
         this.loading = false;
       }
     });
   }
 
-  // Ẩn/Hiện contact
-  toggleVisibility(contact: Contact): void {
-    this.contactService.toggleVisibility(contact._id).subscribe({
+  deleteContact(id: string): void {
+    if (!confirm('Bạn có chắc muốn xóa liên hệ này?')) return;
+
+    this.contactService.deleteContact(id).subscribe({
       next: (res: any) => {
-        alert(res.message);
-        // Cập nhật ngay isVisible trên bảng
-        contact.isVisible = !contact.isVisible;
+        alert('Xóa thành công!');
+        this.getContacts();
       },
-      error: (err: any) => {
-        console.error(err);
-        alert('Thao tác thất bại');
+      error: () => {
+        alert('Không thể xóa liên hệ');
       }
     });
   }
@@ -86,5 +83,9 @@ export class ContactsAdminComponent implements OnInit {
   onSearch(): void {
     this.page = 1;
     this.getContacts();
+  }
+
+openCreateForm(): void {
+    alert('Chức năng tạo liên hệ mới sẽ được mở ở đây!');
   }
 }
