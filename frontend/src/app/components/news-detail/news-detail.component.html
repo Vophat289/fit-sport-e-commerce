@@ -1,70 +1,72 @@
 <!-- Loading -->
 <div *ngIf="loading" class="loading-overlay">
   <div class="spinner"></div>
-  <span>Đang tải...</span>
+  <span>Đang tải bài viết...</span>
 </div>
 
 <!-- Nội dung bài viết -->
 <div *ngIf="!loading && article; else notFound" class="news-container">
   <div class="news-content">
 
-    <!-- Breadcrumb -->
+    <!-- Breadcrumb đẹp như Kênh14 -->
     <nav class="breadcrumb">
-      <a routerLink="/">Trang chủ</a> / 
-      <a routerLink="/news">Tin tức</a> / 
+      <a routerLink="/">Trang chủ</a>
+      <span>›</span>
+      <a routerLink="/news">Tin tức</a>
+      <span>›</span>
       <span class="current">{{ article.title }}</span>
     </nav>
 
-    <!-- Tiêu đề bài viết -->
+    <!-- Tiêu đề siêu to -->
     <h1 class="news-title">{{ article.title }}</h1>
 
     <!-- Meta info -->
     <div class="news-meta">
-      <span class="author">Tác giả: {{ article.author || 'Admin' }}</span>
-      <span class="separator">|</span>
+      <span class="author">{{ article.author || 'Admin' }}</span>
+      <span class="separator">•</span>
       <span class="date">{{ article.createdAt | date:'HH:mm, dd/MM/yyyy' }}</span>
-      <span class="badge" *ngIf="article.category">{{ article.category }}</span>
     </div>
 
-    <!-- Sapo / Mô tả ngắn -->
-    <p class="sapo" *ngIf="article.short_desc">{{ article.short_desc }}</p>
+    <!-- Sapo nổi bật -->
+    <div class="sapo" *ngIf="article.short_desc">
+      {{ article.short_desc }}
+    </div>
 
     <!-- Ảnh đại diện -->
     <figure class="news-figure" *ngIf="article.thumbnail">
       <img [src]="article.thumbnail" [alt]="article.title" class="news-img">
-      <figcaption class="figure-caption" *ngIf="article.caption">{{ article.caption }}</figcaption>
     </figure>
 
     <!-- Nội dung bài viết -->
     <div class="news-body" [innerHTML]="article.content"></div>
 
-    <!-- Thẻ tag -->
+    <!-- Tags -->
     <div class="related-tags" *ngIf="article.tags && article.tags.length">
-      <strong>Thẻ liên quan:</strong>
+      <strong>Tags:</strong>
       <a *ngFor="let tag of article.tags"
          [routerLink]="['/news']"
          [queryParams]="{ tag: tag }"
-         class="tag-pill">{{ tag }}</a>
+         class="tag-pill">#{{ tag }}</a>
     </div>
 
-    <!-- Hành động: chia sẻ -->
+    <!-- Nút hành động (chỉ giữ lại cái cũ của bạn) -->
     <div class="actions">
       <button class="btn btn-share" (click)="share()">
-        <span class="icon">🔗</span> Chia sẻ
+        Chia sẻ bài viết
       </button>
       <a routerLink="/" class="btn btn-back">
-        <span class="icon">🏠</span> Quay về Trang chủ
+        Quay về Trang chủ
       </a>
     </div>
 
   </div>
 </div>
 
-<!-- Nếu không tìm thấy bài viết -->
+<!-- 404 -->
 <ng-template #notFound>
   <div class="not-found">
     <h2>Không tìm thấy bài viết</h2>
-    <p>Bài viết bạn đang tìm không tồn tại hoặc đã bị xóa.</p>
+    <p>Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
     <a routerLink="/" class="btn-primary">Quay về Trang chủ</a>
   </div>
 </ng-template>

@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
 
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
+import adminNewsRoutes from './routes/admin/news.admin.routes.js';
 
 EventEmitter.defaultMaxListeners = 20;
 
@@ -25,7 +26,7 @@ const app = express();
 
 app.use(cors({
     origin: "http://localhost:4200",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE","PATCH",'OPTIONS'],
     credentials: true
 }));
 
@@ -53,7 +54,8 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/news", newsRoutes);  
 
 // Admin
-app.use("/api/admin/vouchers", adminVoucherRoutes);
+app.use("/api/admin/vouchers", adminVoucherRoutes)
+app.use("/api/admin/news", adminNewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");

@@ -6,11 +6,7 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-news-detail',
   standalone: true,
-  imports: [
-    CommonModule,       // *ngIf, *ngFor, date pipe
-    RouterModule,       // routerLink, queryParams
-    HttpClientModule    // HttpClient
-  ],
+  imports: [CommonModule,RouterModule,HttpClientModule],
   templateUrl: './news-detail.component.html',
   styleUrls: ['./news-detail.component.css']
 })

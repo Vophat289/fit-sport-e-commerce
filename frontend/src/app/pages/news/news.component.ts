@@ -6,10 +6,7 @@ import { NewsService, News } from '../../services/news.service';
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule   
-  ],
+  imports: [CommonModule,RouterModule],
   templateUrl: './news.component.html',
   styleUrls: ['./news.component.css']
 })
