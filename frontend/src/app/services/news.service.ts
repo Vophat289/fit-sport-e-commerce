@@ -31,13 +31,10 @@ export type UpdateNewsData = Partial<CreateNewsData>;
   providedIn: 'root'
 })
 export class NewsService {
-  // ĐỔI THÀNH ĐÚNG ĐƯỜNG DẪN CỦA BẠN (admin/news)
   private readonly API_URL = 'http://localhost:3000/api/admin/news';
-
   constructor(private http: HttpClient) {}
-
   // ====================== PUBLIC (CHO TRANG CHỦ & TRANG BÀI VIẾT) ======================
-  // Dùng để hiển thị danh sách bài viết – CHỈ LẤY BÀI isActive: true
+  // Dùng để hiển thị danh sách bài viết 
   getPublicNews(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/public?page=${page}`);
   }
@@ -47,12 +44,12 @@ export class NewsService {
     return this.http.get<News[]>(`${this.API_URL}/latest?limit=${limit}`);
   }
 
-  // Chi tiết bài viết theo slug – cũng phải kiểm tra isActive
+  // Chi tiết bài viết theo slug 
   getNewsBySlug(slug: string): Observable<News> {
     return this.http.get<News>(`${this.API_URL}/detail/${slug}`);
   }
 
-  // ====================== ADMIN (GIỮ NGUYÊN ĐỂ ADMIN DÙNG) ======================
+  // ====================== ADMIN  ======================
   // Lấy TẤT CẢ bài viết (kể cả đã ẩn) – dành cho trang admin
   getAllNewsAdmin(): Observable<News[]> {
     return this.http.get<News[]>(`${this.API_URL}`);

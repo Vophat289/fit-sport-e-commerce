@@ -29,7 +29,6 @@ export class NewsComponent implements OnInit {
   loadNews(page: number = 1) {
     this.newsService.getPublicNews(page).subscribe({
       next: (res: any) => {
-        // res từ backend: { success: true, data: [...], pagination: { ... } }
         this.news = (res.data || []).map((item: any) => ({
           ...item,
           slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
@@ -54,11 +53,10 @@ export class NewsComponent implements OnInit {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
 
     this.currentPage = page;
-    this.loadNews(page); // gọi lại API để lấy dữ liệu trang mới
+    this.loadNews(page); 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Tạo mảng trang để hiển thị phân trang (1,2,3...)
   get pagesArray(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
