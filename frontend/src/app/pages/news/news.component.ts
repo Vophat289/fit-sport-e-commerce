@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';   
+import { RouterModule } from '@angular/router';
 import { NewsService, News } from '../../services/news.service';
 
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './news.component.html',
-  styleUrls: ['./news.component.css']
+  styleUrl: './news.component.css'
 })
 export class NewsComponent implements OnInit {
 
@@ -18,42 +18,49 @@ export class NewsComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 6;
   totalPages = 1;
+  totalItems = 0;
 
-  constructor(private newsService: NewsService) {}
+  constructor(private newsService: NewsService) { }
 
   ngOnInit(): void {
-    this.loadNews();
+    this.loadNews(this.currentPage);
   }
 
-  loadNews() {
-    this.newsService.getAllNews().subscribe({
+  loadNews(page: number = 1) {
+    this.newsService.getPublicNews(page).subscribe({
       next: (res: any) => {
-        const newsData = Array.isArray(res) ? res : res.data || [];
-
-        this.news = newsData.map((item: any) => ({
+        // res từ backend: { success: true, data: [...], pagination: { ... } }
+        this.news = (res.data || []).map((item: any) => ({
           ...item,
-          slug: item.slug?.trim() ? item.slug : this.generateSlug(item.title || 'untitled')
+          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
         }));
 
-        this.totalPages = Math.ceil(this.news.length / this.itemsPerPage);
-        this.updatePaginatedNews();
-        console.log(`Đã tải ${this.news.length} bài viết – ${this.totalPages} trang`);
+        this.paginatedNews = this.news;
+        this.currentPage = res.pagination?.currentPage || page;
+        this.totalPages = res.pagination?.totalPages || 1;
+        this.totalItems = res.pagination?.totalItems || 0;
+
+        console.log(`Đã tải trang ${this.currentPage}/${this.totalPages} – ${this.totalItems} bài viết công khai`);
       },
-      error: (err: any) => console.error('Lỗi tải tin tức:', err)
+      error: (err: any) => {
+        console.error('Lỗi tải tin tức:', err);
+        this.news = [];
+        this.paginatedNews = [];
+      }
     });
   }
 
-  updatePaginatedNews() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedNews = this.news.slice(start, end);
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
+
+    this.currentPage = page;
+    this.loadNews(page); // gọi lại API để lấy dữ liệu trang mới
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  changePage(page: number) {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.updatePaginatedNews();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Tạo mảng trang để hiển thị phân trang (1,2,3...)
+  get pagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   private generateSlug(title: string): string {

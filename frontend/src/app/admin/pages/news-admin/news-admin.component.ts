@@ -12,7 +12,7 @@ interface News {
   content: string;
   thumbnail?: string;
   author?: string;
-  tags?: string[] | string;  // Cho phép cả string (khi từ DB)
+  tags?: string[] | string;
   createdAt?: string;
   isActive?: boolean;
 }
@@ -57,7 +57,7 @@ export class NewsAdminComponent implements OnInit {
         if (Array.isArray(res)) {
           this.newsList = res;
         } else if (res?.data) {
-          this.newsList = Array.isArray(res.data) ? res.data : Object.values(res.data);
+          this.newsList = Array.isArray(res.data) ? res.data : [];
         } else {
           this.newsList = [];
         }
@@ -93,7 +93,6 @@ export class NewsAdminComponent implements OnInit {
     if (this.form.short_desc?.trim()) formData.append('short_desc', this.form.short_desc.trim());
     if (this.form.author?.trim()) formData.append('author', this.form.author.trim());
 
-    // XỬ LÝ TAGS AN TOÀN 100% - KHÔNG BAO GIỜ LỖI .join nữa
     const tagsArray = Array.isArray(this.form.tags)
       ? this.form.tags
       : typeof this.form.tags === 'string'
@@ -129,11 +128,10 @@ export class NewsAdminComponent implements OnInit {
     });
   }
 
-  /** Sửa bài viết - FIX LỖI TAGS */
+  /** Sửa bài viết */
   edit(item: News) {
     this.form = {
       ...item,
-      // Đảm bảo tags luôn là mảng string[]
       tags: Array.isArray(item.tags)
         ? item.tags
         : typeof item.tags === 'string'
@@ -145,27 +143,25 @@ export class NewsAdminComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /** Ẩn / Bỏ ẩn bài viết - GỬI ĐÚNG isActive */
-  toggleHide(id: string, isActive: boolean) {
-    const action = isActive ? 'Ẩn' : 'Bỏ ẩn';
-    if (!confirm(`${action} bài viết này?`)) {
-      return;
-    }
+  /** ẨN / BỎ ẨN BÀI VIẾT  */
+  toggleHide(id: string, currentIsActive: boolean) {
+  if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
 
-    this.isLoading = true;
-    this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, { isActive: !isActive }).subscribe({
-      next: () => {
-        this.showMessage('success', isActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
-        this.loadNews();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Lỗi ẩn/hiện bài viết:', err);
-        this.showMessage('error', 'Thao tác thất bại');
-        this.isLoading = false;
-      }
-    });
-  }
+  this.isLoading = true;
+
+  this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
+    next: (res) => {
+      console.log('Toggle thành công:', res);
+      this.showMessage('success', currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
+      this.loadNews();
+    },
+    error: (err) => {
+      console.error('Lỗi toggle:', err);
+      const msg = err.error?.message || 'Không thể thay đổi trạng thái';
+      this.showMessage('error', msg);
+    }
+  });
+}
 
   /** Reset form */
   resetForm() {

@@ -1,10 +1,10 @@
-// src/controllers/admin/news.controller.js
+// src/controllers/admin/news.admin.controller.js
 import News from '../../models/news.model.js';
 import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 
-// Tạo slug không trùng (rất ổn định)
+// Tạo slug duy nhất
 const generateUniqueSlug = async (title) => {
   const baseSlug = slugify(title, { lower: true, strict: true, trim: true });
   let slug = baseSlug;
@@ -17,7 +17,9 @@ const generateUniqueSlug = async (title) => {
   return slug;
 };
 
-// GET tất cả bài viết (admin) - có phân trang
+// ==================== ADMIN FUNCTIONS ====================
+
+// LẤY TẤT CẢ BÀI VIẾT (ADMIN + PHÂN TRANG)
 export const getAllNews = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -26,7 +28,7 @@ export const getAllNews = async (req, res) => {
 
     const total = await News.countDocuments();
     const news = await News.find()
-      .select('title slug short_desc content thumbnail author tags createdAt isActive')
+      .select('title slug short_desc content thumbnail author tags createdAt updatedAt isActive')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -44,11 +46,11 @@ export const getAllNews = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi getAllNews:", error);
-    res.status(500).json({ success: false, message: "Lỗi server khi tải danh sách" });
+    res.status(500).json({ success: false, message: "Lỗi server khi tải danh sách bài viết" });
   }
 };
 
-// TẠO BÀI VIẾT MỚI - ĐÃ FIX 100% LỖI 500
+// TẠO BÀI VIẾT MỚI
 export const createNews = async (req, res) => {
   try {
     const { title, content, short_desc, author, tags } = req.body;
@@ -57,14 +59,10 @@ export const createNews = async (req, res) => {
       return res.status(400).json({ success: false, message: "Tiêu đề và nội dung là bắt buộc!" });
     }
 
-    // Xử lý ảnh
-    const thumbnail = req.file 
-      ? `/uploads/news/${req.file.filename}` 
-      : null;
+    const thumbnail = req.file ? `/uploads/news/${req.file.filename}` : null;
 
-    // Xử lý tags an toàn
     const tagsArray = tags
-      ? (typeof tags === 'string' 
+      ? (typeof tags === 'string'
           ? tags.split(',').map(t => t.trim()).filter(Boolean)
           : Array.isArray(tags) ? tags : [])
       : [];
@@ -86,12 +84,11 @@ export const createNews = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Đăng bài thành công!",
+      message: "Tạo bài viết thành công!",
       data: newNews
     });
 
   } catch (error) {
-    // Xóa file nếu upload lỗi
     if (req.file?.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
@@ -100,63 +97,69 @@ export const createNews = async (req, res) => {
   }
 };
 
-// CẬP NHẬT BÀI VIẾT - ĐÃ FIX HOÀN TOÀN
-export const updateNews = async (req, res) => {
+// CẬP NHẬT BÀI VIẾT THEO SLUG
+export const updateNewsBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const oldNews = await News.findOne({ slug });
-    if (!oldNews) {
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
+    const news = await News.findOne({ slug });
+
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: `Không tìm thấy bài viết với slug: ${slug}`
+      });
     }
 
-    const { title, content, short_desc, author, tags } = req.body;
+    const { title, content, short_desc, author, tags, isActive } = req.body;
 
-    // Cập nhật các trường
-    if (title?.trim() && title.trim() !== oldNews.title) {
-      oldNews.title = title.trim();
-      oldNews.slug = await generateUniqueSlug(title.trim());
+    if (title && title.trim() !== news.title) {
+      news.title = title.trim();
+      news.slug = await generateUniqueSlug(title.trim());
     }
-    if (content?.trim()) oldNews.content = content.trim();
-    if (short_desc !== undefined) oldNews.short_desc = short_desc?.trim() || '';
-    if (author?.trim()) oldNews.author = author.trim();
+    if (content !== undefined) news.content = content.trim();
+    if (short_desc !== undefined) news.short_desc = short_desc?.trim() || '';
+    if (author !== undefined) news.author = author?.trim() || 'Admin';
+    if (isActive !== undefined) news.isActive = isActive === true || isActive === 'true';
 
-    // Cập nhật tags
     if (tags !== undefined) {
-      oldNews.tags = typeof tags === 'string'
+      news.tags = typeof tags === 'string'
         ? tags.split(',').map(t => t.trim()).filter(Boolean)
         : Array.isArray(tags) ? tags : [];
     }
 
-    // Cập nhật ảnh mới + xóa ảnh cũ
     if (req.file) {
-      // Xóa ảnh cũ
-      if (oldNews.thumbnail) {
-        const oldPath = path.join(process.cwd(), 'uploads', 'news', path.basename(oldNews.thumbnail));
+      if (news.thumbnail) {
+        const oldFileName = path.basename(news.thumbnail);
+        const oldPath = path.join(process.cwd(), 'uploads', 'news', oldFileName);
         if (fs.existsSync(oldPath)) {
           fs.unlinkSync(oldPath);
         }
       }
-      oldNews.thumbnail = `/uploads/news/${req.file.filename}`;
+      news.thumbnail = `/uploads/news/${req.file.filename}`;
     }
 
-    await oldNews.save();
+    await news.save();
 
     res.status(200).json({
       success: true,
       message: "Cập nhật bài viết thành công!",
-      data: oldNews
+      data: news
     });
 
   } catch (error) {
     if (req.file?.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    console.error("Lỗi updateNews:", error);
-    res.status(500).json({ success: false, message: "Lỗi server khi cập nhật" });
+    console.error("Lỗi updateNewsBySlug:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi cập nhật bài viết",
+      error: error.message
+    });
   }
 };
 
-// ẨN / BỎ ẨN BÀI VIẾT 
+// ẨN / HIỆN BÀI VIẾT
 export const toggleHideNews = async (req, res) => {
   try {
     const { id } = req.params;
@@ -166,18 +169,108 @@ export const toggleHideNews = async (req, res) => {
       return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
     }
 
-    // Toggle trạng thái
     news.isActive = !news.isActive;
     await news.save();
 
-    res.status(200).json({
+    res.json({
       success: true,
-      message: news.isActive ? "Đã bỏ ẩn bài viết" : "Đã ẩn bài viết",
-      data: { _id: news._id, isActive: news.isActive }
+      message: "Thay đổi trạng thái thành công",
+      isActive: news.isActive
     });
-
   } catch (error) {
     console.error("Lỗi toggleHideNews:", error);
-    res.status(500).json({ success: false, message: "Lỗi server khi thay đổi trạng thái" });
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// XÓA BÀI VIẾT (CHỈ 1 HÀM DUY NHẤT - ĐÃ SỬA HOÀN HẢO)
+export const deleteNews = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const news = await News.findOneAndDelete({ slug });
+
+    if (!news) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
+    }
+
+    if (news.thumbnail) {
+      const fileName = path.basename(news.thumbnail);
+      const filePath = path.join(process.cwd(), 'uploads', 'news', fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    res.json({ success: true, message: "Xóa bài viết thành công!" });
+  } catch (error) {
+    console.error("Lỗi deleteNews:", error);
+    res.status(500).json({ success: false, message: "Lỗi server khi xóa" });
+  }
+};
+
+// ==================== PUBLIC FUNCTIONS (CHO TRANG CHỦ & BÀI VIẾT) ====================
+
+// 1. Lấy danh sách bài viết công khai (chỉ hiện bài isActive: true)
+export const getPublicNews = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    const news = await News.find({ isActive: true })
+      .select('title slug short_desc thumbnail createdAt tags author')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await News.countDocuments({ isActive: true });
+
+    res.json({
+      success: true,
+      data: news,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi getPublicNews:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// 2. Lấy bài mới nhất cho trang chủ
+export const getLatestNews = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const news = await News.find({ isActive: true })
+      .select('title slug short_desc thumbnail createdAt')
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    res.json({ success: true, data: news });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// 3. Lấy chi tiết bài viết theo slug (chỉ hiện nếu isActive: true)
+export const getNewsDetailBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const news = await News.findOne({ slug, isActive: true });
+
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: "Bài viết không tồn tại hoặc đã bị ẩn"
+      });
+    }
+
+    res.json({ success: true, data: news });
+  } catch (error) {
+    console.error("Lỗi getNewsDetailBySlug:", error);
+    res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };

@@ -1,23 +1,56 @@
+// src/models/news.model.js
 import mongoose from 'mongoose';
 
-const newsSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  short_desc: { type: String, required: true },
-  content: { type: String, required: true },
-  thumbnail: { type: String, default: '' },
-  author: { type: String, default: 'Admin' },
-  tags: [{ type: String }],
-  slug: { type: String, required: true, unique: true },
-  createdAt: { type: Date, default: Date.now },  
-  isActive: {
-    type: Boolean,
-    default: true   
+const newsSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'Tiêu đề là bắt buộc'],
+      trim: true
+    },
+    short_desc: {
+      type: String,
+      required: [true, 'Mô tả ngắn là bắt buộc'],
+      trim: true
+    },
+    content: {
+      type: String,
+      required: [true, 'Nội dung bài viết là bắt buộc'],
+      trim: true
+    },
+    thumbnail: {
+      type: String,
+      default: null   
+    },
+    author: {
+      type: String,
+      default: 'Admin',
+      trim: true
+    },
+    tags: [{
+      type: String,
+      trim: true
+    }],
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true   
+    }
+  },
+  {
+    timestamps: true   
   }
-});
+);
 
-// Index để tìm kiếm nhanh hơn (tùy chọn)
-newsSchema.index({ slug: 1 });
-newsSchema.index({ createdAt: -1 });
-newsSchema.index({ isActive: 1 });
+newsSchema.index({ slug: 1 });          
+newsSchema.index({ createdAt: -1 });     
+newsSchema.index({ isActive: 1, createdAt: -1 }); 
 
 export default mongoose.model('News', newsSchema);

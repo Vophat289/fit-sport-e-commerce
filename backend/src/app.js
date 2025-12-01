@@ -44,6 +44,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static('uploads'));
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
@@ -54,9 +56,8 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/news", newsRoutes);  
 
 // Admin
-app.use("/api/admin/vouchers", adminVoucherRoutes)
+app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
-
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
 });
