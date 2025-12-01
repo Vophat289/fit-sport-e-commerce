@@ -10,6 +10,7 @@ import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsRoutes from './routes/news.routes.js';
+
 import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +18,8 @@ import { EventEmitter } from 'events';
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 import adminContactRoutes from './routes/admin/contact.admin.routes.js';
+import adminNewsRoutes from './routes/admin/news.admin.routes.js';
+
 
 EventEmitter.defaultMaxListeners = 20;
 
@@ -45,10 +48,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-
 // User
 app.use('/api', authRoutes)
 app.use("/api/auth", authRoutes);
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static('uploads'));
+
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/account", accountRoutes);
@@ -64,6 +70,7 @@ app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use("/api/admin/news", adminNewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
