@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router'; 
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { News } from '../../services/news.service';
+import { NewsService } from '../../services/news.service';
 
 interface Voucher {
   code: string;
@@ -18,7 +21,7 @@ interface Voucher {
 @Component({
   selector: 'app-voucher',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './voucher.component.html',
   styleUrls: ['./voucher.component.css']
 })
@@ -26,6 +29,8 @@ export class VoucherComponent implements OnInit {
 
   vouchers: Voucher[] = [];
   filteredVouchers: Voucher[] = [];
+  latestNews: News[] = [];
+
 
   loading = true;
   activeFilter: string = "all";  
@@ -38,15 +43,26 @@ export class VoucherComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private newsService: NewsService
   ) {}
 
   ngOnInit() {
     this.checkLogin();
+    this.loadLatestNews()
     if(this.isLoggedIn) {
       this.fetchVouchers(1);
     }
   }
+
+loadLatestNews() {
+  this.newsService.getLatestNews().subscribe({
+    next: (res) => {
+      this.latestNews = Array.isArray(res) ? res.slice(0, 5) : [];
+    },
+    error: (err) => console.error("Lỗi load bài viết mới:", err)
+  });
+} 
 
   checkLogin() {
     const token = localStorage.getItem("token");
