@@ -1,6 +1,6 @@
 import Contact from "../../models/contact.model.js";
 
-// Lấy danh sách contact (phân trang + search, hiển thị cả ẩn/hiện)
+// Lấy danh sách contact
 export const getAllContacts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -8,7 +8,6 @@ export const getAllContacts = async (req, res) => {
     const search = req.query.search || "";
     const skip = (page - 1) * limit;
 
-    // Query: tìm theo search (fullName, email, phone) nhưng không lọc isVisible
     const query = search
       ? {
           $or: [
@@ -34,7 +33,6 @@ export const getAllContacts = async (req, res) => {
       currentPage: page,
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({
       success: false,
       message: "Lỗi server khi lấy danh sách liên hệ",
@@ -42,33 +40,28 @@ export const getAllContacts = async (req, res) => {
   }
 };
 
-// Ẩn/Hiện contact
-export const toggleContactVisibility = async (req, res) => {
+// Xóa liên hệ
+export const deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const contact = await Contact.findById(id);
-    if (!contact) {
+    const removed = await Contact.findByIdAndDelete(id);
+
+    if (!removed) {
       return res.status(404).json({
         success: false,
         message: "Liên hệ không tồn tại",
       });
     }
 
-    // Đảo ngược isVisible
-    contact.isVisible = !contact.isVisible;
-    await contact.save();
-
     return res.json({
       success: true,
-      message: `Liên hệ đã được ${contact.isVisible ? "hiển thị" : "ẩn"}`,
-      data: contact,
+      message: "Xóa liên hệ thành công",
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({
       success: false,
-      message: "Lỗi khi thay đổi trạng thái liên hệ",
+      message: "Lỗi server khi xóa liên hệ",
     });
   }
 };

@@ -1,130 +1,271 @@
-.container {
-  padding: 20px;
-  max-width: 1100px;
-  margin: auto;
+/* ====================== GLOBAL & RESET ====================== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  background: #0e0e10;
+  color: #e2e8f0;
 }
 
-.title {
-  font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 15px;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ====================== MAIN CONTAINER (căn giữa + co lại) ====================== */
+.admin-container {
+  min-height: 100vh;
+  background: #0e0e10;
+  padding: 24px 16px;               /* padding nhỏ 2 bên */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Phần QUAN TRỌNG NHẤT - co nội dung lại giống hệt ảnh */
+.content-wrapper {
+  width: 100%;
+  max-width: 1400px;                /* rộng tối đa giống ảnh gốc */
+  margin: 0 auto;                   /* căn giữa hoàn hảo */
+  background: transparent;
+}
+
+/* ====================== PAGE HEADER ====================== */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.sub-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.page-title {
+  margin: 6px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ====================== SEARCH + BUTTON ====================== */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #64748b;
+  pointer-events: none;
 }
 
 .search-box input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  width: 320px;
+  padding: 12px 16px 12px 46px;
+  background: #1e1e1e;
+  border: 1px solid #2d2d2d;
+  border-radius: 12px;
+  color: #e2e8f0;
+  font-size: 14px;
+  transition: all 0.25s ease;
 }
 
-.search-box button {
-  padding: 10px 20px;
-  background: #0d6efd;
+.search-box input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.search-box button:hover {
-  opacity: 0.85;
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
 }
 
-.loading {
-  color: #555;
-}
-
-.error {
-  color: red;
-  margin-bottom: 10px;
-}
-
-.table-wrapper {
-  overflow-x: auto;
+/* ====================== TABLE ====================== */
+.table-container {
+  background: #18181b;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid #27272a;
+  width: 100%;                      /* full trong wrapper */
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 15px;
 }
 
-table th, table td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
+thead {
+  background: #1f1f23;
+}
+
+th {
+  padding: 18px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
   text-align: left;
 }
 
-table th {
-  background: #f3f3f3;
-  font-weight: 600;
+td {
+  padding: 18px 20px;
+  color: #e2e8f0;
+  border-top: 1px solid #27272a;
 }
 
-button {
-  padding: 6px 12px;
-  border: none;
+tbody tr {
+  transition: background 0.25s ease;
+}
+
+tbody tr:hover {
+  background: #1e1e21;
+}
+
+/* Thumbnail */
+.thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #333;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Màu sắc */
+.color-box {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
   border-radius: 6px;
-  cursor: pointer;
+  border: 1px solid #444;
+  margin-right: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* Nút Ẩn/Hiện */
-button.toggle {
-  background: #ffc107;
-  color: #000;
-}
-
-button.toggle:hover {
-  opacity: 0.85;
-}
-
-/* Trạng thái hiển thị */
-.visible {
-  color: green;
-  font-weight: bold;
-}
-
-.hidden {
-  color: red;
-  font-weight: bold;
-}
-
-.delete {
-  background: #dc3545;
-  color: #fff;
-}
-
-.delete:hover {
-  opacity: 0.85;
-}
-
-.no-data {
+/* Action icons */
+td.actions {
   text-align: center;
-  color: #666;
-  margin-top: 15px;
 }
 
+.actions .btn.icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #27272a;
+  color: #64748b;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.actions .btn.icon:hover {
+  background: #3b3b3f;
+  color: #38bdf8;
+}
+
+.actions .btn.icon.danger:hover {
+  background: rgba(248, 113, 113, 0.25);
+  color: #fca5a5;
+}
+
+/* ====================== PAGINATION ====================== */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
+  margin-top: 28px;
+  user-select: none;
 }
 
 .pagination button {
-  padding: 7px 15px;
-  background: #0d6efd;
-  color: white;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e2e8f0;
+  background: #27272a;
 }
 
-.pagination button[disabled] {
-  opacity: 0.4;
-  cursor: default;
+.pagination button:hover:not(.active):not(:disabled) {
+  background: #3b3b3f;
+  color: white;
+}
+
+.pagination button:disabled {
+  background: #1a1a1a;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+}
+
+/* ====================== RESPONSIVE ====================== */
+@media (max-width: 768px) {
+  .admin-container { padding: 16px 12px; }
+  .content-wrapper { padding: 0; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .search-box input { width: 100%; }
+  .header-actions { justify-content: stretch; }
+  .btn-primary { width: 100%; justify-content: center; }
+  .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 900px; }
 }

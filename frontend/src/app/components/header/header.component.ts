@@ -3,10 +3,11 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
-import { Product, ProductService } from '@app/services/product.service';
 import { Subscription } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { ToastrService } from 'ngx-toastr';
+import { Product, ProductService } from '@app/services/product.service';
+
 
 @Component({
   selector: 'app-header',
@@ -16,12 +17,11 @@ import { CartService } from '../../services/cart.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   userName: string | null = null;
-  cartCount: number = 0;
-
-  searchQuery: string = '';
-  searchResults: any[] = [];
-  showResults: boolean = false;
+  searchQuery: string = ''; //lưu từ khóa tìm
+  searchResults: Product[] = []; // lưu kết quả search
+  showResults: boolean = false; // hiển thị kq search
   loading: boolean = false;
+  cartCount: number = 0;
 
   private userSub: Subscription = new Subscription();
   private cartSub: Subscription = new Subscription();
@@ -62,7 +62,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
       this.authService.logout().subscribe({
         next: () => {
-          this.cartService.clearCart(); // ✅ reset số lượng
+          this.cartService.clearCart();
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           this.router.navigate(['/home']);
@@ -71,7 +71,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
   }
-
   //search
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
