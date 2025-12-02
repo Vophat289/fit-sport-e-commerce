@@ -1,0 +1,178 @@
+.orders-admin {
+  padding: 24px;
+  font-family: 'Roboto', sans-serif;
+  background: #0e0e10;
+  color: #e2e8f0;
+}
+
+/* ====================== PAGE HEADER ====================== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sub-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* ====================== SEARCH BOX ====================== */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #9ca3af; /* xám nhạt */
+  pointer-events: none;
+}
+
+.search-box input {
+  width: 320px;
+  padding: 12px 16px 12px 46px;
+  background: #1e1e1e;
+  border: 1px solid #2d2d2d;
+  border-radius: 12px;
+  color: #e2e8f0;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #666666; /* thay xanh -> xám sáng */
+  box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.25);
+}
+
+/* ====================== TABLE ====================== */
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th,
+.order-table td {
+  padding: 14px 16px;
+  text-align: center;
+  border: 1px solid #27272a;
+}
+
+.order-table th {
+  background-color: #1f1f23;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.order-table td {
+  color: #e2e8f0;
+}
+
+tbody tr:hover {
+  background-color: #1e1e21;
+  transition: background 0.25s ease;
+}
+
+/* ====================== DETAIL BUTTON ====================== */
+.order-table td .detail-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.order-table td .detail-btn:hover {
+  background-color: #ff7875;
+}
+
+/* ====================== PAGINATION ====================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.pagination button {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #27272a;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled):not(.active) {
+  background: #3b3b3f;
+  color: white;
+}
+
+.pagination button:disabled {
+  background: #1a1a1a;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background: #666666; /* active tông xám, không xanh */
+  color: white;
+  font-weight: 600;
+}
+
+/* ====================== RESPONSIVE ====================== */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .search-box input {
+    width: 100%;
+  }
+  .header-actions {
+    justify-content: stretch;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  table {
+    min-width: 900px;
+  }
+}

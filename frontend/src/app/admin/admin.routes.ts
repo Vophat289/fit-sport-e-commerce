@@ -6,7 +6,7 @@ import { CategoryAdminComponent } from './pages/category-admin/category-admin.co
 import { VoucherAdminComponent } from './pages/voucher-admin/voucher-admin.component'; 
 import { ProductAdminComponent } from './pages/product-admin/product-admin.component';
 import { ContactsAdminComponent } from './pages/contacts-admin/contacts-admin.component';
-
+import { OrdersAdminComponent } from './pages/orders-admin/orders-admin.component';
 
 // Cấu hình routing cho admin section
 export const AdminRoutes: Routes = [
@@ -27,6 +27,7 @@ export const AdminRoutes: Routes = [
       { path: 'products', component: ProductAdminComponent },
 
        { path: 'contacts', component: ContactsAdminComponent },
+       { path: 'orders', component: OrdersAdminComponent },
     ]
   }
 ];

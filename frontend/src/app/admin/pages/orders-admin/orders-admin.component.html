@@ -1,0 +1,53 @@
+<div class="orders-admin">
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Đơn hàng</p>
+      <h2 class="page-title">Quản lý đơn hàng</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input
+          type="text"
+          placeholder="Tìm kiếm đơn hàng..."
+          [(ngModel)]="searchText"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên Đăng Nhập</th>
+          <th>Tổng tiền</th>
+          <th>Đã thanh toán</th>
+          <th>Điện thoại</th>
+          <th>Địa chỉ</th>
+          <th>Ngày đặt</th>
+          <th>Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of filteredOrders; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ order.customer }}</td>
+          <td>{{ order.total | number }} VND</td>
+          <td>{{ (order.total * 0.7) | number }} VND</td>
+          <td>+84 2345678</td>
+          <td>Quang Trung, Hóc Môn, TP.HCM</td>
+          <td>{{ order.date }}</td>
+          <td>
+            <button class="detail-btn">xem chi tiết</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredOrders.length === 0">
+          <td colspan="8" class="empty">Không có đơn hàng</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
