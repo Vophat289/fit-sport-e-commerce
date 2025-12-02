@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
 
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
+import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 
 EventEmitter.defaultMaxListeners = 20;
 
@@ -56,6 +57,7 @@ app.use("/api/news", newsRoutes);
 
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
+app.use("/api/admin/dashboard", adminDashboardRoutes)
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
