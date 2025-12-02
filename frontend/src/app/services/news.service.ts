@@ -1,8 +1,7 @@
 // src/app/services/news.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 export interface News {
   _id?: string;
@@ -32,33 +31,37 @@ export type UpdateNewsData = Partial<CreateNewsData>;
 })
 export class NewsService {
   private readonly API_URL = 'http://localhost:3000/api/admin/news';
+  private readonly BASE_URL = 'http://localhost:3000'; 
+  private readonly PLACEHOLDER = 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT';
+
+  // Subject để thông báo khi có tin mới
+  private newsUpdated = new Subject<void>();
+  newsUpdated$ = this.newsUpdated.asObservable();
+
   constructor(private http: HttpClient) {}
-  // ====================== PUBLIC (CHO TRANG CHỦ & TRANG BÀI VIẾT) ======================
-  // Dùng để hiển thị danh sách bài viết 
+
+  // ====================== PUBLIC ======================
   getPublicNews(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/public?page=${page}`);
   }
 
-  // Dùng cho trang chủ (6 bài mới nhất)
   getLatestNews(limit: number = 6): Observable<News[]> {
     return this.http.get<News[]>(`${this.API_URL}/latest?limit=${limit}`);
   }
 
-  // Chi tiết bài viết theo slug 
   getNewsBySlug(slug: string): Observable<News> {
     return this.http.get<News>(`${this.API_URL}/detail/${slug}`);
   }
 
-  // ====================== ADMIN  ======================
-  // Lấy TẤT CẢ bài viết (kể cả đã ẩn) – dành cho trang admin
+  // ====================== ADMIN ======================
   getAllNewsAdmin(): Observable<News[]> {
     return this.http.get<News[]>(`${this.API_URL}`);
   }
 
-  // Tạo bài viết (admin)
   createNews(data: CreateNewsData, file?: File): Observable<News> {
     const formData = new FormData();
-
+    
+    // Xử lý các trường text
     if (data.title) formData.append('title', data.title);
     if (data.content) formData.append('content', data.content);
     if (data.short_desc) formData.append('short_desc', data.short_desc);
@@ -69,17 +72,26 @@ export class NewsService {
       formData.append('tags', tagsString);
     }
 
+    // Xử lý file ảnh
     if (file) {
-      formData.append('thumbnail', file, file.name);
+      // Đảm bảo tên file an toàn
+      const safeFileName = this.sanitizeFileName(file.name);
+      formData.append('thumbnail', file, safeFileName);
     }
 
-    return this.http.post<News>(this.API_URL, formData);
+    return this.http.post<News>(this.API_URL, formData).pipe(
+      tap((newNews) => {
+        console.log('News created:', newNews);
+        // Thông báo tin đã được tạo
+        this.newsUpdated.next();
+      })
+    );
   }
 
-  // Cập nhật bài viết (admin)
   updateNewsBySlug(slug: string, data: UpdateNewsData, file?: File): Observable<News> {
     const formData = new FormData();
-
+    
+    // Xử lý các trường text
     if (data.title !== undefined) formData.append('title', data.title);
     if (data.content !== undefined) formData.append('content', data.content);
     if (data.short_desc !== undefined) formData.append('short_desc', data.short_desc);
@@ -90,20 +102,102 @@ export class NewsService {
       formData.append('tags', tagsString);
     }
 
+    // Xử lý file ảnh
     if (file) {
-      formData.append('thumbnail', file, file.name);
+      const safeFileName = this.sanitizeFileName(file.name);
+      formData.append('thumbnail', file, safeFileName);
     }
 
-    return this.http.put<News>(`${this.API_URL}/slug/${slug}`, formData);
+    return this.http.put<News>(`${this.API_URL}/slug/${slug}`, formData).pipe(
+      tap((updatedNews) => {
+        console.log('News updated:', updatedNews);
+        // Thông báo tin đã được cập nhật
+        this.newsUpdated.next();
+      })
+    );
   }
 
-  // Xóa bài viết (admin)
   deleteNews(id: string): Observable<any> {
-    return this.http.delete(`${this.API_URL}/${id}`);
+    return this.http.delete(`${this.API_URL}/${id}`).pipe(
+      tap(() => {
+        console.log('News deleted:', id);
+        // Thông báo tin đã xóa
+        this.newsUpdated.next();
+      })
+    );
   }
 
-  // Toggle ẩn/hiện (nếu bạn có nút riêng)
   toggleNewsStatus(id: string): Observable<any> {
-    return this.http.patch(`${this.API_URL}/${id}/toggle-hide`, {});
+    return this.http.patch(`${this.API_URL}/${id}/toggle-hide`, {}).pipe(
+      tap(() => {
+        console.log('News status toggled:', id);
+        // Thông báo trạng thái đã thay đổi
+        this.newsUpdated.next();
+      })
+    );
+  }
+
+  // ====================== HÀM HIỂN THỊ ẢNH ======================
+  getThumbnailUrl(thumbnail?: string): string {
+    if (!thumbnail) return this.PLACEHOLDER;
+    
+    // Nếu đã là URL đầy đủ
+    if (thumbnail.startsWith('http')) return thumbnail;
+    
+    // Xử lý đặc biệt cho các loại đường dẫn
+    if (thumbnail.includes('://')) {
+      return thumbnail; 
+    }
+    
+    // Nếu đường dẫn bắt đầu bằng uploads/
+    if (thumbnail.includes('uploads/')) {
+      const cleanPath = thumbnail.startsWith('/') ? thumbnail.substring(1) : thumbnail;
+      return `${this.BASE_URL}/${cleanPath}`;
+    }
+    
+    // Nếu chỉ là tên file, thêm vào thư mục uploads
+    if (!thumbnail.includes('/') && !thumbnail.startsWith('/')) {
+      return `${this.BASE_URL}/uploads/${thumbnail}`;
+    }
+    
+    // Mặc định: thêm base URL
+    return `${this.BASE_URL}${thumbnail.startsWith('/') ? '' : '/'}${thumbnail}`;
+  }
+
+  // Hàm để manual trigger reload
+  triggerReload(): void {
+    this.newsUpdated.next();
+  }
+
+  // Hàm upload ảnh riêng (nếu cần)
+  uploadImage(file: File): Observable<any> {
+    const formData = new FormData();
+    const safeFileName = this.sanitizeFileName(file.name);
+    formData.append('image', file, safeFileName);
+    
+    return this.http.post(`${this.API_URL}/upload`, formData);
+  }
+
+  // Hàm sanitize tên file
+  private sanitizeFileName(fileName: string): string {
+    // Loại bỏ ký tự đặc biệt giữ 
+    return fileName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') 
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9.\-]/g, '_') 
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .trim();
+  }
+
+  // Debug: Kiểm tra URL
+  debugThumbnail(thumbnail?: string): void {
+    console.log('=== DEBUG THUMBNAIL ===');
+    console.log('Input:', thumbnail);
+    console.log('Output:', this.getThumbnailUrl(thumbnail));
+    console.log('BASE_URL:', this.BASE_URL);
+    console.log('=======================');
   }
 }

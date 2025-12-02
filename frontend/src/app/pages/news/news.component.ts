@@ -1,66 +1,86 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/pages/news/news.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NewsService, News } from '../../services/news.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-news',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './news.component.html',
-  styleUrl: './news.component.css'
+  styleUrls: ['./news.component.css'] 
 })
-export class NewsComponent implements OnInit {
+export class NewsComponent implements OnInit, OnDestroy {
 
   news: News[] = [];
   paginatedNews: News[] = [];
-
   currentPage = 1;
   itemsPerPage = 6;
   totalPages = 1;
   totalItems = 0;
 
-  constructor(private newsService: NewsService) { }
+  private newsUpdateSubscription!: Subscription;
+
+  constructor(private newsService: NewsService) {}
 
   ngOnInit(): void {
     this.loadNews(this.currentPage);
+
+    // Lắng nghe khi newsService phát ra cập nhật
+    this.newsUpdateSubscription = this.newsService.newsUpdated$.subscribe(() => {
+      this.loadNews(this.currentPage);
+    });
   }
 
-  loadNews(page: number = 1) {
+  ngOnDestroy(): void {
+    this.newsUpdateSubscription?.unsubscribe();
+  }
+
+  // =================== LOAD NEWS ===================
+  loadNews(page: number = 1): void {
     this.newsService.getPublicNews(page).subscribe({
       next: (res: any) => {
+        // Chuẩn hóa thumbnail từ service
         this.news = (res.data || []).map((item: any) => ({
           ...item,
-          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
+          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled'),
+          thumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
         }));
 
         this.paginatedNews = this.news;
         this.currentPage = res.pagination?.currentPage || page;
         this.totalPages = res.pagination?.totalPages || 1;
         this.totalItems = res.pagination?.totalItems || 0;
-
-        console.log(`Đã tải trang ${this.currentPage}/${this.totalPages} – ${this.totalItems} bài viết công khai`);
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Lỗi tải tin tức:', err);
         this.news = [];
         this.paginatedNews = [];
+        this.currentPage = 1;
+        this.totalPages = 1;
+        this.totalItems = 0;
       }
     });
   }
 
-  changePage(page: number) {
+  // =================== PAGINATION ===================
+  changePage(page: number): void {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
-
     this.currentPage = page;
-    this.loadNews(page); 
+    this.loadNews(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  get pagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // =================== HANDLE IMAGE ERROR ===================
+  handleImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/400x250/000000/FFFFFF?text=FITSPORT';
+    img.onerror = null;
   }
 
+  // =================== SLUG GENERATOR ===================
   private generateSlug(title: string): string {
     return title
       .toLowerCase()

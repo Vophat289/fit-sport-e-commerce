@@ -8,7 +8,7 @@
 <div *ngIf="!loading && article; else notFound" class="news-container">
   <div class="news-content">
 
-    <!-- Breadcrumb đẹp như Kênh14 -->
+    <!-- Breadcrumb -->
     <nav class="breadcrumb">
       <a routerLink="/">Trang chủ</a>
       <span>›</span>
@@ -17,7 +17,7 @@
       <span class="current">{{ article.title }}</span>
     </nav>
 
-    <!-- Tiêu đề siêu to -->
+    <!-- Tiêu đề -->
     <h1 class="news-title">{{ article.title }}</h1>
 
     <!-- Meta info -->
@@ -27,17 +27,21 @@
       <span class="date">{{ article.createdAt | date:'HH:mm, dd/MM/yyyy' }}</span>
     </div>
 
-    <!-- Sapo nổi bật -->
+    <!-- Sapo -->
     <div class="sapo" *ngIf="article.short_desc">
       {{ article.short_desc }}
     </div>
 
     <!-- Ảnh đại diện -->
-    <figure class="news-figure" *ngIf="article.thumbnail">
-      <img [src]="article.thumbnail" [alt]="article.title" class="news-img">
+    <figure class="news-figure">
+      <img 
+        [src]="getThumbnailUrl()" 
+        [alt]="article.title" 
+        class="news-img"
+        (error)="handleImageError($event)">
     </figure>
 
-    <!-- Nội dung bài viết -->
+    <!-- Nội dung -->
     <div class="news-body" [innerHTML]="article.content"></div>
 
     <!-- Tags -->
@@ -49,14 +53,10 @@
          class="tag-pill">#{{ tag }}</a>
     </div>
 
-    <!-- Nút hành động (chỉ giữ lại cái cũ của bạn) -->
+    <!-- Nút hành động -->
     <div class="actions">
-      <button class="btn btn-share" (click)="share()">
-        Chia sẻ bài viết
-      </button>
-      <a routerLink="/" class="btn btn-back">
-        Quay về Trang chủ
-      </a>
+      <button class="btn btn-share" (click)="share()">Chia sẻ bài viết</button>
+      <a routerLink="/" class="btn btn-back">Quay về Trang chủ</a>
     </div>
 
   </div>
