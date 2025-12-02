@@ -1,11 +1,21 @@
 <!-- src/app/admin/pages/news-admin/news-admin.component.html -->
 <div class="news-admin">
 
-  <!-- Header trang -->
+  <!-- Header + Tìm kiếm -->
   <div class="page-header">
-    <div>
+    <div class="header-left">
       <div class="sub-title">Quản lý nội dung</div>
       <h1 class="page-title">Bài Viết</h1>
+    </div>
+    <div class="search-container">
+      <div class="search-wrapper">
+        <i class="bx bx-search search-icon"></i>
+        <input #searchInput type="text" class="search-input" placeholder="Tìm kiếm bài viết..."
+               [(ngModel)]="searchTerm" (input)="onSearch()">
+        <button *ngIf="searchTerm" class="clear-search" (click)="clearSearch()">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -20,7 +30,7 @@
     <i class="bx bx-loader-alt bx-spin"></i> Đang tải...
   </div>
 
-  <!-- Form thêm / sửa -->
+  <!-- ==================== FORM THÊM / SỬA ==================== -->
   <div class="card form-card">
     <div class="card-header">
       <i class="bx bx-edit-alt"></i>
@@ -30,7 +40,7 @@
       <form (ngSubmit)="save()">
         <div class="form-grid">
 
-          <!-- Cột chính (tiêu đề + mô tả + nội dung) -->
+          <!-- Cột chính -->
           <div class="form-main">
             <div class="form-group">
               <label>Tiêu đề bài viết <span class="text-danger">*</span></label>
@@ -39,31 +49,40 @@
 
             <div class="form-group">
               <label>Mô tả ngắn</label>
-              <textarea [(ngModel)]="form.short_desc" name="short_desc" class="form-control" rows="3"
-                placeholder="Tóm tắt nội dung bài viết..."></textarea>
+              <textarea [(ngModel)]="form.short_desc" name="short_desc" class="form-control" rows="4"
+                        placeholder="Tóm tắt nội dung..."></textarea>
             </div>
 
             <div class="form-group">
-              <label>Nội dung bài viết (HTML) <span class="text-danger">*</span></label>
+              <label>Nội dung bài viết <span class="text-danger">*</span></label>
               <textarea [(ngModel)]="form.content" name="content" class="form-control content-editor"
-                placeholder="Viết nội dung chi tiết ở đây..." required></textarea>
+                        placeholder="Viết nội dung..." required></textarea>
             </div>
           </div>
 
-          <!-- Cột phụ (ảnh, tác giả, tags, hành động) -->
+          <!-- Cột phụ -->
           <div class="form-sidebar">
-
             <div class="form-group">
               <label>Ảnh đại diện</label>
               <div class="file-upload">
                 <input type="file" (change)="onFileSelected($event)" accept="image/*">
                 <i class="bx bxs-image-add"></i>
                 <p>Kéo thả hoặc click để chọn ảnh</p>
-                <small>Hỗ trợ JPG, PNG, tối đa 5MB</small>
+                <small>JPG, PNG, tối đa 5MB</small>
               </div>
-              <!-- Preview ảnh nếu đang sửa -->
-              <div *ngIf="form.thumbnail && isEdit" class="preview-thumb mt-3">
-                <img [src]="form.thumbnail" alt="Thumbnail hiện tại">
+
+              <!-- PREVIEW ẢNH MỚI -->
+              <div *ngIf="previewImageUrl" class="preview-thumb mt-2">
+                <img [src]="previewImageUrl" alt="Preview ảnh mới" style="max-height: 120px; border-radius: 8px;">
+                <small class="text-success">Ảnh mới (sẽ upload)</small>
+              </div>
+
+              <!-- ẢNH HIỆN TẠI (khi sửa) -->
+              <div *ngIf="form.thumbnail && isEdit && !previewImageUrl" class="preview-thumb mt-2">
+                <img [src]="getThumbnailUrl(form.thumbnail)" 
+                     alt="Ảnh hiện tại" 
+                     (error)="onImageError($event)"
+                     style="max-height: 120px; border-radius: 8px;">
                 <small class="text-muted">Ảnh hiện tại</small>
               </div>
             </div>
@@ -75,29 +94,31 @@
 
             <div class="form-group">
               <label>Tags (cách nhau bằng dấu phẩy)</label>
-              <input [(ngModel)]="form.tags" name="tags" class="form-control" placeholder="ví dụ: tin tức, sự kiện, khuyến mãi">
+              <input [(ngModel)]="form.tags" name="tags" class="form-control" placeholder="tin tức, sự kiện">
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="btn btn-success" [disabled]="isLoading">
-                <i class="bx bx-check"></i>
+              <button type="submit" class="btn-action btn-success" [disabled]="isLoading">
+                <i class="bx bx-loader-alt bx-spin" *ngIf="isLoading"></i>
                 {{ isEdit ? 'CẬP NHẬT' : 'ĐĂNG BÀI' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isLoading">
+              <button type="button" class="btn-action btn-secondary" (click)="resetForm()" [disabled]="isLoading">
                 <i class="bx bx-reset"></i> Hủy
               </button>
             </div>
           </div>
+
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Danh sách bài viết -->
+  <!-- ==================== DANH SÁCH BÀI VIẾT ==================== -->
   <div class="card">
     <div class="card-header">
       <i class="bx bx-list-ul"></i>
-      Danh sách bài viết ({{ newsList.length }} bài)
+      Danh sách bài viết
+      <span class="badge-count">({{ getDisplayedCount() }} bài)</span>
     </div>
     <div class="table-responsive">
       <table class="table">
@@ -107,13 +128,17 @@
             <th>Tiêu đề</th>
             <th width="110">Trạng thái</th>
             <th width="120">Ngày đăng</th>
-            <th width="160">Thao tác</th>
+            <th width="130">Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of newsList">
+          <tr *ngFor="let item of displayedNewsList">
             <td>
-              <img [src]="item.thumbnail || 'https://via.placeholder.com/90'" alt="thumb" width="90" height="90">
+              <img [src]="getThumbnailUrl(item.thumbnail)" 
+                   alt="{{ item.title }}" 
+                   width="90" height="90"
+                   (error)="onImageError($event)"
+                   style="object-fit: cover; border-radius: 6px;">
             </td>
             <td>
               <div class="title-cell">
@@ -128,23 +153,30 @@
               </span>
             </td>
             <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
-            <td>
-              <button class="btn btn-sm btn-warning me-2" (click)="edit(item)">
-                <i class="bx bx-edit"></i> Sửa
+
+            <td class="action-cell">
+              <button class="action-btn edit" (click)="edit(item)" data-tooltip="Sửa bài viết">
+                <i class="bx bx-edit"></i>
               </button>
-              <button class="btn btn-sm btn-danger" (click)="toggleHide(item._id!, item.isActive === false)">
-                <i class="bx" [class.bx-hide]="item.isActive !== false" [class.bx-show]="item.isActive === false"></i>
-                {{ item.isActive === false ? 'Bỏ ẩn' : 'Ẩn' }}
+
+              <button class="action-btn toggle-hide"
+                      [class.active]="item.isActive !== false"
+                      [class.hidden]="item.isActive === false"
+                      (click)="toggleHide(item._id!, item.isActive === false)"
+                      [attr.data-tooltip]="item.isActive === false ? 'Bỏ ẩn' : 'Ẩn'">
+                <i class="bx" 
+                   [class.bx-show]="item.isActive === false" 
+                   [class.bx-hide]="item.isActive !== false"></i>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- Trạng thái trống -->
-      <div *ngIf="!isLoading && newsList.length === 0" class="empty">
+      <div *ngIf="!isLoading && displayedNewsList.length === 0" class="empty">
         <i class="bx bx-news"></i>
-        <p>Chưa có bài viết nào</p>
+        <p *ngIf="searchTerm; else noData">Không tìm thấy bài viết nào phù hợp</p>
+        <ng-template #noData><p>Chưa có bài viết nào</p></ng-template>
       </div>
     </div>
   </div>

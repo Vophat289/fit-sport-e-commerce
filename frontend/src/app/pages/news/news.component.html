@@ -1,4 +1,4 @@
-<!-- news.component.html – HOÀN HẢO, KHÔNG LỖI, ĐẸP LUNG LINH -->
+<!-- news.component.html -->
 <div class="news-container">
   <h1 class="page-title">Bài viết mới nhất</h1>
   <p class="page-subtitle">
@@ -13,9 +13,10 @@
       <a [routerLink]="['/news', item.slug]" class="thumb-link">
         <div class="img-box">
           <img 
-            [src]="item.thumbnail || 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT'"
+            [src]="item.thumbnail"
             [alt]="item.title"
-            loading="lazy">
+            loading="lazy"
+            (error)="handleImageError($event)">
           <div class="overlay">
             <span class="read-more-text">Xem chi tiết</span>
           </div>
@@ -37,7 +38,6 @@
         <div class="news-meta">
           <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
           <span class="separator">•</span>
-          <!-- ĐÃ FIX LỖI UNDEFINED 100% -->
           <span class="tag" *ngIf="item.tags && item.tags.length > 0">
             {{ item.tags[0] }}
           </span>
@@ -50,7 +50,7 @@
     </article>
   </div>
 
-  <!-- Phân trang đẹp như VnExpress -->
+  <!-- Phân trang -->
   <div class="pagination-wrapper" *ngIf="totalPages > 1">
     <button 
       class="pagination-btn prev" 
@@ -71,7 +71,7 @@
     </button>
   </div>
 
-  <!-- Khi chưa có bài viết nào -->
+  <!-- Khi chưa có bài viết -->
   <div class="empty-state" *ngIf="news.length === 0">
     <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
   </div>
