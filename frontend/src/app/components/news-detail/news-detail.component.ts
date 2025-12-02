@@ -1,31 +1,34 @@
-import { Component } from '@angular/core';
+// src/app/pages/news-detail/news-detail.component.ts
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { NewsService, News } from '../../services/news.service';
 
 @Component({
   selector: 'app-news-detail',
   standalone: true,
-  imports: [CommonModule,RouterModule,HttpClientModule],
+  imports: [CommonModule, RouterModule, HttpClientModule],
   templateUrl: './news-detail.component.html',
   styleUrls: ['./news-detail.component.css']
 })
-export class NewsDetailComponent {
+export class NewsDetailComponent implements OnInit {
 
   loading: boolean = true;
-  article: any = null;
+  article: News | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient
+    private newsService: NewsService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug');
     if (slug) {
-      this.http.get(`/api/news/slug/${slug}`).subscribe({
-        next: (res: any) => {
-          this.article = res.data ?? res;
+      this.newsService.getNewsBySlug(slug).subscribe({
+        next: (res) => {
+          // Nếu API trả về object data hoặc trực tiếp
+          this.article = (res as any).data ?? res;
           this.loading = false;
         },
         error: () => {
@@ -33,10 +36,24 @@ export class NewsDetailComponent {
           this.article = null;
         }
       });
+    } else {
+      this.loading = false;
+      this.article = null;
     }
   }
 
-  // Nếu trong HTML có button share()
+  // Lấy URL ảnh chuẩn từ NewsService
+  getThumbnailUrl(thumbnail?: string): string {
+    return this.newsService.getThumbnailUrl(thumbnail || this.article?.thumbnail);
+  }
+
+  handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/600x400/000000/FFFFFF?text=FITSPORT';
+    img.onerror = null;
+  }
+
+  // Chia sẻ bài viết
   share() {
     if (!this.article) return;
     const url = window.location.href;

@@ -48,12 +48,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
+
 // User
 app.use('/api', authRoutes)
 app.use("/api/auth", authRoutes);
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/uploads', express.static('uploads'));
+app.use('/uploads/news', express.static('uploads/news'));
 
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
