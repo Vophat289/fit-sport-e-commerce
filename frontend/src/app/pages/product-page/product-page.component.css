@@ -1153,3 +1153,78 @@
     }
 }
 
+/* =======================================================
+   💠 VARIANT LOADING & ERROR STATES
+========================================================== */
+.variant-loading {
+    text-align: center;
+    padding: 30px 20px;
+    color: #6c7394;
+}
+
+.variant-loading p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.variant-error {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.variant-error i {
+    font-size: 32px;
+    color: #ff9800;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.variant-error p {
+    margin: 8px 0;
+    color: #856404;
+    font-size: 14px;
+}
+
+.variant-error .variant-hint {
+    font-size: 12px;
+    color: #6c7394;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+.no-options {
+    color: #9095b1;
+    font-size: 13px;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+.variant-hint {
+    background: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.variant-hint p {
+    margin: 0;
+    color: #1976d2;
+    font-size: 13px;
+}
+
+.quantity-hint {
+    font-size: 12px;
+    color: #6c7394;
+    margin-top: 5px;
+    font-style: italic;
+}
+

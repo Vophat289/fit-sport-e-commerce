@@ -144,16 +144,12 @@ export const getAvailableVariants = async (req, res) => {
             console.log('DEBUG: Size ID:', firstVariant.size_id?._id, 'Name:', firstVariant.size_id?.name);
             console.log('DEBUG: Color ID:', firstVariant.color_id?._id, 'Name:', firstVariant.color_id?.name);
             if (!firstVariant.size_id || !firstVariant.color_id) {
-                 console.error('⚠️ LỖI POPULATE: Size hoặc Color không được tìm thấy. Kiểm tra lại FK.');
+                 console.error('Size hoặc Color không được tìm thấy. Kiểm tra lại FK.');
             }
         }
         console.log('---------------------------');
         // ------------------------------------
 
-
-        if (availableVariants.length === 0) {
-            return res.status(404).json({ message: 'Sản phẩm này hiện hết hàng.' });
-        }
 
         // 2. Tổng hợp danh sách duy nhất các Size và Color (dành cho Modal)
         const sizes = new Map();
@@ -169,10 +165,12 @@ export const getAvailableVariants = async (req, res) => {
             }
         });
 
-        // 3. Trả về cho Frontend
+        // 3. Trả về cho Frontend (trả về empty array nếu không có variants)
         return res.json({
             availableSizes: Array.from(sizes.values()),
             availableColors: Array.from(colors.values()),
+            hasVariants: availableVariants.length > 0,
+            message: availableVariants.length === 0 ? 'Sản phẩm này hiện chưa có biến thể hoặc đã hết hàng.' : null
         });
 
     } catch (error) {
