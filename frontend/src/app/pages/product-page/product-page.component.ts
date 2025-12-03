@@ -235,7 +235,6 @@ export class ProductPageComponent implements OnInit {
 
     this.productService.getAvailableVariants(product._id!).subscribe({
       next: (data: any) => {
-        // ĐÃ SỬA LỖI: Dùng availableVariantSizes thay vì availableSizes
         this.availableVariantSizes = data.availableSizes; 
         this.availableColors = data.availableColors;
 
@@ -275,7 +274,6 @@ export class ProductPageComponent implements OnInit {
     }
   }
   updateVariantDetails(): void {
-    // ĐÃ SỬA LỖI: Dùng availableVariantSizes thay vì availableSizes
     const size = this.availableVariantSizes.find( 
       (s) => s.name === this.selectedSizeName
     );
@@ -345,7 +343,6 @@ confirmAddToCart(): void {
     return;
   }
 
-    // ĐÃ SỬA LỖI: Dùng availableVariantSizes thay vì availableSizes
     const actualSize = this.availableVariantSizes.find(
     (s) => s.name === this.selectedSizeName
   );

@@ -2,7 +2,7 @@
 import { Component, OnInit, ViewChild  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
 import { NgForm } from '@angular/forms';
@@ -18,13 +18,12 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-account-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './account-page.component.html',
   styleUrls: ['./account-page.component.css'],
 })
 export class AccountPageComponent implements OnInit {
     @ViewChild('profileForm') profileForm!: NgForm;
-  // TAB & EDIT MODE
   currentTab: 'profile' | 'orders' | 'vouchers' | 'address' = 'profile';
   isEditing: boolean = false; // PROFILE
 
@@ -42,17 +41,17 @@ export class AccountPageComponent implements OnInit {
     gender: '',
     dob: '',
   };
-  userAvatarUrl: string = 'assets/images/default-avatar.png'; // ADDRESS
+  userAvatarUrl: string = 'assets/images/default-avatar.png';
 
   addresses: Address[] = [];
   selectedAddressId: string | null = null;
   isAddressModalOpen: boolean = false;
-  editingAddress?: Address; // ORDERS
+  editingAddress?: Address; 
 
   orders: Order[] = [];
   selectedOrder?: Order;
   ordersLimit: number = 3;
-  orderFilter: 'ALL' | string = 'ALL'; // VOUCHERS
+  orderFilter: 'ALL' | string = 'ALL';
 
   vouchers: Voucher[] = [];
   voucherFilter: 'ALL' | string = 'ALL';
@@ -85,7 +84,7 @@ export class AccountPageComponent implements OnInit {
     this.loadAddresses();
     this.loadOrders();
     this.loadVouchers();
-  } // ========================= // PROFILE METHODS // =========================
+  }
 
   loadProfile(): void {
     this.accountService.getProfile().subscribe({
