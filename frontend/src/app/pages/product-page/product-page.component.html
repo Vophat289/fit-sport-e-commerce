@@ -176,7 +176,7 @@
                             [alt]="selectedProduct.name" 
                             class="preview-img">
                     <div class="preview-info">
-                        <p class="preview-price">{{ (currentVariantDetails?.price || selectedProduct?.price) | number }} ₫</p>
+                        <p class="preview-price">{{ (currentVariantDetails?.price || selectedProduct.price) | number }} ₫</p>
                         <p class="preview-stock">Tồn kho: {{ currentVariantDetails?.quantity || 'Hết' }}</p> 
                     </div>
                 </div>
