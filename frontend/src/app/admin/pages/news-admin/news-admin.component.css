@@ -1,5 +1,4 @@
-/* ==================== ADMIN PANEL – ĐẸP HOÀN HẢO 2025 ==================== */
-
+  
 .news-admin { 
   padding: 28px; 
   background: #000; 
@@ -151,4 +150,4 @@ textarea.form-control { min-height: 124px !important; resize: vertical; }
   .btn-action { width:100%; }
   .search-wrapper { height:46px; }
   .table { min-width:800px; }
-}
+} 

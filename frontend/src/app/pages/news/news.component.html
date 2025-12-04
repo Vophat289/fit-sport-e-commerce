@@ -12,11 +12,11 @@
       <!-- Thumbnail + hover -->
       <a [routerLink]="['/news', item.slug]" class="thumb-link">
         <div class="img-box">
-          <img 
-            [src]="item.thumbnail"
-            [alt]="item.title"
-            loading="lazy"
-            (error)="handleImageError($event)">
+         <img 
+          [src]="newsService.getThumbnailUrl(item.thumbnail)" 
+          [alt]="item.title"
+          loading="lazy"
+          (error)="handleImageError($event)">
           <div class="overlay">
             <span class="read-more-text">Xem chi tiết</span>
           </div>

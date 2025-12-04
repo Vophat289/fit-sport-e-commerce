@@ -1,4 +1,4 @@
-// src/app/pages/news-detail/news-detail.component.ts
+// src/app/components/news-detail/news-detail.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { NewsService, News } from '../../services/news.service';
 })
 export class NewsDetailComponent implements OnInit {
 
-  loading: boolean = true;
+  loading = true;
   article: News | null = null;
 
   constructor(
@@ -23,37 +23,57 @@ export class NewsDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    if (slug) {
+    this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug');
+
+      if (!slug) {
+        this.loading = false;
+        return;
+      }
+
+      this.loading = true;
+
       this.newsService.getNewsBySlug(slug).subscribe({
-        next: (res) => {
-          // Nếu API trả về object data hoặc trực tiếp
-          this.article = (res as any).data ?? res;
+        next: (res: any) => {
+          this.article = res?.data || res;
           this.loading = false;
         },
-        error: () => {
+        error: (err: any) => {              // 🔧 err: any để hết TS7006
+          console.error('Lỗi load bài viết:', err);
           this.loading = false;
-          this.article = null;
         }
       });
-    } else {
-      this.loading = false;
-      this.article = null;
-    }
+    });
   }
 
-  // Lấy URL ảnh chuẩn từ NewsService
-  getThumbnailUrl(thumbnail?: string): string {
-    return this.newsService.getThumbnailUrl(thumbnail || this.article?.thumbnail);
+  // Lấy URL ảnh
+  getThumbnailUrl(): string {
+    if (!this.article) {
+      return this.newsService.getThumbnailUrl();
+    }
+    return this.newsService.getThumbnailUrl(this.article.thumbnail);
   }
 
   handleImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/600x400/000000/FFFFFF?text=FITSPORT';
+    img.src = this.newsService.getThumbnailUrl();
     img.onerror = null;
   }
 
-  // Chia sẻ bài viết
+  // Dùng cho phần *ngFor="let tag of tags" trong HTML
+  get tags(): string[] {
+    if (!this.article || !this.article.tags) return [];
+
+    if (Array.isArray(this.article.tags)) {
+      return this.article.tags;
+    }
+
+    return this.article.tags
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
   share() {
     if (!this.article) return;
     const url = window.location.href;

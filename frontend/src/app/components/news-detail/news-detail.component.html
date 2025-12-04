@@ -45,12 +45,14 @@
     <div class="news-body" [innerHTML]="article.content"></div>
 
     <!-- Tags -->
-    <div class="related-tags" *ngIf="article.tags && article.tags.length">
+    <div class="related-tags" *ngIf="tags.length">
       <strong>Tags:</strong>
-      <a *ngFor="let tag of article.tags"
+      <a *ngFor="let tag of tags"
          [routerLink]="['/news']"
          [queryParams]="{ tag: tag }"
-         class="tag-pill">#{{ tag }}</a>
+         class="tag-pill">
+         #{{ tag }}
+      </a>
     </div>
 
     <!-- Nút hành động -->

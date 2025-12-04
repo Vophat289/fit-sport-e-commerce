@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './news.component.html',
-  styleUrls: ['./news.component.css'] 
+  styleUrls: ['./news.component.css']
 })
 export class NewsComponent implements OnInit, OnDestroy {
 
@@ -21,17 +21,18 @@ export class NewsComponent implements OnInit, OnDestroy {
   totalPages = 1;
   totalItems = 0;
 
-  private newsUpdateSubscription!: Subscription;
+  // ❌ XÓA newsUpdateSubscription vì không còn dùng nữa
+  private newsUpdateSubscription?: Subscription;
 
-  constructor(private newsService: NewsService) {}
+  constructor(public newsService: NewsService) {}
 
   ngOnInit(): void {
     this.loadNews(this.currentPage);
 
-    // Lắng nghe khi newsService phát ra cập nhật
-    this.newsUpdateSubscription = this.newsService.newsUpdated$.subscribe(() => {
-      this.loadNews(this.currentPage);
-    });
+    // ❌ XÓA SUBSCRIBE NÀY VÌ newsUpdated$ KHÔNG TỒN TẠI
+    // this.newsUpdateSubscription = this.newsService.newsUpdated$.subscribe(() => {
+    //   this.loadNews(this.currentPage);
+    // });
   }
 
   ngOnDestroy(): void {
@@ -42,11 +43,9 @@ export class NewsComponent implements OnInit, OnDestroy {
   loadNews(page: number = 1): void {
     this.newsService.getPublicNews(page).subscribe({
       next: (res: any) => {
-        // Chuẩn hóa thumbnail từ service
         this.news = (res.data || []).map((item: any) => ({
           ...item,
-          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled'),
-          thumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
+          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
         }));
 
         this.paginatedNews = this.news;
@@ -78,6 +77,11 @@ export class NewsComponent implements OnInit, OnDestroy {
     const img = event.target as HTMLImageElement;
     img.src = 'https://via.placeholder.com/400x250/000000/FFFFFF?text=FITSPORT';
     img.onerror = null;
+  }
+
+  // =================== THUMBNAIL HELPER CHO HTML ===================
+  getThumbnailUrl(thumbnail: string | undefined): string {
+    return this.newsService.getThumbnailUrl(thumbnail);
   }
 
   // =================== SLUG GENERATOR ===================

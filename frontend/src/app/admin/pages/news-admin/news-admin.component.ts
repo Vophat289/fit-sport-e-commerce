@@ -22,7 +22,7 @@ interface News {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './news-admin.component.html',
-  styleUrls: ['./news-admin.component.css'] 
+  styleUrls: ['./news-admin.component.css']
 })
 export class NewsAdminComponent implements OnInit {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -43,14 +43,22 @@ export class NewsAdminComponent implements OnInit {
   };
 
   selectedFile: File | null = null;
-  previewImageUrl: string | null = null; // thêm để template preview ảnh không lỗi
+  previewImageUrl: string | null = null;
   isEdit = false;
   isLoading = false;
   message: { type: 'success' | 'error'; text: string } | null = null;
 
-  private readonly apiUrl = 'http://localhost:3000/api/admin/news';
-  private readonly baseUrl = 'http://localhost:3000';
-  private readonly placeholderImage = 'https://via.placeholder.com/120x120.png?text=No+Image';
+  private readonly apiUrl = 'https://fitsport.io.vn/api/news';
+
+  // =============== CẤU HÌNH CLOUDINARY ===============
+  // Cloud name thật của bạn
+  private readonly CLOUDINARY_CLOUD_NAME = 'dolqwcawp';
+  private readonly CLOUDINARY_BASE_URL =
+    `https://res.cloudinary.com/${this.CLOUDINARY_CLOUD_NAME}/image/upload/`;
+
+  // Ảnh placeholder khi không có thumbnail hoặc lỗi load
+  private readonly placeholderImage = 'assets/no-image.png';
+  // ===================================================
 
   constructor(
     private http: HttpClient,
@@ -61,20 +69,27 @@ export class NewsAdminComponent implements OnInit {
     this.loadNews();
   }
 
-  // ==================== HÀM XỬ LÝ ẢNH ====================
+  // ==================== HIỂN THỊ ẢNH ====================
   getThumbnailUrl(thumbnail?: string): string {
     if (!thumbnail) return this.placeholderImage;
 
-    if (thumbnail.startsWith('http')) return thumbnail;
 
-    const cleanPath = thumbnail.startsWith('/') ? thumbnail : `/${thumbnail}`;
-    return `${this.baseUrl}${cleanPath}`;
+    if (thumbnail.startsWith('http://') || thumbnail.startsWith('https://')) {
+      return thumbnail;
+    }
+
+   
+    const transformation = 'w_90,h_90,c_fill/'; 
+    return `${this.CLOUDINARY_BASE_URL}${transformation}${thumbnail}`;
   }
 
   onImageError(event: any) {
-    event.target.src = this.placeholderImage;
+    if (event?.target) {
+      (event.target as HTMLImageElement).src = this.placeholderImage;
+    }
   }
 
+  // ==================== CHỌN FILE ẢNH ====================
   onFileSelected(event: any) {
     const file = event.target.files[0] as File;
     if (!file) return;
@@ -173,19 +188,27 @@ export class NewsAdminComponent implements OnInit {
         ? this.form.tags.split(',').map(t => t.trim()).filter(Boolean)
         : [];
 
-    if (tagsArray.length > 0) formData.append('tags', tagsArray.join(','));
+    if (tagsArray.length > 0) {
+      formData.append('tags', tagsArray.join(','));
+    }
 
-    if (this.selectedFile) formData.append('thumbnail', this.selectedFile);
+    if (this.selectedFile) {
+      formData.append('thumbnail', this.selectedFile);
+    }
 
     this.isLoading = true;
 
-    const request$ = this.isEdit && this.form.slug
-      ? this.http.put(`${this.apiUrl}/slug/${this.form.slug}`, formData)
-      : this.http.post(this.apiUrl, formData);
+    const request$ =
+      this.isEdit && this.form.slug
+        ? this.http.put(`${this.apiUrl}/slug/${this.form.slug}`, formData)
+        : this.http.post(this.apiUrl, formData);
 
     request$.subscribe({
       next: () => {
-        this.showMessage('success', this.isEdit ? 'Cập nhật bài viết thành công!' : 'Đăng bài thành công!');
+        this.showMessage(
+          'success',
+          this.isEdit ? 'Cập nhật bài viết thành công!' : 'Đăng bài thành công!'
+        );
         this.resetForm();
         this.loadNews();
       },
@@ -197,6 +220,7 @@ export class NewsAdminComponent implements OnInit {
     });
   }
 
+  // ==================== EDIT ====================
   edit(item: News) {
     this.form = {
       ...item,
@@ -223,13 +247,17 @@ export class NewsAdminComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ==================== TOGGLE HIDE ====================
   toggleHide(id: string, currentIsActive: boolean) {
     if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
 
     this.isLoading = true;
     this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
       next: () => {
-        this.showMessage('success', currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
+        this.showMessage(
+          'success',
+          currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
+        );
         this.loadNews();
       },
       error: () => {
@@ -239,6 +267,7 @@ export class NewsAdminComponent implements OnInit {
     });
   }
 
+  // ==================== RESET FORM ====================
   resetForm() {
     this.form = {
       title: '',
@@ -256,6 +285,7 @@ export class NewsAdminComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ==================== MESSAGE ====================
   showMessage(type: 'success' | 'error', text: string) {
     this.message = { type, text };
     setTimeout(() => {
