@@ -21,6 +21,10 @@ export interface News {
 })
 export class NewsService {
 
+  private readonly API_URL = 'http://localhost:3000/api/admin/news';
+  private readonly BASE_URL = 'http://localhost:3000'; 
+  private readonly PLACEHOLDER = 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT';
+
   private readonly apiUrl = 'https://fitsport.io.vn/api/admin/news';
 
   // ==== CLOUDINARY CONFIG ====
@@ -29,6 +33,7 @@ export class NewsService {
     `https://res.cloudinary.com/${this.CLOUDINARY_CLOUD_NAME}/image/upload/`;
   private readonly placeholderImage = 'assets/no-image.png';
   // ============================
+
 
   constructor(private http: HttpClient) {}
 

@@ -21,7 +21,7 @@ interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = '/api/auth';
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
   currentUser$ = this.currentUserSubject.asObservable();
@@ -66,6 +66,7 @@ logout() {
   );
 }
 
+
   getToken(): string | null {
     return localStorage.getItem('token');
   }
@@ -74,6 +75,15 @@ logout() {
     const u = localStorage.getItem('user');
     return u ? JSON.parse(u) : null;
   }
+
+  get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  updateCurrentUser(user: User | null) {
+  this.currentUserSubject.next(user);
+}
+
 
   isLoggedIn(): boolean {
     return !!this.getToken();

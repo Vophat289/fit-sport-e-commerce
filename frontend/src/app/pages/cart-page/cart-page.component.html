@@ -1,0 +1,179 @@
+<div class="cart-container">
+  <!-- Freeship banner -->
+  <!-- <div class="freeship-banner" *ngIf="subtotal < freeShipThreshold">
+    <p>
+      Thêm
+      {{
+        freeShipThreshold - subtotal > 0
+          ? freeShipThreshold - subtotal
+          : (0 | currency : "VND")
+      }}
+      vào giỏ hàng để được freeship!
+    </p>
+  </div> -->
+
+  <h1 class="page-title">GIỎ HÀNG</h1>
+
+  <div class="cart-main-content">
+    <div class="cart-items-section">
+      <!-- Select all -->
+      <div class="cart-header">
+        <input
+          type="checkbox"
+          [checked]="allItemsSelected"
+          (change)="toggleSelectAll($event)"
+          class="select-all"
+        />
+        <span>Chọn tất cả sản phẩm</span>
+        <div class="cart-actions">
+          <button (click)="deleteSelectedItems()" class="delete-selected-btn">
+            Xóa các sản phẩm đã chọn
+          </button>
+        </div>
+      </div>
+
+      <div class="items-list">
+        <!-- CART ITEMS -->
+        <ng-container *ngIf="cartItems.length > 0; else emptyCart">
+          <div
+            class="cart-item-row"
+            *ngFor="let item of cartItems; trackBy: trackByItem"
+          >
+            <!-- checkbox -->
+            <input
+              type="checkbox"
+              class="select-item"
+              [(ngModel)]="item.selected"
+              (ngModelChange)="calculateTotals()"
+            />
+
+            <!-- product details -->
+            <div class="item-details">
+              <img
+                [src]="item.image || 'assets/images/placeholder-shirt.png'"
+                alt="Sản phẩm"
+                class="item-thumbnail"
+              />
+
+              <div class="item-info">
+                <p class="item-name">{{ item.name }}</p>
+
+                <p class="item-variant">
+                  Phân loại:
+                  <strong>{{ item.colorName || "—" }}</strong>
+                  | Kích cỡ:
+                  <strong>{{ item.sizeName || "—" }}</strong>
+                </p>
+              </div>
+            </div>
+
+            <!-- PRICE -->
+            <p class="item-price">{{ item.price | currency : "VND" }}</p>
+            <!-- QUANTITY CONTROLS -->
+            <div class="quantity-control">
+              <button
+                (click)="
+                  updateQuantity(
+                    item._id,
+                    item.quantity - 1,
+                    item.maxStock ?? 1
+                  )
+                "
+              >
+                -
+              </button>
+
+              <input
+                type="number"
+                [(ngModel)]="item.quantity"
+                (ngModelChange)="
+                  updateQuantity(item._id, item.quantity, item.maxStock ?? 1)
+                "
+                [min]="0"
+                [max]="item.maxStock ?? 1"
+                class="quantity-input"
+              />
+
+              <button
+                (click)="
+                  updateQuantity(
+                    item._id,
+                    item.quantity + 1,
+                    item.maxStock ?? 1
+                  )
+                "
+                [disabled]="item.quantity >= (item.maxStock ?? 1)"
+              >
+                +
+              </button>
+            </div>
+            <!-- SUBTOTAL -->
+            <p class="item-subtotal">
+              {{ item.price * item.quantity | currency : "VND" }}
+            </p>
+
+            <!-- delete -->
+            <button class="item-remove" (click)="deleteItem(item._id)">
+              Xóa
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN – SUMMARY -->
+    <div class="cart-summary-section">
+      <div class="summary-box">
+        <h4>Tóm tắt đơn hàng</h4>
+
+        <div class="summary-row">
+          <span>Tạm tính</span>
+          <span>{{ subtotal | currency : "VND" }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Phí vận chuyển</span>
+          <span class="discount-fee">
+            {{
+              deliveryFee === 0
+                ? "Free ship"
+                : "" + (deliveryFee | currency : "VND")
+            }}
+          </span>
+        </div>
+
+        <div class="summary-row total-row">
+          <strong>Tổng cộng</strong>
+          <strong>{{ totalAmount | currency : "VND" }}</strong>
+        </div>
+
+        <!-- VOUCHER -->
+        <div class="summary-voucher">
+          <p>Nhập mã voucher của bạn</p>
+          <input
+            type="text"
+            [(ngModel)]="voucherCode"
+            placeholder="Mã voucher"
+          />
+          <button class="apply-voucher-btn" (click)="applyVoucher()">
+            ÁP DỤNG
+          </button>
+        </div>
+
+        <!-- CHECKOUT -->
+        <button class="checkout-btn" (click)="proceedToCheckout()">
+          TIẾP TỤC THANH TOÁN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="related-products-title">Các sản phẩm liên quan</h2>
+</div>
+
+<!-- EMPTY CART TEMPLATE -->
+<ng-template #emptyCart>
+  <div class="empty-cart">
+    <p>Giỏ hàng của bạn đang trống.</p>
+  </div>
+</ng-template>

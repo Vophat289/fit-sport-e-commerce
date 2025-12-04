@@ -45,7 +45,7 @@ export interface Voucher {
   providedIn: 'root'
 })
 export class AccountService {
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = '';
   private apiUrl = `${this.baseUrl}/api/account`;
 
   constructor(private http: HttpClient) {}

@@ -1,21 +1,20 @@
 <div class="topbar">
   <div class="topbar-left">
     <a href="#">VỀ Fit Sport</a>
-    <a href="#">
-      Voucher ngập tràn ngày 31/10 !
-    </a>
+    <a href="#"> Voucher ngập tràn ngày 31/10 ! </a>
   </div>
-</div>  
+</div>
 
 <div class="header">
   <div class="logo">
-    <img src="assets/images/logo_main_black.png" alt="Fitsport Logo">
-  </div>  
+    <img src="assets/images/logo_main_black.png" alt="Fitsport Logo" />
+  </div>
 
   <ul class="menu">
     <li><a class="menu-link" href="/home">TRANG CHỦ</a></li>
     <li><a class="menu-link" href="/gioi-thieu">GIỚI THIỆU</a></li>
     <li><a class="menu-link" href="/products">SẢN PHẨM</a></li>
+        <li><a class="menu-link" href="/voucher">ƯU ĐÃI</a></li>
     <li><a class="menu-link" href="/news">BÀI VIẾT</a></li>
     <li><a class="menu-link" routerLink="/contact">LIÊN HỆ</a></li>
   </ul>
@@ -73,7 +72,9 @@
 
     <div class="header-actions">
       <ng-container *ngIf="userName; else showLogin">
-        <a class="user-greeting" [routerLink]="['/account']">Xin chào, {{ userName }} </a>
+        <a class="user-greeting" [routerLink]="['/account']"
+          >Xin chào, {{ userName }}
+        </a>
         <button class="icon-btn" (click)="logout()" title="Đăng xuất">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
@@ -84,10 +85,9 @@
           <i class="fa-regular fa-user"></i>
         </button>
       </ng-template>
-
-      <div class="cart-icon">
+      <div class="cart-icon" (click)="goToCart()" style="cursor: pointer">
         <i class="fa-solid fa-bag-shopping"></i>
-        <span class="cart-count">0</span>
+        <span class="cart-count">{{ cartCount }}</span>
       </div>
     </div>
   </div>

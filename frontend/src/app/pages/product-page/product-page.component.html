@@ -16,8 +16,7 @@
           Xóa bộ lọc
         </button>
       </div>
-
-      <!-- 1. FILTER CATEGORY -->
+     <!-- 1. FILTER CATEGORY -->
       <div class="filter-group">
         <h3 class="filter-title">
           <i class="fa-solid fa-tags"></i>
@@ -162,13 +161,14 @@
 
           <!-- Nút thêm giỏ -->
           <div class="product-action">
-            <button class="btn-cart" (click)="addToCart(product)">
-              <i class="fa-solid fa-cart-plus"></i>
+            <button class="btn-cart" (click)="openVariantModal(product)">
               Thêm vào giỏ hàng
             </button>
           </div>
         </div>
       </div>
+
+
 
       <!-- Empty State -->
       <div *ngIf="!loading && filteredProducts.length === 0" class="empty-container">
@@ -181,5 +181,106 @@
 
     </div>
 
-  </div>
+
+    <div class="modal-overlay" *ngIf="isModalOpen && selectedProduct">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chọn Biến thể cho {{ selectedProduct.name }}</h2>
+                <button class="close-btn" (click)="closeModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                
+                <div class="product-preview">
+                    <img [src]="selectedProduct.image && selectedProduct.image.length ? selectedProduct.image[0] : 'assets/images/placeholder.jpg'" 
+                            [alt]="selectedProduct.name" 
+                            class="preview-img">
+                    <div class="preview-info">
+                        <p class="preview-price">{{ (currentVariantDetails?.price || selectedProduct.price) | number }} ₫</p>
+                        <p class="preview-stock">Tồn kho: {{ currentVariantDetails?.quantity || 'Hết' }}</p> 
+                    </div>
+                </div>
+
+                <!-- Loading state -->
+                <div *ngIf="isLoadingVariants" class="variant-loading">
+                    <p>Đang tải thông tin biến thể...</p>
+                </div>
+
+                <!-- Error message khi không có variants -->
+                <div *ngIf="!isLoadingVariants && variantErrorMessage" class="variant-error">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p>{{ variantErrorMessage }}</p>
+                    <p class="variant-hint">Vui lòng liên hệ admin để thêm biến thể cho sản phẩm này.</p>
+                </div>
+
+                <!-- Variant selection khi có dữ liệu -->
+                <div *ngIf="!isLoadingVariants && !variantErrorMessage">
+                    <!-- Size selection -->
+                    <div class="variant-selection">
+                        <label>Kích cỡ:</label>
+                        <div class="options-container">
+                            <button *ngFor="let size of availableVariantSizes"
+                                    [class.selected]="selectedSizeName === size.name"
+                                    (click)="selectedSizeName = size.name; updateVariantDetails()"
+                                    [disabled]="!size">
+                                {{ size.name }}
+                            </button>
+                            <p *ngIf="availableVariantSizes.length === 0" class="no-options">
+                                Chưa có kích cỡ nào
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Color selection -->
+                    <div class="variant-selection">
+                        <label>Màu sắc:</label>
+                        <div class="options-container color-options">
+                            <button *ngFor="let color of availableColors"
+                                    [class.selected]="selectedColorName === color.name"
+                                    [style.backgroundColor]="color.hex || '#ccc'"
+                                    [title]="color.name"
+                                    (click)="selectedColorName = color.name; updateVariantDetails()">
+                            </button>
+                            <p *ngIf="availableColors.length === 0" class="no-options">
+                                Chưa có màu sắc nào
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantity control - chỉ hiển thị khi đã chọn size và color -->
+                    <div class="quantity-control" *ngIf="selectedSizeName && selectedColorName && currentVariantDetails">
+                        <label>Số lượng:</label>
+                        <div class="quantity-input-group">
+                            <button (click)="decrementQuantity()">-</button>
+                            <input type="number" 
+                                    [(ngModel)]="quantityToAdd" 
+                                    [min]="1" 
+                                    [max]="currentVariantDetails.quantity || 99" 
+                                    (change)="onQuantityChange($event)"> 
+                            <button (click)="incrementQuantity()">+</button>
+                        </div>
+                        <p class="quantity-hint">
+                            Tối đa: {{ currentVariantDetails.quantity }} sản phẩm
+                        </p>
+                    </div>
+
+                    <!-- Thông báo khi chưa chọn đủ size/color -->
+                    <div *ngIf="(!selectedSizeName || !selectedColorName) && availableVariantSizes.length > 0 && availableColors.length > 0" 
+                         class="variant-hint">
+                        <p>Vui lòng chọn kích cỡ và màu sắc để xem giá và tồn kho.</p>
+                    </div>
+                </div>
+            </div> 
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeModal()">Hủy</button>
+                <button class="btn-confirm" 
+                        [disabled]="isLoadingVariants || !!variantErrorMessage || !currentVariantDetails || quantityToAdd < 1 || (currentVariantDetails && quantityToAdd > currentVariantDetails.quantity)" 
+                        (click)="confirmAddToCart()">
+                    Xác nhận và Thêm vào Giỏ
+                </button>
+            </div>
+        </div>
+    </div> <!-- Đóng modal-overlay -->
+
+  </div> <!-- Đóng product-container -->
 </section>

@@ -1,9 +1,20 @@
 FROM node:18-alpine
 
-WORKDIR /APP
-COPY package*.json .
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including devDependencies for nodemon)
 RUN npm install
+
+# Copy application code
 COPY . .
 
+# Create upload directory if it doesn't exist
+RUN mkdir -p uploads
+
 EXPOSE 3000
+
+# Start the application
 CMD ["npm", "run", "start"]

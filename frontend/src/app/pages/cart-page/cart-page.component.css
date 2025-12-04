@@ -1,0 +1,328 @@
+/* Màu sắc thương hiệu */
+:root {
+    --primary-color: #3498db; /* Xanh dương */
+    --secondary-color: #e74c3c; /* Đỏ/Cam (cho nút chính/freeship) */
+    --background-light: #f4f4f4; /* Nền trang */
+    --text-dark: #2c3e50;
+    --border-light: #ddd;
+}
+
+/* =============================
+   1. LAYOUT VÀ KHUNG CHUNG
+============================= */
+
+.cart-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: Arial, sans-serif;
+    color: var(--text-dark);
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color); /* Đường kẻ xanh dưới tiêu đề */
+    color: var(--text-dark);
+}
+
+/* --- Banner Freeship --- */
+.freeship-banner {
+    background-color: #ecf0f1;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+.freeship-banner p {
+    margin: 0;
+}
+
+/* --- Bố cục Chính (2 Cột) --- */
+.cart-main-content {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr; /* Chia cột cho danh sách và tóm tắt */
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+/* =============================
+   2. DANH SÁCH SẢN PHẨM (TRÁI)
+============================= */
+
+.cart-items-section {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+/* --- Header "Chọn tất cả" --- */
+.cart-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.cart-header input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* --- Chi tiết từng Item --- */
+.cart-item-row {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.cart-item-row:last-child {
+    border-bottom: none;
+}
+
+.select-item {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+.item-details {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Cho phép chiếm không gian */
+    gap: 15px;
+}
+
+.item-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.item-info {
+    font-size: 14px;
+}
+
+.item-name {
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+.item-variant {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+.item-price, .item-subtotal {
+    width: 100px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+/* --- Control Số lượng --- */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 20px;
+    flex-shrink: 0;
+}
+
+.quantity-control button {
+    background: #f7f7f7;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.quantity-control input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    padding: 5px 0;
+    font-size: 15px;
+    -moz-appearance: textfield; /* Ẩn mũi tên input số trên Firefox */
+}
+
+.quantity-control input::-webkit-outer-spin-button,
+.quantity-control input::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* Ẩn mũi tên input số trên Chrome/Safari */
+    margin: 0;
+}
+
+.item-remove {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 20px;
+    transition: color 0.2s;
+}
+.item-remove:hover {
+    color: #c0392b;
+}
+
+/* --- Giỏ hàng trống --- */
+.empty-message {
+    text-align: center;
+    padding: 50px 0;
+    color: #7f8c8d;
+    font-size: 16px;
+}
+
+
+/* =============================
+   3. TÓM TẮT ĐƠN HÀNG (PHẢI)
+============================= */
+.cart-summary-section {
+    position: sticky;
+    top: 20px; /* Giữ cố định khi cuộn */
+}
+
+.summary-box {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+.summary-box h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 15px;
+}
+
+.summary-row.total-row {
+    padding-top: 15px;
+    margin-top: 10px;
+    border-top: 1px solid var(--border-light);
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.discount-fee {
+    color: #2ecc71; /* Màu xanh lá cho giảm giá */
+    font-weight: 600;
+}
+
+/* --- Voucher Input --- */
+.summary-voucher {
+    margin: 20px 0;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-voucher p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.summary-voucher input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.apply-voucher-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.apply-voucher-btn:hover {
+    background-color: #286190;
+    color: white;
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #E7E6E6;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 15px;
+    transition: all 0.2s;
+}
+.checkout-btn:hover {
+    background-color: #286190;
+    color: white;
+}
+
+
+/* =============================
+   4. SẢN PHẨM LIÊN QUAN
+============================= */
+
+.related-products-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 900px) {
+    .cart-main-content {
+        grid-template-columns: 1fr; /* Stacked layout trên màn hình nhỏ */
+    }
+}
+
+@media (max-width: 600px) {
+    .cart-item-row {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    .item-details {
+        flex-basis: 100%;
+        margin-bottom: 10px;
+    }
+    .item-price, .item-subtotal {
+        width: auto;
+        text-align: left;
+    }
+    .quantity-control {
+        margin: 0 10px 0 0;
+    }
+}

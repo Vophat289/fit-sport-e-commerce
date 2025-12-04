@@ -1,40 +1,56 @@
-<div class="voucher-page fade-in">
+<div class="voucher-page">
 
-  <h2 class="title">Voucher</h2>
+  <div class="voucher-left">
 
-  <div *ngIf="loading" class="loader"></div>
-
-  <div *ngIf="!loading && filteredVouchers.length === 0" class="empty">
-    Không có voucher nào
-  </div>
-  
-  <div class="voucher-list" *ngIf="!loading && filteredVouchers.length > 0">
-
-    <div *ngFor="let v of filteredVouchers" class="voucher-card slide-up">
-
-      <div class="header" [style.background]="v.type === 'percent' ? '#00AEEF' : '#FF5252'">
-        <h3>
-          {{ v.type === 'percent' ? ('Giảm ' + v.value + '%'): ('Giảm ' + (v.value | number:'1.0-0') + ' VNĐ') }}
-
-        </h3>
-      </div>
-
-      <div class="body">
-        <p>Đơn tối thiểu {{ v.min_order_value | number }}đ</p>
-        <p>HSD: {{ v.end_date | date:'dd/MM/yyyy' }}</p>
-
-        <div class="code-row">
-          <h4 class="code">{{ v.code }}</h4>
-          <button class="copy-btn" (click)="copyCode(v.code)">Copy</button>
-        </div>
-      </div>
-
+    <div class="filter-tabs">
+      <button (click)="applyFilter('all')" [class.active]="activeFilter === 'all'">Tất cả</button>
+      <button (click)="applyFilter('valid')" [class.active]="activeFilter === 'valid'">Còn hạn</button>
+      <button (click)="applyFilter('expiring')" [class.active]="activeFilter === 'expiring'">Sắp hết hạn</button>
+      <button (click)="applyFilter('expired')" [class.active]="activeFilter === 'expired'">Hết hạn</button>
     </div>
 
+    <div class="voucher-list">
+      <div class="voucher-card" *ngFor="let v of filteredVouchers">
+        
+        <div class="voucher-info">
+          <h3>{{ v.code }}</h3>
+          <p *ngIf="v.type === 'percent'">Giảm {{ v.value }}%</p>
+          <p *ngIf="v.type === 'fixed'">Giảm {{ v.value | currency:'VND' }}</p>
+          <p>Đơn tối thiểu: {{ v.min_order_value | currency:'VND' }}</p>
+
+          <span class="date">
+            HSD: {{ v.end_date | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+
+        <button class="copy-btn" (click)="copyCode(v.code)">Sao chép</button>
+      </div>
+    </div>
+
+    <div class="load-more" *ngIf="hasMore">
+      <button (click)="loadMore()" [disabled]="loading">
+        {{ loading ? 'Đang tải...' : 'Xem thêm' }}
+      </button>
+    </div>
   </div>
 
-  <div class="center" *ngIf="hasMore && !loading">
-    <button class="load-more" (click)="loadMore()">Xem thêm...</button>
+  <div class="voucher-right">
+    <h2>Bài viết mới</h2>
+
+    <div class="news-item" *ngFor="let n of latestNews">
+      <a [routerLink]="['/news', n.slug]">
+        <img [src]="n.thumbnail" alt="thumbnail" class="thumb" />
+      </a>
+
+      <div class="news-info">
+        <a [routerLink]="['/news', n.slug]" class="news-title">
+          {{ n.title }}
+        </a>
+        <span class="news-date">
+          {{ n.createdAt | date:'dd/MM/yyyy' }}
+        </span>
+      </div>
+    </div>
   </div>
 
 </div>

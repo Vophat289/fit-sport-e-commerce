@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductService, Product } from '@app/services/product.service';
 import { Router } from '@angular/router';
+import { ProductService, Product } from '@app/services/product.service';
 
 @Component({
   selector: 'app-home-product',
@@ -41,13 +41,13 @@ export class HomeProductComponent implements OnInit{
     });
   }
 
-  viewProductDetail(product: Product): void{
-    this.router.navigate(['/products', product.slug]);
-  }
-
   //UI Tĩnh test 
   addToCart(product: any) {
-  console.log('🛒 Đã thêm vào giỏ:', product.name);
-  
+    console.log('🛒 Đã thêm vào giỏ:', product.name);
   } 
+
+  // Navigate to product detail page
+  viewProductDetail(product: Product): void {
+    this.router.navigate(['/products', product.slug || product._id]);
+  }
 }

@@ -1,0 +1,288 @@
+<div class="seeder-container">
+  <!-- Header -->
+  <div class="seeder-header">
+    <h1>
+      <i class="fa-solid fa-database"></i>
+      Quản lý Dữ liệu Biến thể
+    </h1>
+    <p class="subtitle">Thêm Size, Color và tạo Variant cho sản phẩm</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon size-icon">
+        <i class="fa-solid fa-ruler"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ sizes.length }}</h3>
+        <p>Kích cỡ</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon color-icon">
+        <i class="fa-solid fa-palette"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ colors.length }}</h3>
+        <p>Màu sắc</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon product-icon">
+        <i class="fa-solid fa-box"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ products.length }}</h3>
+        <p>Sản phẩm</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Card 1: Thêm Size & Color -->
+    <div class="seeder-card">
+      <div class="card-header">
+        <h2>
+          <i class="fa-solid fa-plus-circle"></i>
+          Thêm Kích cỡ & Màu sắc
+        </h2>
+      </div>
+      <div class="card-body">
+        <!-- Add Size -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="fa-solid fa-ruler"></i>
+            Thêm Kích cỡ mới
+          </label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              [(ngModel)]="newSizeName" 
+              placeholder="Ví dụ: S, M, L, XL, XXL..." 
+              class="form-input"
+            />
+            <button 
+              type="button"
+              (click)="submitSize()" 
+              class="btn btn-primary"
+              [disabled]="!newSizeName.trim() || isSubmittingSize">
+              <i class="fa-solid fa-plus"></i>
+              {{ isSubmittingSize ? 'Đang thêm...' : 'Thêm Size' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Color -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="fa-solid fa-palette"></i>
+            Thêm Màu sắc mới
+          </label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              [(ngModel)]="newColorName" 
+              placeholder="Ví dụ: Đen, Trắng, Đỏ..." 
+              class="form-input"
+            />
+            <input 
+              type="color" 
+              [(ngModel)]="newColorHex" 
+              class="color-picker"
+              title="Chọn màu"
+            />
+            <button 
+              type="button"
+              (click)="submitColor()" 
+              class="btn btn-primary"
+              [disabled]="!newColorName.trim() || isSubmittingColor">
+              <i class="fa-solid fa-plus"></i>
+              {{ isSubmittingColor ? 'Đang thêm...' : 'Thêm Color' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Tạo Variant -->
+    <div class="seeder-card variant-card">
+      <div class="card-header">
+        <h2>
+          <i class="fa-solid fa-layer-group"></i>
+          Tạo Biến thể Sản phẩm
+        </h2>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="submitVariant()" #variantForm="ngForm">
+          <!-- Product Selection -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fa-solid fa-box"></i>
+              Sản phẩm <span class="required">*</span>
+            </label>
+            <select 
+              [(ngModel)]="selectedProductId" 
+              name="product" 
+              required
+              class="form-select">
+              <option value="">-- Chọn sản phẩm --</option>
+              <option *ngFor="let p of products" [value]="p._id">
+                {{ p.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Size & Color Selection -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fa-solid fa-ruler"></i>
+                Kích cỡ <span class="required">*</span>
+              </label>
+              <select 
+                [(ngModel)]="selectedSizeId" 
+                name="size" 
+                required
+                class="form-select">
+                <option value="">-- Chọn Size --</option>
+                <option *ngFor="let s of sizes" [value]="s._id">
+                  {{ s.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fa-solid fa-palette"></i>
+                Màu sắc <span class="required">*</span>
+              </label>
+              <select 
+                [(ngModel)]="selectedColorId" 
+                name="color" 
+                required
+                class="form-select">
+                <option value="">-- Chọn Color --</option>
+                <option *ngFor="let c of colors" [value]="c._id">
+                  {{ c.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Price & Quantity -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fa-solid fa-dollar-sign"></i>
+                Giá bán (₫) <span class="required">*</span>
+              </label>
+              <input 
+                type="number" 
+                [(ngModel)]="inputPrice" 
+                name="price" 
+                placeholder="0" 
+                min="0" 
+                required
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fa-solid fa-warehouse"></i>
+                Tồn kho <span class="required">*</span>
+              </label>
+              <input 
+                type="number" 
+                [(ngModel)]="inputQuantity" 
+                name="quantity" 
+                placeholder="0" 
+                min="0" 
+                required
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn btn-success btn-block"
+            [disabled]="!variantForm.valid || isSubmittingVariant">
+            <i class="fa-solid fa-check"></i>
+            {{ isSubmittingVariant ? 'Đang tạo...' : 'Tạo Biến thể' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Preview Card -->
+  <div class="seeder-card preview-card">
+    <div class="card-header">
+      <h2>
+        <i class="fa-solid fa-list"></i>
+        Dữ liệu đã tải
+      </h2>
+      <button 
+        type="button"
+        (click)="loadInitialData()" 
+        class="btn btn-icon"
+        title="Làm mới dữ liệu">
+        <i class="fa-solid fa-rotate"></i>
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="preview-grid">
+        <!-- Sizes Preview -->
+        <div class="preview-section" *ngIf="sizes.length > 0">
+          <h3>
+            <i class="fa-solid fa-ruler"></i>
+            Kích cỡ ({{ sizes.length }})
+          </h3>
+          <div class="preview-tags">
+            <span *ngFor="let s of sizes" class="tag tag-size">
+              {{ s.name }}
+            </span>
+          </div>
+        </div>
+        <div class="preview-section" *ngIf="sizes.length === 0">
+          <p class="empty-state">Chưa có kích cỡ nào</p>
+        </div>
+
+        <!-- Colors Preview -->
+        <div class="preview-section" *ngIf="colors.length > 0">
+          <h3>
+            <i class="fa-solid fa-palette"></i>
+            Màu sắc ({{ colors.length }})
+          </h3>
+          <div class="preview-tags">
+            <span 
+              *ngFor="let c of colors" 
+              class="tag tag-color"
+              [style.backgroundColor]="c.hex_code || '#ccc'"
+              [style.color]="getContrastColor(c.hex_code)"
+              [title]="c.name">
+              {{ c.name }}
+            </span>
+          </div>
+        </div>
+        <div class="preview-section" *ngIf="colors.length === 0">
+          <p class="empty-state">Chưa có màu sắc nào</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="message" class="message-toast" [class.success]="message.type === 'success'" [class.error]="message.type === 'error'">
+    <i [class]="message.type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle'"></i>
+    <span>{{ message.text }}</span>
+    <button type="button" (click)="message = null" class="close-btn">
+      <i class="fa-solid fa-times"></i>
+    </button>
+  </div>
+</div>
+

@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: [ true, "Tên sản phẩm là bắt buộc"],
+        trim: true,
+        minlength: [2, "Tên sản phẩm phải ít nhất 2 ký tự"],
     },
     slug:{
         type: String,
@@ -14,7 +16,8 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true,
+        required: [true, "Giá sản phẩm là bắt buộc"],
+        min: [0, "Giá không hợp lệ"],
     },
     description:{
         type: String,
@@ -23,14 +26,33 @@ const productSchema = new mongoose.Schema({
     category:{
         type: mongoose.Schema.Types.ObjectId, ref: "Category",  
         ref: "Category",
-        required: true,
+        required: [true, "Danh mục sản phẩm là bắt buộc"],
     },
     image: {
         type: [String],
-        default: []
+        validate: {
+            validator: (arr) => arr.length > 0,
+            message: "Sản phẩm phải có ít nhất 1 hình ảnh",
+        },
     },
-    colors:[String],   
-    sizes:[String],
+
+    colors: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: (arr) => arr.length > 0,
+            message: "Sản phẩm phải có ít nhất 1 màu sắc",
+        },
+    },
+    sizes: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: (arr) => arr.length > 0,
+            message: "Sản phẩm phải có ít nhất 1 kích cỡ",
+        },
+    },
+
     viewCount: {
         type: Number,
         default: 0
