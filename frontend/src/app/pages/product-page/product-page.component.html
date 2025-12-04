@@ -162,68 +162,10 @@
 
     </div>
 
-    <div class="modal-overlay" *ngIf="isModalOpen && selectedProduct">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Chọn Biến thể cho {{ selectedProduct.name }}</h2>
-                <button class="close-btn" (click)="closeModal()">×</button>
-            </div>
-
-            <div class="modal-body">
-                
-                <div class="product-preview">
-                    <img [src]="selectedProduct.image && selectedProduct.image.length ? selectedProduct.image[0] : 'assets/images/placeholder.jpg'" 
-                            [alt]="selectedProduct.name" 
-                            class="preview-img">
-                    <div class="preview-info">
-                        <p class="preview-price">{{ (currentVariantDetails?.price || selectedProduct.price) | number }} ₫</p>
-                        <p class="preview-stock">Tồn kho: {{ currentVariantDetails?.quantity || 'Hết' }}</p> 
-                    </div>
-                </div>
-
-                <div class="variant-selection">
-                    <label>Kích cỡ:</label>
-                    <div class="options-container">
-                        <button *ngFor="let size of availableVariantSizes"
-                                [class.selected]="selectedSizeName === size.name"
-                                (click)="selectedSizeName = size.name; updateVariantDetails()">
-                            {{ size.name }}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="variant-selection">
-                    <label>Màu sắc:</label>
-                    <div class="options-container color-options">
-                        <button *ngFor="let color of availableColors"
-                                [class.selected]="selectedColorName === color.name"
-                                [style.backgroundColor]="color.hex"
-                                (click)="selectedColorName = color.name; updateVariantDetails()">
-                            </button>
-                    </div>
-                </div>
-                
-                <div class="quantity-control">
-                    <label>Số lượng:</label>
-                    <div class="quantity-input-group">
-                        <button (click)="decrementQuantity()">-</button>
-                        <input type="number" 
-                                [(ngModel)]="quantityToAdd" 
-                                min="1" 
-                                max="99" 
-                                (change)="onQuantityChange($event)"> <button (click)="incrementQuantity()">+</button>
-                    </div>
-                </div>
-            </div> 
-            <div class="modal-footer">
-                <button class="btn-cancel" (click)="closeModal()">Hủy</button>
-                <button class="btn-confirm" 
-                        [disabled]="!currentVariantDetails || quantityToAdd < 1 || quantityToAdd > currentVariantDetails.quantity" 
-                        (click)="confirmAddToCart()">
-                    Xác nhận và Thêm vào Giỏ
-                </button>
-            </div>
-        </div>
-    </div>
-
-</section>
+    <app-product-modal 
+        [isModalOpen]="isModalOpen" 
+        [selectedProduct]="selectedProduct"
+        (closeModal)="closeModal()"
+        (confirmAddToCart)="handleAddToCart($event)">
+    </app-product-modal>
+    </section>
