@@ -83,132 +83,130 @@ export class CartPageComponent implements OnInit, OnDestroy {
           selected: false,
           sizeName: item.sizeName || '—',
           colorName: item.colorName || '—',
-          maxStock: item.maxStock || 99,
+          stock: item.stock ?? 0,
+          quantityToAdd: item.quantityToAdd ?? 1,
+          maxStock: item.stock ?? 0,
         }));
+        console.log('Cart loaded:', this.cartItems);
         this.calculateTotals();
       });
   }
 
-calculateTotals(): void {
-  const selected = this.cartItems.filter((i) => i.selected);
-  this.subtotal = selected.reduce((s, i) => s + i.price * i.quantity, 0);
+  calculateTotals(): void {
+    const selected = this.cartItems.filter((i) => i.selected);
+    this.subtotal = selected.reduce((s, i) => s + i.price * i.quantityToAdd, 0);
 
-  // Nếu subtotal = 0 → miễn phí (không có sản phẩm)
-  // Nếu subtotal >= freeShipThreshold → miễn phí
-  // Ngược lại → 30.000
-  if (this.subtotal === 0) {
-    this.deliveryFee = 0;
-  } else if (this.subtotal >= this.freeShipThreshold) {
-    this.deliveryFee = 0;
-  } else {
-    this.deliveryFee = 30000;
+    // Nếu subtotal = 0 → miễn phí (không có sản phẩm)
+    // Nếu subtotal >= freeShipThreshold → miễn phí
+    // Ngược lại → 30.000
+    if (this.subtotal === 0) {
+      this.deliveryFee = 0;
+    } else if (this.subtotal >= this.freeShipThreshold) {
+      this.deliveryFee = 0;
+    } else {
+      this.deliveryFee = 30000;
+    }
+
+    this.totalAmount = this.subtotal + this.deliveryFee - this.voucherDiscount;
   }
 
-  this.totalAmount = this.subtotal + this.deliveryFee - this.voucherDiscount;
-}
-
-
-handleAddToCart(
-  productId: string,
-  sizeId: string = '',
-  colorId: string = '',
-  quantity: number = 1,
-  name: string = '',
-  price: number = 0,
-  image: string = '',
-  sizeName: string = '—',
-  colorName: string = '—',
-  maxStock: number = 99
-): void {
-  // Tìm item đã tồn tại trong giỏ
-  const existingItem = this.cartItems.find(
-    (i) =>
-      i.variant_id === productId &&
-      i.sizeId === sizeId &&
-      i.colorId === colorId
-  );
-  const currentQty = existingItem ? existingItem.quantity : 0;
-  const allowedQty = maxStock - currentQty;
-
-  // Kiểm tra tồn kho
-  if (allowedQty <= 0) {
-    alert('Sản phẩm này đã hết tồn kho.');
-    return;
-  }
-
-  if (quantity > allowedQty) {
-    alert(`Chỉ còn ${allowedQty} sản phẩm có thể thêm.`);
-    quantity = allowedQty;
-  }
-
-  // đảm bảo image là string hợp lệ
-  const finalImage = image || 'assets/images/placeholder.jpg';
-
-  const payload: AddCartPayload = {
-    productId,
-    name,
-    price,
-    image: finalImage,
-    sizeId,
-    sizeName: sizeName || '—',
-    colorId,
-    colorName: colorName || '—',
-    quantity,
-  };
-
-  this.cartService.addToCart(payload).subscribe({
-    next: () => {
-      alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-      this.loadCart();
-    },
-    error: (err) => {
-      console.error('Thêm vào giỏ hàng thất bại:', err);
-      alert('Thêm vào giỏ hàng thất bại.');
-    },
-  });
-}
-
-  updateQuantity(
-    itemId: number | undefined,
-    quantityInput: number,
+  handleAddToCart(
+    productId: string,
+    sizeId: string = '',
+    colorId: string = '',
+    quantity: number = 1,
+    name: string = '',
+    price: number = 0,
+    image: string = '',
+    sizeName: string = '—',
+    colorName: string = '—',
     maxStock: number = 99
-  ) {
+  ): void {
+    // Tìm item đã tồn tại trong giỏ
+    const existingItem = this.cartItems.find(
+      (i) =>
+        i.variant_id === productId &&
+        i.sizeId === sizeId &&
+        i.colorId === colorId
+    );
+    const currentQty = existingItem ? existingItem.quantityToAdd : 0;
+    const allowedQty = maxStock - currentQty;
+
+    // Kiểm tra tồn kho
+    if (allowedQty <= 0) {
+      alert('Sản phẩm này đã hết tồn kho.');
+      return;
+    }
+
+    if (quantity > allowedQty) {
+      alert(`Chỉ còn ${allowedQty} sản phẩm có thể thêm.`);
+      quantity = allowedQty;
+    }
+
+    // đảm bảo image là string hợp lệ
+    const finalImage = image || 'assets/images/placeholder.jpg';
+
+    const payload: AddCartPayload = {
+      productId,
+      name,
+      price,
+      image: finalImage,
+      sizeId,
+      sizeName: sizeName || '—',
+      colorId,
+      colorName: colorName || '—',
+      quantityToAdd: quantity,
+      stock: maxStock,
+    };
+
+    this.cartService.addToCart(payload).subscribe({
+      next: () => {
+        alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+        this.loadCart();
+      },
+      error: (err) => {
+        console.error('Thêm vào giỏ hàng thất bại:', err);
+        alert('Thêm vào giỏ hàng thất bại.');
+      },
+    });
+  }
+
+  updateQuantity(itemId: number | undefined, quantityInput: number) {
     if (itemId === undefined) return;
 
     const idx = this.cartItems.findIndex((i) => i._id === itemId);
     if (idx === -1) return;
 
     const currentItem = this.cartItems[idx];
-    let newQuantity = Number(quantityInput);
+    const maxStock = currentItem.stock ?? 0;
 
+    let newQuantity = Number(quantityInput);
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
 
     if (newQuantity > maxStock) {
-      alert(`Số lượng tối đa còn lại là ${maxStock}`);
+      alert(`Chỉ còn ${maxStock} sản phẩm trong kho.`);
       newQuantity = maxStock;
     }
 
     if (newQuantity === 0) {
-      if (
-        confirm(`Bạn có muốn xóa sản phẩm "${currentItem.name}" khỏi giỏ hàng?`)
-      ) {
+      if (confirm(`Bạn có muốn xóa "${currentItem.name}" khỏi giỏ hàng?`)) {
         this.deleteItem(itemId);
       }
       return;
     }
 
-    currentItem.quantity = newQuantity;
+    currentItem.quantityToAdd = newQuantity;
     this.calculateTotals();
 
     this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: () => {},
       error: (err) => {
-        console.error('Cập nhật thất bại', err);
         alert('Cập nhật thất bại!');
         this.loadCart();
       },
     });
   }
+
   deleteItem(itemId: number | undefined): void {
     if (itemId === undefined) return;
     if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
