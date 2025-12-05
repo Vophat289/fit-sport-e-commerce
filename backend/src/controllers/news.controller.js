@@ -117,7 +117,7 @@ export const createNews = async (req, res) => {
     if (thumbnail && thumbnail.trim()) {
       thumbnailUrl = thumbnail.trim();
     } else if (req.file) {
-      thumbnailUrl = `/uploads/news/${req.file.filename}`;
+      thumbnailUrl = `/uploads/loreq.file.filename}`;
     }
 
     let tagsArray = [];

@@ -19,6 +19,7 @@ import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 import adminNewsRoutes from './routes/admin/news.admin.routes.js';
+import vnpayRoute from "./routes/vnpay.route.js";
 
 
 EventEmitter.defaultMaxListeners = 20;
@@ -73,6 +74,8 @@ app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
+
+app.use("/api/vnpay", vnpayRoute);
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
