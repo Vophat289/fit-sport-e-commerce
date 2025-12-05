@@ -1,0 +1,9 @@
+<div *ngIf="success; else fail">
+  <h2 style="color: green;">Thanh toán thành công!</h2>
+  <p>Mã phản hồi: {{ responseCode }}</p>
+</div>
+
+<ng-template #fail>
+  <h2 style="color: red;">Thanh toán thất bại!</h2>
+  <p>Mã phản hồi: {{ responseCode }}</p>
+</ng-template>

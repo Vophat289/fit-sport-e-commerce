@@ -21,6 +21,7 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 
 // Admin routes 
 import { AdminRoutes } from './admin/admin.routes';
+import { PaymentSuccessComponent } from './pages/payment-success/payment-success.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +48,9 @@ export const routes: Routes = [
 
       { path: 'admin/seed', component: DataSeederComponent },
       { path: 'cart', component: CartPageComponent },
+
+      //vnpay
+      { path: 'payment-success', component: PaymentSuccessComponent},
 
       { path: '', redirectTo: '/home', pathMatch: 'full' },
     ]

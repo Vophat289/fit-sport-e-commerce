@@ -15,17 +15,11 @@ export const AdminRoutes: Routes = [
     component: AdminLayoutComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      // Dashboard route
       { path: 'dashboard', component: DashboardComponent },
       { path: 'category-admin', component: CategoryAdminComponent },
-      // Thêm route voucher
       { path: 'vouchers', component: VoucherAdminComponent },
-
-      // Các route khác sẽ được thêm ở đây:
-      // { path: 'categories', component: CategoriesComponent },
       { path: 'products', component: ProductAdminComponent },
       { path: 'news', component: NewsAdminComponent },
-
       { path: 'contacts', component: ContactsAdminComponent },
       { path: 'manager-user', component: UserAdminComponent },
     ],
