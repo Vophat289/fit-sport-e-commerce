@@ -80,6 +80,7 @@ openVariantModal(product: Product): void {
       colorId: payload.colorId,
       colorName: payload.colorName,
       quantityToAdd: payload.quantity,
+      stock: payload.stock,
     };
 
     // Logic kiểm tra tồn kho và gọi service

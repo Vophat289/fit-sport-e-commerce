@@ -3,49 +3,98 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Category } from './category.service';
 
-export interface Product{
-  _id?: string;
-  name: string;
-  slug?: string;
-  price: number;
-  description?: string;
-  category?: Category | string;
-  image?: string[];
-  colors?: string[];
-  sizes?: string[];
-  createdAt?: string;
-  updatedAt?: string;
+
+export interface Product {
+  _id?: string;
+  name: string;
+  slug?: string;
+  price: number;
+  description?: string;
+  category?: Category | string;
+  image?: string[];
+  colors?: string[];
+  sizes?: string[];
+  createdAt?: string;
+  updatedAt?: string;
   viewCount?: number;
   averageRating?: number;
   totalRatings?: number;
   _displayIndex?: number;
+  availableColors?: {
+    id: string;
+    name: string;
+    hex_code?: string;
+  }[];
+
+  availableSizes?: {
+    id: string;
+    name: string;
+  }[];
+  variants?: {
+    size_id: string;
+    color_id: string;
+    price: number;
+    quantity: number;
+  }[];
+}
+export interface VariantSelection {
+  sizeId: string;
+  sizeName: string;
+  colorId: string;
+  colorName: string;
+  quantity: number;
+  price: number;
+  stock: number;
+}
+
+export interface VariantDetails {
+  price: number;
+  quantity: number;
+}
+
+export interface AvailableOption {
+  id: string;
+  name: string;
+  hex?: string;
+}
+
+export interface AvailableVariants {
+  availableSizes: AvailableOption[];
+  availableColors: AvailableOption[];
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
-private adminApiUrl = "http://localhost:3000/api/admin";
-  private apiUrl = "http://localhost:3000/api/products"; // API chính cho sản phẩm
+  private adminApiUrl = 'http://localhost:3000/api/admin';
+  private apiUrl = 'http://localhost:3000/api/products'; // API chính cho sản phẩm
 
-  constructor(private http: HttpClient) { }
-  
+  constructor(private http: HttpClient) {}
+
   getAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl); //Observable<Product[]> là kiểu dữ liệu trả vè mảng
+    return this.http.get<Product[]>(this.apiUrl);
   }
 
-  getBySlugProduct(slug: string): Observable<Product>{
-    return this.http.get<Product>(`${this.apiUrl}/${slug}`); //<Product> trả về 1 product (k phải array)
+  getBySlugProduct(slug: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/${slug}`);
   }
 
-  getByCategorySlug(slug: string): Observable<Product[]>{
+  getByCategorySlug(slug: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/category/${slug}`);
   }
-  incrementView(slug: string): Observable<{viewCount: number}>{
-    return this.http.post<{ viewCount: number }>(`${this.apiUrl}/${slug}/view`, {});
+  incrementView(slug: string): Observable<{ viewCount: number }> {
+    return this.http.post<{ viewCount: number }>(
+      `${this.apiUrl}/${slug}/view`,
+      {}
+    );
   }
-  searchProducts(query: string): Observable<{query: string; count: number; products: Product[]}>{
-    return this.http.get<{query: string; count: number; products: Product[]}>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
+  searchProducts(
+    query: string
+  ): Observable<{ query: string; count: number; products: Product[] }> {
+    return this.http.get<{ query: string; count: number; products: Product[] }>(
+      `${this.apiUrl}/search?q=${encodeURIComponent(query)}`
+    );
   }
 
   getAllProducts() {
@@ -64,14 +113,16 @@ private adminApiUrl = "http://localhost:3000/api/admin";
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
-  // ✅ HÀM LẤY BIẾN THỂ KHẢ DỤNG (Cho Modal Frontend)
-  getAvailableVariants(productId: string): Observable<any> {
-    // GET /api/products/variants/:productId
-    return this.http.get<any>(`${this.adminApiUrl}/variants/${productId}`); 
-  }
+  getAvailableVariants(productId: string): Observable<any> {
+    return this.http.get<any>(`${this.adminApiUrl}/variants/${productId}`);
+  }
 
-  getVariantDetails(productId: string, sizeId: string, colorId: string): Observable<any> {
-    // GET /api/products/variant-details?product=...
-    const url = `${this.adminApiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
-        return this.http.get(url);
-}}
+  getVariantDetails(
+    productId: string,
+    sizeId: string,
+    colorId: string
+  ): Observable<any> {
+    const url = `${this.adminApiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
+    return this.http.get(url);
+  }
+}
