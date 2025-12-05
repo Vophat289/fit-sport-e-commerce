@@ -1,36 +1,21 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { ProductService, Product } from '@app/services/product.service';
 import { CategoryService, Category } from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { CartService, AddCartPayload } from '@app/services/cart.service';
-
+import { CartService } from '@app/services/cart.service';
+// ⚠️ Cần import ProductModalComponent (tên component mới) vào imports của @Component
+// Giả sử tên component mới là 'ProductModalComponent' và selector là 'app-product-modal'
 import {
   ProductModalComponent,
   VariantSelection,
 } from '@app/components/product-modal/product-modal.component';
-
-interface VariantSize {
-  id: string;
-  name: string;
-}
-
-interface VariantColor {
-  id: string;
-  name: string;
-  hex?: string;
-}
-
-interface VariantDetails {
-  price: number;
-  quantity: number;
-  variantId: string;
-}
+// (Điều chỉnh đường dẫn import cho phù hợp với cấu trúc dự án của bạn)
 
 @Component({
   selector: 'app-product-page',
+  // Thêm ProductModalComponent vào imports để sử dụng trong template
   imports: [CommonModule, FormsModule, RouterLink, ProductModalComponent],
   templateUrl: './product-page.component.html',
   styleUrls: ['./product-page.component.css'],
@@ -224,9 +209,7 @@ export class ProductPageComponent implements OnInit {
         max: 5000000,
       },
     };
-
     this.selectedCategory = null;
-
     setTimeout(() => {
       this.updateSliderRange(
         this.filters.priceRange.min,
