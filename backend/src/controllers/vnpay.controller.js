@@ -75,7 +75,7 @@ export async function returnUrl(req, res){
 
         if(!result.isVerified){
             console.log('❌ Checksum verification failed');
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
             const redirectUrl = `${frontendUrl}/payment-success?success=false&code=97`;
             console.log('Redirecting to:', redirectUrl);
             return res.redirect(redirectUrl);
@@ -88,7 +88,7 @@ export async function returnUrl(req, res){
 
         if(!order){
             console.log('❌ Order not found for transaction:', vnp_TxnRef);
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
             const redirectUrl = `${frontendUrl}/payment-success?success=false&code=01`;
             console.log('Redirecting to:', redirectUrl);
             return res.redirect(redirectUrl);
@@ -97,7 +97,7 @@ export async function returnUrl(req, res){
         console.log('✅ Order found:', order._id);
 
         // Redirect về frontend với thông tin
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
         
         if(vnp_ResponseCode === "00"){
             const redirectUrl = `${frontendUrl}/payment-success?success=true&code=00&orderId=${order._id}&orderCode=${order.order_code}`;
@@ -111,7 +111,7 @@ export async function returnUrl(req, res){
     }catch(error){
         console.error('❌ Return URL Error:', error);
         console.error('Error stack:', error.stack);
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
         const redirectUrl = `${frontendUrl}/payment-success?success=false&code=99`;
         console.log('Redirecting to:', redirectUrl);
         return res.redirect(redirectUrl);
