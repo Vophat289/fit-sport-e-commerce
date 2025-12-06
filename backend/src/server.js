@@ -9,10 +9,10 @@ dotenv.config()
 connectDB();
 
 const PORT = process.env.PORT || 3000;
-const io = setupSocket(server);
+// const io = setupSocket(server);
 
 //lưu io vào global để controller gọi
-global._io = io;
+// global._io = io;
 
 app.listen(PORT, () => {
     console.log(`Server đang chạy tại PORT: ${PORT}`);

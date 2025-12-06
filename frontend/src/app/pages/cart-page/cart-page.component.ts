@@ -238,6 +238,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
       alert('Chọn ít nhất 1 sản phẩm để thanh toán.');
       return;
     }
+    // Lưu selected items vào localStorage để checkout có thể lấy
+    localStorage.setItem('selectedCartItems', JSON.stringify(selected));
     this.router.navigate(['/checkout']);
   }
   deleteSelectedItems(): void {

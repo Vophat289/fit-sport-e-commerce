@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class ContactService {
 
-  // === ĐÚNG URL BACKEND CỦA ÔNG CHỦ ===
-  private apiUrl = 'http://localhost:3000/api/admin/contacts';
+  // Sử dụng relative URL - nginx sẽ proxy đến backend
+  private apiUrl = '/api/admin/contacts';
 
   constructor(private http: HttpClient) {}
 

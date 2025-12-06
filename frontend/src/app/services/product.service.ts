@@ -25,7 +25,8 @@ export interface Product {
   providedIn: 'root',
 })
 export class ProductService {
-  private adminApiUrl = 'http://localhost:3000/api/admin';
+  // Sử dụng relative URL - nginx sẽ proxy đến backend
+  private adminApiUrl = '/api/admin';
 
   private apiUrl = '/api/products';
 

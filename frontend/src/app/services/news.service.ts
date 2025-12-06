@@ -31,8 +31,9 @@ export type UpdateNewsData = Partial<CreateNewsData>;
 })
 export class NewsService {
 
-  private readonly API_URL = 'http://localhost:3000/api/admin/news';
-  private readonly BASE_URL = 'http://localhost:3000'; 
+  // Sử dụng relative URL - nginx sẽ proxy đến backend
+  private readonly API_URL = '/api/admin/news';
+  private readonly BASE_URL = ''; // Không cần base URL khi dùng relative path 
   private readonly PLACEHOLDER = 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT';
 
   // Subject để thông báo khi có tin mới

@@ -1,5 +1,4 @@
-
-module.exports = {
+export default {
     tmnCode: process.env.VNP_TMNCODE,
     secretKey: process.env.VNP_HASHSECRET,
     returnUrl: process.env.VNP_RETURNURL,

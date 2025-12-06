@@ -1,6 +1,7 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 export interface AddCartPayload {
   productId: string;
@@ -46,7 +47,7 @@ export class CartService {
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.updateCartCount();
   }
 
@@ -146,5 +147,63 @@ export class CartService {
   clearCart(): void {
     localStorage.removeItem(this.storageKey);
     this.cartCountSubject.next(0);
+  }
+
+  getCart(): Observable<any> {
+    return this.http.get<any>('/api/cart');
+  }
+
+  /**
+   * Sync selected items từ localStorage lên backend database
+   * Lưu ý: Backend sẽ tự merge nếu item đã tồn tại (tăng quantity)
+   * @param selectedItems - Danh sách items đã được chọn từ localStorage
+   * @returns Observable<boolean> - true nếu sync thành công
+   */
+  syncCartToBackend(selectedItems: CartItem[]): Observable<boolean> {
+    return new Observable<boolean>((subscriber) => {
+      if (!selectedItems || selectedItems.length === 0) {
+        subscriber.next(true);
+        subscriber.complete();
+        return;
+      }
+
+      // Sync từng item tuần tự để tránh conflict
+      let syncIndex = 0;
+      let hasError = false;
+
+      const syncNextItem = () => {
+        if (syncIndex >= selectedItems.length || hasError) {
+          if (!hasError) {
+            console.log('✅ Sync cart to backend thành công:', selectedItems.length, 'items');
+            subscriber.next(true);
+            subscriber.complete();
+          }
+          return;
+        }
+
+        const item = selectedItems[syncIndex];
+        
+        // Backend API cần: productId, sizeId, colorId, quantity
+        this.http.post('/api/cart/add', {
+          productId: item.variant_id, // variant_id trong localStorage là productId
+          sizeId: item.sizeId || '',
+          colorId: item.colorId || '',
+          quantity: item.quantityToAdd || 1
+        }).subscribe({
+          next: () => {
+            syncIndex++;
+            syncNextItem(); // Sync item tiếp theo
+          },
+          error: (error) => {
+            console.error(`❌ Lỗi khi sync item ${syncIndex + 1}/${selectedItems.length}:`, error);
+            hasError = true;
+            subscriber.error(error);
+          }
+        });
+      };
+
+      // Bắt đầu sync item đầu tiên
+      syncNextItem();
+    });
   }
 }

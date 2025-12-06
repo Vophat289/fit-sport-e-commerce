@@ -2,10 +2,12 @@
 import Oders from '../models/oders.model.js';
 import OdersDetails from '../models/odersDetails.model.js';
 import ProductsVariant from '../models/productsVariant.model.js';
+import Product from '../models/product.model.js'; // Import Product để đảm bảo model được register
 import mongoose from 'mongoose'; 
 import Size from '../models/size.model.js'; 
 import Color from '../models/color.model.js'; 
-
+import { buildPayment } from '../services/vnpay.service.js';
+import { validateVoucher, useVoucher } from '../services/voucher.service.js';
 
 // Hàm hỗ trợ tạo mã đơn hàng
 const generateOrderCode = () => {
@@ -241,3 +243,197 @@ export const deleteCartItem = async (req, res) => {
         return res.status(500).json({ message: 'Lỗi server khi xóa sản phẩm.' });
     }
 };
+
+export const checkout = async (req, res) => {
+    try{
+        const userId = req.user._id || req.user.id;
+        const { 
+            receiver_name, receiver_mobile, receiver_address, voucher_code
+        } = req.body;
+
+        //validate thông tin ng nhận
+        if(!receiver_name || !receiver_mobile || !receiver_address){
+            return res.status(400).json({message: 'Vui lòng điền đầy đủ thông tin người nhận.'});
+        }
+
+        //tìm cart
+        const cart = await Oders.findOne({
+            user_id: userId,
+            status: 'CART'
+        });
+
+        if(!cart){
+            return res.status(404).json({message: 'Giỏ hàng trống'})
+        }
+
+        //lấy cart detail và vali
+        const cartDetails = await OdersDetails.find({ order_id: cart._id}).populate({
+            path:'variant_id',
+            populate:[
+                {
+                    path: 'product_id',
+                    model: 'Product', // Chỉ định rõ model name
+                    select: 'name'
+                }
+            ]
+        });
+
+        if(!cartDetails || cartDetails.length === 0){
+            return res.status(404).json({message: 'Giỏ hàng không có sản phẩm'});
+        }
+
+        //validate tồn kho
+        for(const item of cartDetails){
+            try {
+                // Đảm bảo variant_id là ObjectId
+                const variantId = item.variant_id?._id || item.variant_id;
+                if (!variantId) {
+                    console.error('❌ Cart item không có variant_id:', item);
+                    return res.status(400).json({ 
+                        message: 'Cart item không hợp lệ: thiếu variant_id'
+                    });
+                }
+                
+                const variant = await ProductsVariant.findById(variantId);
+                if(!variant){
+                    console.error('❌ Không tìm thấy variant:', variantId);
+                    return res.status(400).json({ 
+                        message: 'Không tìm thấy thông tin sản phẩm'
+                    });
+                }
+                
+                if(variant.quantity < item.quantity){
+                    const productName = item.variant_id?.product_id?.name || variant.product_id?.name || 'N/A';
+                    return res.status(400).json({ 
+                        message: `Sản phẩm ${productName} không đủ tồn kho (chỉ còn ${variant.quantity}, cần ${item.quantity})`
+                    });
+                }
+            } catch (itemError) {
+                console.error('❌ Lỗi khi validate tồn kho item:', item, itemError);
+                return res.status(400).json({ 
+                    message: 'Lỗi khi kiểm tra tồn kho sản phẩm: ' + itemError.message
+                });
+            }
+        }
+
+        //tính tổng tiền 
+        let totalPrice = cartDetails.reduce((sum, item) =>  {
+            return sum + (item.price * item.quantity);
+        }, 0);
+
+        //tính phí giao hàng
+        const shipping = 1000000;
+        let deliveryFee = 0;
+        if(totalPrice > 0 && totalPrice < shipping){
+            deliveryFee = 30000;
+        }
+
+        //xử lý voucher 
+        let voucherDiscount = 0;
+        let voucherId = null;
+        if(voucher_code){
+            try {
+                const voucherResult = await validateVoucher(
+                    voucher_code,
+                    totalPrice + deliveryFee
+                );
+
+                if(voucherResult && voucherResult.valid){
+                    voucherDiscount = voucherResult.discount || 0;
+                    voucherId = voucherResult.voucher?._id || null;
+                }
+            } catch (voucherError) {
+                console.error('❌ Lỗi khi validate voucher:', voucher_code, voucherError);
+                // Không block checkout nếu voucher lỗi, chỉ bỏ qua voucher
+                console.warn('⚠️ Bỏ qua voucher do lỗi, tiếp tục checkout không có voucher');
+            }
+        }
+
+        const finalAmount = totalPrice + deliveryFee - voucherDiscount;
+
+        if(finalAmount <= 0){
+            return res.status(400).json({message: 'Tổng tiền không hợp lệ'});
+        }
+
+        //update cart thành order 
+        cart.status = 'PENDING';
+        cart.payment_status= 'PENDING';
+        cart.receiver_name = receiver_name;
+        cart.receiver_mobile = receiver_mobile;
+        cart.receiver_address = receiver_address;
+        cart.total_price = totalPrice;
+        cart.delivery_fee = deliveryFee;
+        if(voucherId){
+            cart.voucher_id = voucherId;
+            //tăng số lượt sử dụng voucher
+            try {
+                await useVoucher(voucher_code);
+            } catch (useVoucherError) {
+                console.error('❌ Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
+                // Không block checkout, chỉ log lỗi
+            }
+        }
+        
+        try {
+            await cart.save();
+        } catch (saveError) {
+            console.error('❌ Lỗi khi save cart:', saveError);
+            throw new Error('Lỗi khi lưu đơn hàng: ' + saveError.message);
+        }
+
+        //tạo vnpay transaction ID 
+        const vnpayOrderId = cart.order_code;
+
+        //lưu transaction id vào order
+        cart.vnpay_transaction_id = vnpayOrderId;
+        try {
+            await cart.save();
+        } catch (saveError) {
+            console.error('❌ Lỗi khi save vnpay_transaction_id:', saveError);
+            throw new Error('Lỗi khi lưu transaction ID: ' + saveError.message);
+        }
+
+        //tạo payment url
+        // Lấy IP từ request (từ header X-Forwarded-For nếu có proxy, hoặc req.ip)
+        const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() 
+                      || req.headers['x-real-ip'] 
+                      || req.ip 
+                      || req.connection.remoteAddress 
+                      || '127.0.0.1';
+        
+        let paymentUrl;
+        try {
+            paymentUrl = buildPayment(finalAmount, vnpayOrderId, clientIp);
+            if (!paymentUrl) {
+                throw new Error('buildPayment trả về null/undefined');
+            }
+        } catch (buildPaymentError) {
+            console.error('❌ Lỗi khi build payment URL:', buildPaymentError);
+            throw new Error('Lỗi khi tạo payment URL: ' + buildPaymentError.message);
+        }
+
+        return res.status(200).json({
+            success: true,
+            orderId: cart._id,
+            orderCode: cart.order_code,
+            paymentUrl: paymentUrl,
+            amount: finalAmount
+        });
+        
+    }catch(error){
+        console.error('❌ ========== LỖI CHECKOUT ==========');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Error name:', error.name);
+        if (error.response) {
+            console.error('Error response:', error.response);
+        }
+        console.error('=====================================');
+        
+        return res.status(500).json({ 
+            message: 'Lỗi server khi xử lý thanh toán',
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+}

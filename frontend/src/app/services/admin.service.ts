@@ -13,7 +13,8 @@ export interface ProductBasic {
   providedIn: 'root'
 })
 export class AdminService {
-    private apiUrl = 'http://localhost:3000/api/admin';
+    // Sử dụng relative URL - nginx sẽ proxy đến backend
+    private apiUrl = '/api/admin';
 
     constructor(private http: HttpClient) { }
     
