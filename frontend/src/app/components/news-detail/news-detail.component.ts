@@ -26,6 +26,8 @@ export class NewsDetailComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const slug = params.get('slug');
 
+      console.log('Slug trên URL:', slug);
+
       if (!slug) {
         this.loading = false;
         return;
@@ -35,10 +37,11 @@ export class NewsDetailComponent implements OnInit {
 
       this.newsService.getNewsBySlug(slug).subscribe({
         next: (res: any) => {
+          console.log('Res chi tiết bài viết:', res);
           this.article = res?.data || res;
           this.loading = false;
         },
-        error: (err: any) => {              // 🔧 err: any để hết TS7006
+        error: (err: any) => {
           console.error('Lỗi load bài viết:', err);
           this.loading = false;
         }
@@ -60,7 +63,7 @@ export class NewsDetailComponent implements OnInit {
     img.onerror = null;
   }
 
-  // Dùng cho phần *ngFor="let tag of tags" trong HTML
+  // Dùng cho *ngFor="let tag of tags"
   get tags(): string[] {
     if (!this.article || !this.article.tags) return [];
 

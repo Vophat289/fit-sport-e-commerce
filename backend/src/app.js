@@ -9,9 +9,9 @@ import accountRoutes from './routes/account.routes.js';
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
-import newsRoutes from './routes/news.routes.js';
+// import newsRoutes from './routes/news.routes.js';
 
-import adminRoutes from './routes/admin.routes.js';
+// import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
@@ -69,13 +69,13 @@ app.use("/api/cart", cartRoutes);
 
 // Kết nối route admin
 app.use("/api/contact", contactRoutes);
-app.use("/api/news", newsRoutes);  
+// app.use("/api/news", newsRoutes);  
 
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
-app.use('/api/admin', adminRoutes);
+// app.use('/api/admin', adminRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 
 app.get("/", (req, res) => {

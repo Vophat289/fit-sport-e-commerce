@@ -10,13 +10,18 @@
     <article class="news-card" *ngFor="let item of paginatedNews">
       
       <!-- Thumbnail + hover -->
-      <a [routerLink]="['/news', item.slug]" class="thumb-link">
+      <a
+        class="thumb-link"
+        *ngIf="item.slug"
+        [routerLink]="'/news/' + item.slug"
+      >
         <div class="img-box">
-         <img 
-          [src]="newsService.getThumbnailUrl(item.thumbnail)" 
-          [alt]="item.title"
-          loading="lazy"
-          (error)="handleImageError($event)">
+          <img 
+            [src]="newsService.getThumbnailUrl(item.thumbnail)" 
+            [alt]="item.title"
+            loading="lazy"
+            (error)="handleImageError($event)"
+          >
           <div class="overlay">
             <span class="read-more-text">Xem chi tiết</span>
           </div>
@@ -26,9 +31,14 @@
       <!-- Nội dung -->
       <div class="content-box">
         <h2 class="news-title">
-          <a [routerLink]="['/news', item.slug]" [title]="item.title">
+          <a
+            *ngIf="item.slug"
+            [routerLink]="'/news/' + item.slug"
+            [title]="item.title"
+          >
             {{ item.title }}
           </a>
+          <span *ngIf="!item.slug">{{ item.title }}</span>
         </h2>
 
         <p class="news-desc" *ngIf="item.short_desc">
@@ -43,14 +53,18 @@
           </span>
         </div>
 
-        <a [routerLink]="['/news', item.slug]" class="readmore">
+        <a
+          *ngIf="item.slug"
+          [routerLink]="'/news/' + item.slug"
+          class="readmore"
+        >
           Đọc thêm
         </a>
       </div>
     </article>
   </div>
 
-  <!-- Phân trang -->
+  <!-- Pagination -->
   <div class="pagination-wrapper" *ngIf="totalPages > 1">
     <button 
       class="pagination-btn prev" 

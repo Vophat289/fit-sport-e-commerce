@@ -48,7 +48,7 @@ export class NewsAdminComponent implements OnInit {
   isLoading = false;
   message: { type: 'success' | 'error'; text: string } | null = null;
 
-  private readonly apiUrl = 'https://fitsport.io.vn/api/news';
+  private readonly apiUrl = 'https://fitsport.io.vn/api/admin/news';
 
   // =============== CẤU HÌNH CLOUDINARY ===============
   // Cloud name thật của bạn
@@ -249,22 +249,22 @@ export class NewsAdminComponent implements OnInit {
 
   // ==================== TOGGLE HIDE ====================
   toggleHide(id: string, currentIsActive: boolean) {
-    if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
+  if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
 
-    this.isLoading = true;
+  this.isLoading = true;
     this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
-      next: () => {
-        this.showMessage(
-          'success',
-          currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
-        );
-        this.loadNews();
-      },
-      error: () => {
-        this.showMessage('error', 'Không thể thay đổi trạng thái');
-        this.isLoading = false;
-      }
-    });
+    next: () => {
+      this.showMessage(
+        'success',
+        currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
+      );
+      this.loadNews();
+    },
+    error: () => {
+      this.showMessage('error', 'Không thể thay đổi trạng thái');
+      this.isLoading = false;
+    }
+  });
   }
 
   // ==================== RESET FORM ====================

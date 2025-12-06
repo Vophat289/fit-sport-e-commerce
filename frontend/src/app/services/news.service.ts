@@ -21,11 +21,11 @@ export interface News {
 })
 export class NewsService {
 
-  private readonly API_URL = 'http://localhost:3000/api/admin/news';
-  private readonly BASE_URL = 'http://localhost:3000'; 
-  private readonly PLACEHOLDER = 'https://via.placeholder.com/400x250/dc2626/white?text=FITSPORT';
-
-  private readonly apiUrl = 'https://fitsport.io.vn/api/admin/news';
+  // ✅ Tự động chọn API theo môi trường (local / deploy)
+  private readonly API_URL =
+    window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/api/admin/news'
+      : 'https://fitsport.io.vn/api/admin/news';
 
   // ==== CLOUDINARY CONFIG ====
   private readonly CLOUDINARY_CLOUD_NAME = 'dolqwcawp';
@@ -34,36 +34,40 @@ export class NewsService {
   private readonly placeholderImage = 'assets/no-image.png';
   // ============================
 
-
   constructor(private http: HttpClient) {}
 
+  // 🔹 Danh sách public cho trang /news
   getPublicNews(page: number = 1): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/public?page=${page}`);
+    return this.http.get<any>(`${this.API_URL}/public?page=${page}`);
   }
 
-  getLatestNews(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/latest`);
+  // 🔹 Tin mới nhất cho trang chủ
+  getLatestNews(limit: number = 6): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/latest?limit=${limit}`);
   }
 
+  // 🔹 Chi tiết bài viết theo slug – KHỚP BACKEND:
+  // router.get('/detail/:slug', getNewsDetailBySlug);
   getNewsBySlug(slug: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/detail/${slug}`);
+    return this.http.get<any>(`${this.API_URL}/detail/${slug}`);
   }
 
   // ==== Hiển thị ảnh ====
   getThumbnailUrl(thumbnail?: string): string {
-  if (!thumbnail) return this.placeholderImage;
+    if (!thumbnail) return this.placeholderImage;
 
-  // FIX tất cả trường hợp localhost
-  thumbnail = thumbnail
-    .replace('http://localhost:3000', 'https://fitsport.io.vn')
-    .replace('https://localhost:3000', 'https://fitsport.io.vn')
-    .replace('http://127.0.0.1:3000', 'https://fitsport.io.vn');
+    // FIX tất cả trường hợp localhost -> domain thật
+    thumbnail = thumbnail
+      .replace('http://localhost:3000', 'https://fitsport.io.vn')
+      .replace('https://localhost:3000', 'https://fitsport.io.vn')
+      .replace('http://127.0.0.1:3000', 'https://fitsport.io.vn');
 
-  if (thumbnail.startsWith('http://') || thumbnail.startsWith('https://')) {
-    return thumbnail;
-  }
+    // Nếu đã là URL đầy đủ -> dùng luôn
+    if (thumbnail.startsWith('http://') || thumbnail.startsWith('https://')) {
+      return thumbnail;
+    }
 
-
+    // Ngược lại: build URL Cloudinary với transform
     const transformation = 'w_800,h_450,c_fill/';
     return `${this.CLOUDINARY_BASE_URL}${transformation}${thumbnail}`;
   }

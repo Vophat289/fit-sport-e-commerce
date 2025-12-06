@@ -38,7 +38,8 @@
         [src]="getThumbnailUrl()" 
         [alt]="article.title" 
         class="news-img"
-        (error)="handleImageError($event)">
+        (error)="handleImageError($event)"
+      >
     </figure>
 
     <!-- Nội dung -->
@@ -47,11 +48,13 @@
     <!-- Tags -->
     <div class="related-tags" *ngIf="tags.length">
       <strong>Tags:</strong>
-      <a *ngFor="let tag of tags"
-         [routerLink]="['/news']"
-         [queryParams]="{ tag: tag }"
-         class="tag-pill">
-         #{{ tag }}
+      <a
+        *ngFor="let tag of tags"
+        [routerLink]="['/news']"
+        [queryParams]="{ tag: tag }"
+        class="tag-pill"
+      >
+        #{{ tag }}
       </a>
     </div>
 

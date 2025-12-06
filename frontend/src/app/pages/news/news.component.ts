@@ -75,7 +75,7 @@ export class NewsComponent implements OnInit, OnDestroy {
   // =================== HANDLE IMAGE ERROR ===================
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/400x250/000000/FFFFFF?text=FITSPORT';
+    // img.src = 'https://via.placeholder.com/400x250/000000/FFFFFF?text=FITSPORT';
     img.onerror = null;
   }
 

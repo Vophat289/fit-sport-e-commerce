@@ -187,7 +187,7 @@ export const toggleHideNews = async (req, res) => {
   }
 };
 
-// 5️⃣ Xóa bài viết
+// // 5️⃣ Xóa bài viết
 export const deleteNews = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -256,7 +256,7 @@ export const getNewsDetailBySlug = async (req, res) => {
     const { slug } = req.params;
     if (!slug) return res.status(400).json({ success: false, message: "Thiếu slug" });
 
-    const news = await News.findOne({ slug });
+    const news = await News.findOne({ slug, isActive: true });
     if (!news) return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
 
     res.json({ success: true, data: news });
