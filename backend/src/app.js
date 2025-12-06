@@ -20,6 +20,7 @@ import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 import adminNewsRoutes from './routes/admin/news.admin.routes.js';
 import vnpayRoute from "./routes/vnpay.route.js";
+import { returnUrl } from "./controllers/vnpay.controller.js";
 
 
 EventEmitter.defaultMaxListeners = 20;
@@ -76,6 +77,9 @@ app.use('/api/admin', adminRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 
 app.use("/api/vnpay", vnpayRoute);
+
+// Route cho VNPay return URL - VNPay merchant portal đã cấu hình URL này
+app.get("/api/payment-success/return", returnUrl);
 
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");

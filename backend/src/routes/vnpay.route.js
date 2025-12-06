@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPayment, ipn, returnUrl } from "../controllers/vnpay.controller.js                                                                                                                                                                                                                                                               "
+import { createPayment, ipn, returnUrl } from "../controllers/vnpay.controller.js"
 
 const router = Router();
 
