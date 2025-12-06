@@ -399,7 +399,12 @@ export const checkout = async (req, res) => {
                       || req.headers['x-real-ip'] 
                       || req.ip 
                       || req.connection.remoteAddress 
+                      || req.socket?.remoteAddress
                       || '127.0.0.1';
+        
+        console.log('💰 Creating payment URL for order:', vnpayOrderId);
+        console.log('- Final amount:', finalAmount);
+        console.log('- Client IP:', clientIp);
         
         let paymentUrl;
         try {
@@ -407,8 +412,10 @@ export const checkout = async (req, res) => {
             if (!paymentUrl) {
                 throw new Error('buildPayment trả về null/undefined');
             }
+            console.log('✅ Payment URL created:', paymentUrl.substring(0, 100) + '...');
         } catch (buildPaymentError) {
             console.error('❌ Lỗi khi build payment URL:', buildPaymentError);
+            console.error('Error stack:', buildPaymentError.stack);
             throw new Error('Lỗi khi tạo payment URL: ' + buildPaymentError.message);
         }
 
