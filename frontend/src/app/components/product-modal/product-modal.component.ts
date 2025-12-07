@@ -5,8 +5,8 @@ export interface VariantSelection {
   colorId: string;
   colorName: string;
   quantity: number;
-  price: number; // Giá biến thể
-  stock: number; // Tồn kho của biến thể
+  price: number; 
+  stock: number;
 }
 
 // Interface chi tiết biến thể nhận được từ API
@@ -33,16 +33,18 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '@app/services/product.service';
+import { AuthService } from '@app/services/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-product-modal',
-  standalone: true, // Nếu bạn dùng Angular v16+ standalone
+  standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './product-modal.component.html', // Dùng template đã tách
+  templateUrl: './product-modal.component.html',
   styleUrls: ['./product-modal.component.css'],
 })
 export class ProductModalComponent implements OnChanges {
-  // --- INPUTS & OUTPUTS ---
 
   @Input() isModalOpen: boolean = false;
   @Input() selectedProduct: Product | null = null;
@@ -50,7 +52,6 @@ export class ProductModalComponent implements OnChanges {
   @Output() closeModal = new EventEmitter<void>();
   @Output() confirmAddToCart = new EventEmitter<VariantSelection>();
 
-  // --- THUỘC TÍNH QUẢN LÝ BIẾN THỂ ---
 
   isVariantsLoading: boolean = false;
   
@@ -62,10 +63,9 @@ export class ProductModalComponent implements OnChanges {
   quantityToAdd: number = 1;
 
   currentVariantDetails: VariantDetails | null = null;
-  
-  constructor(private productService: ProductService) {}
+  stockMessage: string | null = null; 
+  constructor(private productService: ProductService,  private authService: AuthService, private router: Router ) {}
 
-  // Nghe sự thay đổi của Input (selectedProduct)
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedProduct'] && this.selectedProduct) {
       this.loadVariantData(this.selectedProduct);
@@ -75,20 +75,23 @@ export class ProductModalComponent implements OnChanges {
     }
   }
 
-  // --- LOGIC TẢI DỮ LIỆU BIẾN THỂ ---
-
   loadVariantData(product: Product): void {
     if (!product._id) return;
-    
-    this.isVariantsLoading = true;
-    this.resetSelection(); // Đảm bảo reset trước khi tải mới
+    // Kiểm tra login
+  if (!this.authService.isLoggedIn()) {
+    alert('Vui lòng đăng nhập để xem sản phẩm.');
+    this.router.navigate(['/login']);
+    return;
+  }
 
+    this.isVariantsLoading = true;
+    this.resetSelection();
     this.productService.getAvailableVariants(product._id).subscribe({
       next: (data: AvailableVariants) => {
         this.availableVariantSizes = data.availableSizes; 
         this.availableColors = data.availableColors;
 
-        // Tự động chọn biến thể đầu tiên (nếu có)
+        // Tự động chọn biến thể đầu tiên
         this.selectedSizeName =
           data.availableSizes.length > 0 ? data.availableSizes[0].name : null;
         this.selectedColorName =
@@ -107,9 +110,6 @@ export class ProductModalComponent implements OnChanges {
       },
     });
   }
-
-  // --- LOGIC CẬP NHẬT CHI TIẾT BIẾN THỂ (Giá & Tồn kho) ---
-
   updateVariantDetails(): void {
     if (!this.selectedProduct || !this.selectedSizeName || !this.selectedColorName) {
         this.currentVariantDetails = null;
@@ -152,9 +152,6 @@ export class ProductModalComponent implements OnChanges {
         });
     }
   }
-
-  // --- LOGIC QUẢN LÝ SỐ LƯỢNG ---
-
   decrementQuantity(): void {
     if (this.quantityToAdd > 1) this.quantityToAdd--;
   }
@@ -180,11 +177,8 @@ export class ProductModalComponent implements OnChanges {
     }
     
     this.quantityToAdd = value;
-    // Cập nhật lại giá trị input để đảm bảo nó đúng
     inputElement.value = value.toString();
   }
-
-  // --- LOGIC XÁC NHẬN VÀ ĐÓNG MODAL ---
   
   close(): void {
     this.closeModal.emit();
@@ -200,12 +194,10 @@ export class ProductModalComponent implements OnChanges {
   }
 
   resetModalState(): void {
-      // Reset trạng thái để modal không giữ lại dữ liệu cũ khi mở lần sau
       this.resetSelection();
       this.isVariantsLoading = false;
   }
   
-  // Xác nhận, tạo payload và gửi lên component cha
   onConfirmAddToCart(): void {
     if (
         !this.selectedProduct ||

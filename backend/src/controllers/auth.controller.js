@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { sendEmail } from '../services/emailService.js';
 import EmailValidator from 'email-deep-validator';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fitsport_2025';
 

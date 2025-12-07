@@ -4,6 +4,7 @@ import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import slugify from "slugify";
 import { error } from "console";
+import ProductsVariant from "../models/productsVariant.model.js";
 
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
@@ -22,16 +23,52 @@ export const getAllProducts = async (req, res) => {
 export const getProductBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    const product = await Product.findOne({ slug }).populate(
-      "category",
-      "name"
-    );
+    const product = await Product.findOne({ slug })
+    .populate("category", "name")
+    .lean();
+
 
     //kiểm tra sản phẩm có tồn tại k
     if (!product) {
       return res.status(404).json({ message: "Không tìm thấy sản phẩm !" });
     }
-    res.json(product);
+    const variants = await ProductsVariant.find({ product_id: product._id })
+      .populate("size_id")
+      .populate("color_id")
+      .lean();
+    const availableSizes = [];
+    const sizeSet = new Set();
+
+    variants.forEach(v => {
+      if (v.size_id && !sizeSet.has(v.size_id._id.toString())) {
+        sizeSet.add(v.size_id._id.toString());
+        availableSizes.push({
+          id: v.size_id._id,
+          name: v.size_id.name
+        });
+      }
+    });
+
+    const availableColors = [];
+    const colorSet = new Set();
+
+    variants.forEach(v => {
+      if (v.color_id && !colorSet.has(v.color_id._id.toString())) {
+        colorSet.add(v.color_id._id.toString());
+        availableColors.push({
+          id: v.color_id._id,
+          name: v.color_id.name,
+          hex_code: v.color_id.hex_code || null
+        });
+      }
+    });
+
+    return res.json({
+      ...product,
+      variants,
+      availableSizes,
+      availableColors,
+    });
   } catch (error) {
     return res
       .status(500)

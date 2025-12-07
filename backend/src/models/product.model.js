@@ -59,9 +59,6 @@ const productSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-//tạo index cho slug để tìm kiếm nhanh hơn
-productSchema.index({slug: 1}); //1 là tăng dần
-
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;

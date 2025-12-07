@@ -3,7 +3,7 @@ import connectDB from './config/db.js';
 import app from './app.js';
 import { setupSocket } from './socket/index.js';
 
-dotenv.config()
+dotenv.config({ quiet: true })
 
 //kết nối db
 connectDB();

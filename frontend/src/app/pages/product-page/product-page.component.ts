@@ -5,17 +5,13 @@ import { CategoryService, Category } from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '@app/services/cart.service';
-// ⚠️ Cần import ProductModalComponent (tên component mới) vào imports của @Component
-// Giả sử tên component mới là 'ProductModalComponent' và selector là 'app-product-modal'
 import {
   ProductModalComponent,
   VariantSelection,
 } from '@app/components/product-modal/product-modal.component';
-// (Điều chỉnh đường dẫn import cho phù hợp với cấu trúc dự án của bạn)
 
 @Component({
   selector: 'app-product-page',
-  // Thêm ProductModalComponent vào imports để sử dụng trong template
   imports: [CommonModule, FormsModule, RouterLink, ProductModalComponent],
   templateUrl: './product-page.component.html',
   styleUrls: ['./product-page.component.css'],
@@ -24,8 +20,8 @@ export class ProductPageComponent implements OnInit {
   loading: boolean = true;
   categories: Category[] = [];
   selectedCategory: string | null = null;
-  allProducts: Product[] = []; // Danh sách gốc của sp kh bao giờ thay đổi
-  filteredProducts: Product[] = []; // Danh sách thay đổi khi lọc
+  allProducts: Product[] = [];
+  filteredProducts: Product[] = [];
 
   // Dùng cho bộ lọc (filter)
   availableSizes: string[] = [];
@@ -40,11 +36,11 @@ export class ProductPageComponent implements OnInit {
     },
   };
 
-  // Thuộc tính QUẢN LÝ MODAL (được giữ lại để kiểm soát hiển thị modal)
+  // Dùng cho modal
   isModalOpen: boolean = false;
   selectedProduct: Product | null = null;
 
-  private pendingCategorySlug: string | null = null; // dùng cho route
+  private pendingCategorySlug: string | null = null;
 
   constructor(
     private productService: ProductService,
@@ -60,8 +56,6 @@ export class ProductPageComponent implements OnInit {
     this.loadCategories();
     this.listenToRouteCategory();
   }
-
-  // --- LOGIC LỌC SẢN PHẨM (GIỮ NGUYÊN) ---
 
   loadProducts(): void {
     this.loading = true;
@@ -150,7 +144,7 @@ export class ProductPageComponent implements OnInit {
     if (this.pendingCategorySlug) {
       this.filterByCategory(this.pendingCategorySlug);
     } else {
-      this.resetFilters(); // Dùng resetFilters thay vì resetFilter
+      this.resetFilters();
     }
   }
 
@@ -228,16 +222,14 @@ export class ProductPageComponent implements OnInit {
     });
   }
 
-  // --- LOGIC GIAO TIẾP VỚI MODAL (Thay thế cho các hàm Modal cũ) ---
-
-  // Mở modal (Trigger modal component)
+  // Mở modal
   openVariantModal(product: Product): void {
     this.selectedProduct = product;
     this.isModalOpen = true;
     this.cdr.detectChanges();
   }
 
-  // Đóng modal (Nhận sự kiện từ modal component)
+  // Đóng modal
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedProduct = null;
@@ -253,14 +245,14 @@ export class ProductPageComponent implements OnInit {
     const cartPayload = {
       productId: this.selectedProduct!._id as string,
       name: this.selectedProduct!.name,
-      price: payload.price, // Giá biến thể
+      price: payload.price,
       image: imageString,
       sizeId: payload.sizeId,
       sizeName: payload.sizeName,
       colorId: payload.colorId,
       colorName: payload.colorName,
-      quantityToAdd: payload.quantity, // đổi sang quantityToAdd
-      stock: payload.stock, // tồn kho thực tế
+      quantityToAdd: payload.quantity,
+      stock: payload.stock,
     };
 
     this.cartService.getCartDetails().subscribe((cartData) => {
