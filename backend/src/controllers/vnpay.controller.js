@@ -36,26 +36,26 @@ export async function ipn(req, res){
     }
 
     //chỉ xử lí nếu order chưa đc cập nhật
-    if(order.payment_status === 'PAID'){
+    if(order.payment_status === 'SUCCESS'){
         return res.json({ RspCode: "00", Message: "Đã được xử lý"})
     }
     
     if(vnp_ResponseCode === "00" && vnp_TransactionStatus === "00"){
-        //update trạng thái đơn hàng
-        order.payment_status = 'PAID';
+        //update trạng thái đơn hàng - Thanh toán thành công
+        order.payment_status = 'SUCCESS';
         order.status = 'PENDING'; //giữ PENDING, admin sẽ xử lí đơn hàng
         await order.save();
 
         return res.json({ RspCode: "00", Message: "Thanh toán thành công"})
     }else{
-        order.payment_status = 'PENDING';
-        //giữ status pending để khách ngta có thể thử lại
+        //update trạng thái đơn hàng - Thanh toán thất bại
+        order.payment_status = 'FAILED';
         await order.save();
 
         return res.json({ RspCode: "07", Message: "Giao dịch không thành công"})
     }
    }catch(error){
-        console.error('IPN Error:', error);
+        console.error('Lỗi xử lý IPN:', error);
         return res.json({ RspCode: "99", Message: "Lỗi server khi xử lý IPN" });
    }
 }
@@ -63,21 +63,21 @@ export async function ipn(req, res){
 //user redirect về sau khi thanh toán
 export async function returnUrl(req, res){
     try{
-        console.log('=== VNPay Return URL Called ===');
-        console.log('Query params:', JSON.stringify(req.query, null, 2));
+        console.log('=== VNPay Return URL được gọi ===');
+        console.log('Tham số query:', JSON.stringify(req.query, null, 2));
         
         const vnp_TxnRef = req.query.vnp_TxnRef;
         const vnp_ResponseCode = req.query.vnp_ResponseCode;
 
         //verify lại
         const result = verifyIpn(req.query);
-        console.log('Verify result:', result);
+        console.log('Kết quả xác thực:', result);
 
         if(!result.isVerified){
-            console.log('❌ Checksum verification failed');
+            console.log('Xác thực checksum thất bại');
             const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
             const redirectUrl = `${frontendUrl}/payment-success?success=false&code=97`;
-            console.log('Redirecting to:', redirectUrl);
+            console.log('Chuyển hướng đến:', redirectUrl);
             return res.redirect(redirectUrl);
         }
 
@@ -87,33 +87,57 @@ export async function returnUrl(req, res){
         });
 
         if(!order){
-            console.log('❌ Order not found for transaction:', vnp_TxnRef);
+            console.log('Không tìm thấy đơn hàng cho giao dịch:', vnp_TxnRef);
             const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
             const redirectUrl = `${frontendUrl}/payment-success?success=false&code=01`;
-            console.log('Redirecting to:', redirectUrl);
+            console.log('Chuyển hướng đến:', redirectUrl);
             return res.redirect(redirectUrl);
         }
 
-        console.log('✅ Order found:', order._id);
+        console.log('Tìm thấy đơn hàng:', order._id);
+
+        // chuyển status giao dịch 
+        const vnp_TransactionStatus = req.query.vnp_TransactionStatus;
 
         // Redirect về frontend với thông tin
         const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
         
-        if(vnp_ResponseCode === "00"){
+        if(vnp_ResponseCode === "00" && vnp_TransactionStatus === "00"){
+
+            // Chỉ update nếu chưa được update k bị duplicate
+            if(order.payment_status !== 'SUCCESS'){
+                order.payment_status = 'SUCCESS';
+                order.status = 'PENDING'; // Giữ PENDING, admin sẽ xử lý đơn hàng
+                await order.save();
+
+                console.log('Cập nhật database thành công: payment_status = SUCCESS cho đơn hàng:', order._id);
+
+            } else {
+                console.log('Đơn hàng đã được cập nhật thành SUCCESS, bỏ qua cập nhật');
+            }
+
             const redirectUrl = `${frontendUrl}/payment-success?success=true&code=00&orderId=${order._id}&orderCode=${order.order_code}`;
-            console.log('✅ Payment successful, redirecting to:', redirectUrl);
+            console.log('Thanh toán thành công, chuyển hướng đến:', redirectUrl);
             return res.redirect(redirectUrl);
         } else {
+            // Update trạng thái thanh toán thất bại
+            if(order.payment_status !== 'FAILED'){
+                order.payment_status = 'FAILED';
+                await order.save();
+                console.log('Cập nhật database: payment_status = FAILED cho đơn hàng:', order._id);
+            }
+            
+            console.log(`Thanh toán thất bại: ResponseCode=${vnp_ResponseCode}, TransactionStatus=${vnp_TransactionStatus}`);
             const redirectUrl = `${frontendUrl}/payment-success?success=false&code=${vnp_ResponseCode}`;
-            console.log('❌ Payment failed, redirecting to:', redirectUrl);
+            console.log('Chuyển hướng đến:', redirectUrl);
             return res.redirect(redirectUrl);
         }
     }catch(error){
-        console.error('❌ Return URL Error:', error);
-        console.error('Error stack:', error.stack);
+        console.error('Lỗi Return URL:', error);
+        console.error('Chi tiết lỗi:', error.stack);
         const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
         const redirectUrl = `${frontendUrl}/payment-success?success=false&code=99`;
-        console.log('Redirecting to:', redirectUrl);
+        console.log('Chuyển hướng đến:', redirectUrl);
         return res.redirect(redirectUrl);
     }
 }

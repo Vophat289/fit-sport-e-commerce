@@ -12,9 +12,9 @@ export const getDashboardData = async (req, res) => {
             status: { $ne: 'CART' }
         });
         
-        // Tính tổng doanh thu từ các đơn hàng đã thanh toán (PAID)
+        // Tính tổng doanh thu từ các đơn hàng đã thanh toán 
         const paidOrders = await Oders.find({
-            payment_status: 'PAID',
+            payment_status: 'SUCCESS',
             status: { $ne: 'CART' }
         });
         

@@ -288,7 +288,7 @@ export const checkout = async (req, res) => {
                 // Đảm bảo variant_id là ObjectId
                 const variantId = item.variant_id?._id || item.variant_id;
                 if (!variantId) {
-                    console.error('❌ Cart item không có variant_id:', item);
+                    console.error('Cart item không có variant_id:', item);
                     return res.status(400).json({ 
                         message: 'Cart item không hợp lệ: thiếu variant_id'
                     });
@@ -296,7 +296,7 @@ export const checkout = async (req, res) => {
                 
                 const variant = await ProductsVariant.findById(variantId);
                 if(!variant){
-                    console.error('❌ Không tìm thấy variant:', variantId);
+                    console.error('Không tìm thấy variant:', variantId);
                     return res.status(400).json({ 
                         message: 'Không tìm thấy thông tin sản phẩm'
                     });
@@ -309,7 +309,7 @@ export const checkout = async (req, res) => {
                     });
                 }
             } catch (itemError) {
-                console.error('❌ Lỗi khi validate tồn kho item:', item, itemError);
+                console.error('Lỗi khi validate tồn kho item:', item, itemError);
                 return res.status(400).json({ 
                     message: 'Lỗi khi kiểm tra tồn kho sản phẩm: ' + itemError.message
                 });
@@ -343,9 +343,9 @@ export const checkout = async (req, res) => {
                     voucherId = voucherResult.voucher?._id || null;
                 }
             } catch (voucherError) {
-                console.error('❌ Lỗi khi validate voucher:', voucher_code, voucherError);
+                console.error('Lỗi khi validate voucher:', voucher_code, voucherError);
                 // Không block checkout nếu voucher lỗi, chỉ bỏ qua voucher
-                console.warn('⚠️ Bỏ qua voucher do lỗi, tiếp tục checkout không có voucher');
+                console.warn('Bỏ qua voucher do lỗi, tiếp tục checkout không có voucher');
             }
         }
 
@@ -357,7 +357,7 @@ export const checkout = async (req, res) => {
 
         //update cart thành order 
         cart.status = 'PENDING';
-        cart.payment_status= 'PENDING';
+        cart.payment_status = 'INIT'; // Tạo đơn hàng → chưa thanh toán
         cart.receiver_name = receiver_name;
         cart.receiver_mobile = receiver_mobile;
         cart.receiver_address = receiver_address;
@@ -369,7 +369,7 @@ export const checkout = async (req, res) => {
             try {
                 await useVoucher(voucher_code);
             } catch (useVoucherError) {
-                console.error('❌ Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
+                console.error('Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
                 // Không block checkout, chỉ log lỗi
             }
         }
@@ -377,19 +377,20 @@ export const checkout = async (req, res) => {
         try {
             await cart.save();
         } catch (saveError) {
-            console.error('❌ Lỗi khi save cart:', saveError);
+            console.error('Lỗi khi lưu giỏ hàng:', saveError);
             throw new Error('Lỗi khi lưu đơn hàng: ' + saveError.message);
         }
 
         //tạo vnpay transaction ID 
         const vnpayOrderId = cart.order_code;
 
-        //lưu transaction id vào order
+        //lưu transaction id vào order và chuyển sang PENDING 
         cart.vnpay_transaction_id = vnpayOrderId;
+        cart.payment_status = 'PENDING'; // User đã chuyển sang VNPay nhưng chưa callback
         try {
             await cart.save();
         } catch (saveError) {
-            console.error('❌ Lỗi khi save vnpay_transaction_id:', saveError);
+            console.error('Lỗi khi lưu vnpay_transaction_id:', saveError);
             throw new Error('Lỗi khi lưu transaction ID: ' + saveError.message);
         }
 
@@ -402,9 +403,9 @@ export const checkout = async (req, res) => {
                       || req.socket?.remoteAddress
                       || '127.0.0.1';
         
-        console.log('💰 Creating payment URL for order:', vnpayOrderId);
-        console.log('- Final amount:', finalAmount);
-        console.log('- Client IP:', clientIp);
+        console.log('Đang tạo payment URL cho đơn hàng:', vnpayOrderId);
+        console.log('- Số tiền cuối cùng:', finalAmount);
+        console.log('- IP khách hàng:', clientIp);
         
         let paymentUrl;
         try {
@@ -412,10 +413,10 @@ export const checkout = async (req, res) => {
             if (!paymentUrl) {
                 throw new Error('buildPayment trả về null/undefined');
             }
-            console.log('✅ Payment URL created:', paymentUrl.substring(0, 100) + '...');
+            console.log('Đã tạo payment URL thành công:', paymentUrl.substring(0, 100) + '...');
         } catch (buildPaymentError) {
-            console.error('❌ Lỗi khi build payment URL:', buildPaymentError);
-            console.error('Error stack:', buildPaymentError.stack);
+            console.error('Lỗi khi tạo payment URL:', buildPaymentError);
+            console.error('Chi tiết lỗi:', buildPaymentError.stack);
             throw new Error('Lỗi khi tạo payment URL: ' + buildPaymentError.message);
         }
 
@@ -428,12 +429,12 @@ export const checkout = async (req, res) => {
         });
         
     }catch(error){
-        console.error('❌ ========== LỖI CHECKOUT ==========');
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        console.error('Error name:', error.name);
+        console.error('========== LỖI CHECKOUT ==========');
+        console.error('Thông báo lỗi:', error.message);
+        console.error('Chi tiết lỗi:', error.stack);
+        console.error('Tên lỗi:', error.name);
         if (error.response) {
-            console.error('Error response:', error.response);
+            console.error('Phản hồi lỗi:', error.response);
         }
         console.error('=====================================');
         

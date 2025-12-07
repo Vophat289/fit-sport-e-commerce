@@ -42,8 +42,8 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['PENDING', 'PAID', 'REFUNDED'],
-        default: 'PENDING',
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+        default: 'INIT',
     },
 
     // Khóa Ngoại 2 (FK2) - Tùy chọn (Chỉ cần nếu bạn có PaymentGateway Model)
