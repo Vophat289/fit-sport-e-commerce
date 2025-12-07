@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 export interface UserProfile {
   name: string;
@@ -24,23 +25,42 @@ export interface Address {
 
 export interface Order {
   _id: string;
-  orderNumber: string;
-  status: 'PENDING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | string;
-  orderDate: string;
-  totalAmount: number;
-  items: { productName: string; quantity: number; price: number }[];
+  order_code: string;
+  total_price: number;
+  delivery_fee: number;
+  status: string;
+  payment_status: string;
+  createdAt: string;
+
+  receiver_name?: string;
+  receiver_mobile?: string;
+  receiver_address?: string;
+  first_item_image_url?: string;
+  first_item_name?: string;
+}
+export interface ProductVariant {
+  _id: string;
+  size: string;
+  color: string;
+  price: number;
+  quantity: number;
 }
 
 export interface Voucher {
   code: string;
   discountValue: number;
   minOrderValue: number;
-  expiryDate: string; // 'dd/MM/yyyy'
+  expiryDate: string;
   description: string;
   status?: 'ACTIVE' | 'EXPIRING' | 'EXPIRED';
   expiryTime?: number;
 }
-
+export interface SimpleProductDetail {
+    _id: string;
+    name: string;
+    slug?: string;
+    image?: string[];
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -99,12 +119,41 @@ export class AccountService {
 
   // ORDERS
   getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/orders`);
+    return this.http.get<Order[]>(`/api/orders/account/my-orders`);
   }
 
-  getOrderDetail(id: string): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/orders/${id}`);
+  getOrderDetail(id: string): Observable<any> {
+    return this.http.get(`/api/orders/account/${id}`);
   }
+  getProductDetailById(productId: string): Observable<SimpleProductDetail> {
+    // 1. Tải danh sách sản phẩm để tìm SLUG
+    return this.http.get<SimpleProductDetail[]>(`${this.baseUrl}/api/products/`).pipe(
+        map((products: SimpleProductDetail[]) => {
+            const foundProduct = products.find(p => p._id === productId);
+            
+            if (foundProduct && foundProduct.slug) {
+                // Trả về slug nếu tìm thấy
+                return foundProduct.slug;
+            }
+            
+            throw new Error(`Product with ID ${productId} or Slug not found in list.`);
+        }),
+        // 2. Dùng switchMap để chuyển từ SLUG sang gọi API chi tiết
+        switchMap((slug: string) => {
+            return this.http.get<SimpleProductDetail>(`${this.baseUrl}/api/products/${slug}`);
+        })
+    );
+}
+      cancelOrderApi(orderId: string): Observable<any> {
+        return this.http.put(`/api/orders/account/${orderId}/cancel`, {});
+      }
+      updateProductVariantStock(variantId: string, quantityToAdd: number): Observable<any> {
+        return this.http.put(`${this.apiUrl}/product-variants/${variantId}/stock/revert`, { quantityToAdd });
+      }
+      getVariantById(variantId: string): Observable<{ sizeName: string, colorName: string, price: number, quantity: number }> {
+        return this.http.get<{ sizeName: string, colorName: string, price: number, quantity: number }>(`/api/account/variant/${variantId}`);
+      }
+      
 
   // VOUCHERS
   getVouchers(): Observable<Voucher[]> {

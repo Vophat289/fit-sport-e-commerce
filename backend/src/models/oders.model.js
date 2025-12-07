@@ -35,7 +35,7 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Đơn hàng/Giỏ hàng
     status: {
         type: String,
-        enum: ['CART', 'PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+        enum: ['CART', 'PENDING', 'CONFIRMED','SHIPPING','SHIPPED', 'DELIVERED', 'CANCELLED'],
         default: 'CART', // Giỏ hàng sẽ có trạng thái là 'CART'
     },
     

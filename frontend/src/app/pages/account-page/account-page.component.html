@@ -139,39 +139,240 @@
           </div>
         </form>
       </ng-container>
-
       <!-- Orders Tab -->
       <ng-container *ngIf="currentTab === 'orders'">
-        <h2 class="order-page-title">Đơn hàng của tôi</h2>
-        <p class="order-summary">
-          Đang hiển thị {{ getFilteredOrders().length }} /
-          {{ getTotalFilteredOrdersCount() }} đơn hàng.
-        </p>
-        <div class="order-list-container">
-          <ng-container *ngFor="let order of getFilteredOrders()">
-            <div class="order-card">
-              <div class="order-actions">
-                <button
-                  class="detail-button"
-                  (click)="viewOrderDetail(order._id!)"
+        <div class="order-view-wrapper">
+          <ng-container *ngIf="!selectedOrder">
+            <h2 class="order-page-title">Đơn hàng của tôi</h2>
+            <p class="order-summary">
+              Đang hiển thị {{ getFilteredOrders().length }} /
+              {{ getTotalFilteredOrdersCount() }} đơn hàng.
+            </p>
+
+            <div class="order-list-container">
+              <ng-container *ngFor="let order of getFilteredOrders()">
+                <div class="order-card">
+                  <div class="order-image-column">
+                    <img
+                      [src]="
+                        order.first_item_image_url ||
+                        'assets/images/default-product.png'
+                      "
+                      alt="Sản phẩm"
+                      class="product-image"
+                    />
+                  </div>
+
+                  <div class="order-info">
+                    <div class="order-header-info">
+                      <p class="order-code-text">
+                        <strong>Mã đơn:</strong> {{ order.order_code }}
+                      </p>
+                      <p class="order-date-text">
+                        <strong>Ngày đặt:</strong>
+                        {{ order.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                      </p>
+                    </div>
+
+                    <div class="order-detail-info">
+                      <p class="first-item-name">
+                        <strong>{{
+                          order.first_item_name || "Đơn hàng gồm nhiều sản phẩm"
+                        }}</strong>
+                      </p>
+                      <p>
+                        <strong>Người nhận:</strong>
+                        {{ order.receiver_name }} – {{ order.receiver_mobile }}
+                      </p>
+                      <p>
+                        <strong>Địa chỉ:</strong> {{ order.receiver_address }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="order-actions">
+                    <div class="order-total-price">
+                      Tổng tiền:
+                      <span class="total-amount"
+                        >{{ order.total_price | number }}₫</span
+                      >
+                    </div>
+
+                    <button
+                      class="cancel-button-order"
+                      *ngIf="order.status.toUpperCase() === 'PENDING'"
+                      (click)="cancelOrder(order._id!)"
+                    >
+                      Hủy đơn hàng
+                    </button>
+
+                    <button
+                      class="detail-button"
+                      (click)="viewOrderDetail(order._id!)"
+                    >
+                      Chi tiết
+                    </button>
+
+                    <span
+                      class="order-status"
+                      [ngClass]="'status-' + order.status.toLowerCase()"
+                    >
+                      {{ getOrderStatusText(order.status) }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <div
+              class="load-more-orders-container"
+              *ngIf="ordersLimit < getTotalFilteredOrdersCount()"
+            >
+              <button
+                class="load-more-orders-button"
+                (click)="loadMoreOrders()"
+              >
+                Xem thêm đơn hàng ({{
+                  getTotalFilteredOrdersCount() - ordersLimit
+                }}
+                còn lại)
+              </button>
+            </div>
+          </ng-container>
+
+          <hr
+            class="section-separator"
+            *ngIf="!selectedOrder && getTotalFilteredOrdersCount() > 0"
+          />
+
+          <ng-container *ngIf="selectedOrder">
+            <div class="order-detail-container">
+              <button class="back-button" (click)="backToOrderList()">
+                ← Quay lại danh sách
+              </button>
+
+              <h2>Chi tiết đơn hàng #{{ selectedOrder.order_code }}</h2>
+
+              <div class="detail-header-info">
+                <div class="detail-receiver-info">
+                  <h3 class="info-title">Thông tin người nhận</h3>
+                  <p>
+                    <strong>Người nhận:</strong>
+                    {{ selectedOrder.receiver_name }} –
+                    {{ selectedOrder.receiver_mobile }}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong>
+                    {{ selectedOrder.receiver_address }}
+                  </p>
+                </div>
+
+                <div class="detail-date-status-info">
+                  <p class="order-date-time">
+                    <strong>Ngày đặt:</strong>
+                    {{ selectedOrder.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                  </p>
+                  <p class="order-status-line">
+                    <strong>Trạng thái:</strong>
+                    <span
+                      class="order-status"
+                      [ngClass]="'status-' + selectedOrder.status.toLowerCase()"
+                    >
+                      {{ getOrderStatusText(selectedOrder.status) }}
+                    </span>
+                  </p>
+
+                  <button
+                    class="cancel-button-order detail-cancel-btn"
+                    *ngIf="selectedOrder.status.toUpperCase() === 'PENDING'"
+                    (click)="cancelOrder(selectedOrder._id!)"
+                  >
+                    Hủy đơn hàng
+                  </button>
+                </div>
+              </div>
+              <hr />
+
+              <h3>Sản phẩm:</h3>
+              <div class="order-items-detail">
+                <div
+                  class="item-detail-card"
+                  *ngFor="let item of selectedOrderItems"
                 >
-                  Chi tiết
-                </button>
-                <p class="order-status-text">
-                  {{ getOrderStatusText(order.status) }}
-                </p>
+                  <img
+                    [src]="
+                      item.productDetail?.image[0] ||
+                      'assets/images/default-product.png'
+                    "
+                    alt="Sản phẩm"
+                    class="item-image-detail"
+                  />
+
+                  <div class="item-info-detail">
+                    <p class="item-name">
+                      <strong>{{
+                        item.productDetail?.name || "Đang tải tên..."
+                      }}</strong>
+                    </p>
+                    <p class="item-variant">
+                      <strong>Size:</strong> {{ item.variant.size }} |
+                      <strong>Màu:</strong> {{ item.variant.color }}
+                    </p>
+                    <p class="item-qty-price">
+                      <strong>Số lượng:</strong> {{ item.quantity }} x
+                      {{ item.price | number }}₫
+                    </p>
+                    <p class="item-subtotal">
+                      <strong style="color: black">Thành tiền: </strong>
+                      <strong
+                        >{{ item.quantity * item.price | number }}₫</strong
+                      >
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="payment-summary">
+                <div class="payment-actions">
+                  <button
+                    class="action-button refund-button"
+                    *ngIf="selectedOrder.status.toUpperCase() === 'DELIVERED' || selectedOrder.status.toUpperCase() === 'SHIPPED'"
+                    (click)="requestRefund(selectedOrder._id!)"
+                  >
+                    Yêu cầu Trả hàng/Hoàn tiền
+                  </button>
+
+                  <button
+                    class="action-button reorder-button"
+                    (click)="reorder(selectedOrder._id!)"
+                  >
+                    Mua lại đơn hàng
+                  </button>
+                </div>
+
+                <div class="payment-calculation">
+                  <p>
+                    <strong>Tổng tiền hàng:</strong>
+                    {{ selectedOrder.total_price | number }}₫
+                  </p>
+                  <p>
+                    <strong>Phí vận chuyển:</strong>
+                    {{ selectedOrder.delivery_fee | number }}₫
+                  </p>
+
+                  <h3 class="final-total">
+                    <strong>Tổng thanh toán:</strong>
+                    {{
+                      selectedOrder.total_price + selectedOrder.delivery_fee
+                        | number
+                    }}₫
+                  </h3>
+                </div>
               </div>
             </div>
           </ng-container>
-        </div>
-        <div
-          class="load-more-orders-container"
-          *ngIf="ordersLimit < getTotalFilteredOrdersCount()"
-        >
-          <button class="load-more-orders-button" (click)="loadMoreOrders()">
-            Xem thêm đơn hàng ({{ getTotalFilteredOrdersCount() - ordersLimit }}
-            còn lại)
-          </button>
         </div>
       </ng-container>
 
