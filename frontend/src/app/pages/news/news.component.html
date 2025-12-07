@@ -17,7 +17,7 @@
       >
         <div class="img-box">
           <img 
-            [src]="newsService.getThumbnailUrl(item.thumbnail)" 
+            [src]="item.displayThumbnail || newsService.getThumbnailUrl(item.thumbnail)" 
             [alt]="item.title"
             loading="lazy"
             (error)="handleImageError($event)"
@@ -48,8 +48,8 @@
         <div class="news-meta">
           <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
           <span class="separator">•</span>
-          <span class="tag" *ngIf="item.tags && item.tags.length > 0">
-            {{ item.tags[0] }}
+          <span class="tag" *ngIf="getFirstTag(item) as firstTag">
+            {{ firstTag }}
           </span>
         </div>
 

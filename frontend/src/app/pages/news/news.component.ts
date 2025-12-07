@@ -21,18 +21,12 @@ export class NewsComponent implements OnInit, OnDestroy {
   totalPages = 1;
   totalItems = 0;
 
-  // ❌ XÓA newsUpdateSubscription vì không còn dùng nữa
   private newsUpdateSubscription?: Subscription;
 
   constructor(public newsService: NewsService) {}
 
   ngOnInit(): void {
     this.loadNews(this.currentPage);
-
-    // ❌ XÓA SUBSCRIBE NÀY VÌ newsUpdated$ KHÔNG TỒN TẠI
-    // this.newsUpdateSubscription = this.newsService.newsUpdated$.subscribe(() => {
-    //   this.loadNews(this.currentPage);
-    // });
   }
 
   ngOnDestroy(): void {
@@ -43,10 +37,18 @@ export class NewsComponent implements OnInit, OnDestroy {
   loadNews(page: number = 1): void {
     this.newsService.getPublicNews(page).subscribe({
       next: (res: any) => {
-        this.news = (res.data || []).map((item: any) => ({
-          ...item,
-          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
-        }));
+        const raw: any[] = res.data || [];
+
+        this.news = raw.map((item: any) => {
+          const normalized: News = {
+            ...item,
+            slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled')
+          };
+          return {
+            ...normalized,
+            displayThumbnail: this.newsService.getThumbnailUrl(normalized.thumbnail)
+          };
+        });
 
         this.paginatedNews = this.news;
         this.currentPage = res.pagination?.currentPage || page;
@@ -75,13 +77,8 @@ export class NewsComponent implements OnInit, OnDestroy {
   // =================== HANDLE IMAGE ERROR ===================
   handleImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    // img.src = 'https://via.placeholder.com/400x250/000000/FFFFFF?text=FITSPORT';
     img.onerror = null;
-  }
-
-  // =================== THUMBNAIL HELPER CHO HTML ===================
-  getThumbnailUrl(thumbnail: string | undefined): string {
-    return this.newsService.getThumbnailUrl(thumbnail);
+    img.src = this.newsService.getThumbnailUrl();
   }
 
   // =================== SLUG GENERATOR ===================
@@ -96,4 +93,20 @@ export class NewsComponent implements OnInit, OnDestroy {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
   }
+
+  getFirstTag(item: News): string | null {
+  if (!item.tags) return null;
+
+  if (Array.isArray(item.tags)) {
+    return item.tags[0] || null;
+  }
+
+  // nếu backend trả string "a, b, c"
+  const arr = item.tags
+    .split(',')
+    .map(t => t.trim())
+    .filter(Boolean);
+
+  return arr[0] || null;
+}
 }

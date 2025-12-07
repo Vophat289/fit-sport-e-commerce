@@ -69,13 +69,12 @@ app.use("/api/cart", cartRoutes);
 
 // Kết nối route admin
 app.use("/api/contact", contactRoutes);
-// app.use("/api/news", newsRoutes);  
+ 
 
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
-// app.use('/api/admin', adminRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 
 app.get("/", (req, res) => {

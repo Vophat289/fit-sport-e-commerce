@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { NewsService } from '../../../services/news.service';
 
 interface News {
   _id?: string;
@@ -15,6 +16,8 @@ interface News {
   tags?: string[] | string;
   createdAt?: string;
   isActive?: boolean;
+
+  displayThumbnail?: string;
 }
 
 @Component({
@@ -48,21 +51,19 @@ export class NewsAdminComponent implements OnInit {
   isLoading = false;
   message: { type: 'success' | 'error'; text: string } | null = null;
 
-  private readonly apiUrl = 'https://fitsport.io.vn/api/admin/news';
+  // trạng thái popup
+  isModalOpen: boolean = false;
 
-  // =============== CẤU HÌNH CLOUDINARY ===============
-  // Cloud name thật của bạn
-  private readonly CLOUDINARY_CLOUD_NAME = 'dolqwcawp';
-  private readonly CLOUDINARY_BASE_URL =
-    `https://res.cloudinary.com/${this.CLOUDINARY_CLOUD_NAME}/image/upload/`;
-
-  // Ảnh placeholder khi không có thumbnail hoặc lỗi load
-  private readonly placeholderImage = 'assets/no-image.png';
-  // ===================================================
+  // API URL dùng được cả local lẫn production
+  private readonly apiUrl =
+    window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/api/admin/news'
+      : 'https://fitsport.io.vn/api/admin/news';
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private newsService: NewsService
   ) {}
 
   ngOnInit(): void {
@@ -70,22 +71,14 @@ export class NewsAdminComponent implements OnInit {
   }
 
   // ==================== HIỂN THỊ ẢNH ====================
+  // Chỉ còn 1 helper: gọi sang NewsService cho thống nhất
   getThumbnailUrl(thumbnail?: string): string {
-    if (!thumbnail) return this.placeholderImage;
-
-
-    if (thumbnail.startsWith('http://') || thumbnail.startsWith('https://')) {
-      return thumbnail;
-    }
-
-   
-    const transformation = 'w_90,h_90,c_fill/'; 
-    return `${this.CLOUDINARY_BASE_URL}${transformation}${thumbnail}`;
+    return this.newsService.getThumbnailUrl(thumbnail);
   }
 
   onImageError(event: any) {
     if (event?.target) {
-      (event.target as HTMLImageElement).src = this.placeholderImage;
+      (event.target as HTMLImageElement).src = this.newsService.getThumbnailUrl();
     }
   }
 
@@ -127,7 +120,14 @@ export class NewsAdminComponent implements OnInit {
     this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}?limit=1000`).subscribe({
       next: (res) => {
-        this.newsList = Array.isArray(res) ? res : (res?.data || []);
+        const rawList: News[] = Array.isArray(res) ? res : (res?.data || []);
+
+        // ✅ Tính sẵn URL ảnh -> tránh gọi hàm trong template, giảm “giật”
+        this.newsList = rawList.map((item) => ({
+          ...item,
+          displayThumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
+        }));
+
         this.applyFilter();
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -210,6 +210,7 @@ export class NewsAdminComponent implements OnInit {
           this.isEdit ? 'Cập nhật bài viết thành công!' : 'Đăng bài thành công!'
         );
         this.resetForm();
+        this.closeModal();    // sau khi lưu thì đóng popup
         this.loadNews();
       },
       error: (err) => {
@@ -232,39 +233,56 @@ export class NewsAdminComponent implements OnInit {
     };
     this.isEdit = true;
     this.selectedFile = null;
-    this.previewImageUrl = item.thumbnail ? this.getThumbnailUrl(item.thumbnail) : null;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.previewImageUrl = null; // để popup hiển thị “Ảnh hiện tại”
+
+    this.openModal();
     this.cdr.detectChanges();
   }
 
+  // ==================== POPUP ====================
+  // Mở popup để thêm bài viết mới
+  openCreateModal(): void {
+    this.isEdit = false;
+    this.resetForm();
+    this.isModalOpen = true;
+  }
+
+  // Mở popup (dùng khi sửa)
+  openModal(): void {
+    this.isModalOpen = true;
+  }
+
+  // Đóng popup
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
+
+  // ==================== ẢNH ====================
   removeSelectedImage() {
     this.selectedFile = null;
     this.previewImageUrl = null;
     this.resetFileInput();
-    if (this.isEdit && this.form.thumbnail) {
-      this.previewImageUrl = this.getThumbnailUrl(this.form.thumbnail);
-    }
     this.cdr.detectChanges();
   }
 
   // ==================== TOGGLE HIDE ====================
   toggleHide(id: string, currentIsActive: boolean) {
-  if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
+    if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
 
-  this.isLoading = true;
+    this.isLoading = true;
     this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
-    next: () => {
-      this.showMessage(
-        'success',
-        currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
-      );
-      this.loadNews();
-    },
-    error: () => {
-      this.showMessage('error', 'Không thể thay đổi trạng thái');
-      this.isLoading = false;
-    }
-  });
+      next: () => {
+        this.showMessage(
+          'success',
+          currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
+        );
+        this.loadNews();
+      },
+      error: () => {
+        this.showMessage('error', 'Không thể thay đổi trạng thái');
+        this.isLoading = false;
+      }
+    });
   }
 
   // ==================== RESET FORM ====================
