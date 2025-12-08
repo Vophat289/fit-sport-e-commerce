@@ -284,105 +284,513 @@ body {
   font-size: 14px;
   transition: background-color 0.3s, color 0.3s;
 }
-/* =======================================================
-    3. ORDER LIST STYLES
-========================================================== */
-.order-page-title {
-    font-size: 22px;
-    margin-top: 0;
-    color: #34495e;
-}
-
-.order-summary {
-    font-size: 14px;
-    color: #7f8c8d;
-    margin-bottom: 20px;
-}
-
-.order-status-tabs {
-    display: flex;
-    border-bottom: 2px solid #ecf0f1;
-    margin-bottom: 20px;
-    gap: 15px;
-}
-.order-tab {
-    background: none;
-    border: none;
-    padding: 10px 15px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    color: #7f8c8d;
-    transition: color 0.2s, border-bottom 0.2s;
-}
-.order-tab.active {
-    color: #3498db;
-    border-bottom: 2px solid #3498db;
-    font-weight: 600;
-}
-
+/*ORDER LIST STYLES*/
+/* Order Card */
 .order-card {
     display: flex;
-    flex-direction: column; /* Đặt lại layout thành column hoặc giữ flex-row tùy vào nội dung */
-    justify-content: space-between;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-    transition: box-shadow 0.2s;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 25px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    transition: 0.25s ease;
+    margin-bottom: 18px;
 }
 .order-card:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.05);
 }
 
-.order-actions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 15px;
-    margin-top: 10px;
+/* LEFT INFO - CỘT HÌNH ẢNH */
+.order-image-column .product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex: 0 0 auto;
 }
 
-.order-status-text {
+.order-info {
+    color: #111;
     font-weight: 600;
-    font-size: 15px;
+    flex: 1 1 auto; /* Chiếm hết khoảng trống giữa */
+    display: flex;
+    flex-direction: column;
+}
+
+.order-header-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+.order-header-info p {
     margin: 0;
 }
+.order-header-info .order-code-text {
+    font-weight: 700;
+    color: #333;
+}
+.order-header-info .order-date-text {
+    font-weight: 500;
+    color: #666;
+}
 
-.detail-button {
-    padding: 8px 18px;
-    border: 1px solid #3498db;
-    background: #3498db;
-    color: #fff;
-    border-radius: 6px;
-    cursor: pointer;
+.order-detail-info p {
+    margin: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+    color: #374151;
     font-size: 14px;
-    transition: background 0.2s;
 }
-.detail-button:hover {
-    background: #2980b9;
+.order-detail-info .first-item-name {
+    font-weight: 600;
+    color: #111;
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 15px;
 }
 
-.status-shipping { color: #f39c12; } /* Màu vàng/cam */
-.status-completed { color: #2ecc71; } /* Màu xanh lá */
-.status-canceled { color: #e74c3c; } /* Màu đỏ */
 
-.load-more-orders-container {
-    text-align: center;
-    margin-top: 20px;
+/* RIGHT ACTIONS - CỘT GIÁ VÀ NÚT */
+.order-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* Điều chỉnh để căn trên, dành cho bố cục mới */
+    justify-content: flex-start;
+    min-width: 140px; /* Thu nhỏ cột hành động */
+    gap: 8px; /* Khoảng cách giữa các phần tử */
+    padding-top: 4px; /* Căn chỉnh cho đẹp hơn */
 }
-.load-more-orders-button {
-    background: #ecf0f1;
-    color: #34495e;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 6px;
+
+.order-total-price {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 500;
+    text-align: right;
+}
+.total-amount {
+    font-weight: 700;
+    color: #dc2626; /* Màu đỏ nổi bật cho tổng tiền */
+    font-size: 16px;
+}
+
+/* Detail Button */
+.detail-button {
+    padding: 8px 18px; /* Giảm padding một chút */
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #007bff;
+    background: #007bff;
+    color: white;
     cursor: pointer;
     font-weight: 500;
-    transition: background 0.2s;
+    transition: 0.2s ease;
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
+
+.detail-button:hover {
+    background: #0066d6;
+    border-color: #0066d6;
+}
+
+/* Status text */
+.order-status {
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #fff;
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.order-image-column .product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;  
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+
+.item-detail-card .item-image-detail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 12px;
+}
+
+/* Trạng thái khác màu */
+.status-pending {
+  background-color: #f59e0b;
+}
+
+.status-confirmed {
+  background-color: #3b82f6;
+}
+
+.status-shipping {
+  background-color: #0ea5e9;
+}
+
+.status-shipped {
+  background-color: #14b8a6; 
+}
+
+.status-delivered {
+  background-color: #16a34a;
+}
+
+.status-cancelled {
+  background-color: #ef4444;
+}
+
+
+/* Load More */
+.load-more-orders-container {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.load-more-orders-button {
+    padding: 11px 28px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+    transition: 0.25s ease;
+}
+
 .load-more-orders-button:hover {
-    background: #bdc3c7;
+    background: #e5e7eb;
+}
+
+/* Style chung cho nút Hủy */
+.cancel-button-order {
+    padding: 8px 18px; 
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #ef4444;
+    background: #fef2f2;
+    color: #ef4444;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s ease;
+    width: 100%;
+    text-align: center;
+    margin-top: 4px; 
+    margin-bottom: 4px;
+}
+
+.cancel-button-order:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.order-actions .detail-button {
+    margin-top: 0; 
+    margin-bottom: 0;
+    order: 3;
+}
+
+.order-actions .cancel-button-order {
+    order: 2;
+    width: auto;
+    min-width: 100px;
+}
+
+.detail-date-status-info .detail-cancel-btn {
+    margin-top: 15px;
+    width: auto;
+    min-width: 150px;
+}
+/*ORDER DETAIL STYLES - MỚI*/
+.order-detail-container {
+    padding: 20px 0;
+}
+
+/* Nút Quay lại */
+.back-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 20px;
+    padding: 0;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
+/* Tiêu đề chính */
+.order-detail-container h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #222;
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
+}
+
+/* Thông tin Ngày đặt và Trạng thái */
+.detail-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb; /* Nền nhẹ cho phần thông tin nổi bật */
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+.detail-receiver-info .info-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.detail-header-info p {
+    margin: 0;
+    font-size: 15px;
+    color: #374151;
+}
+
+.detail-header-info strong {
+    color: #111;
+}
+
+/* Tiêu đề các phần nhỏ (Thông tin người nhận, Sản phẩm) */
+.order-detail-container h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+/* Phần thông tin người nhận */
+.order-detail-container p {
+    margin: 8px 0;
+    font-size: 15px;
+    color: #4b5563;
+}
+.order-detail-container p strong {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Các đường kẻ ngang */
+.order-detail-container hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 25px 0;
+}
+/* Danh sách Sản phẩm */
+.order-items-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-bottom: 20px;
+
+}
+.order-items-detail::-webkit-scrollbar {
+    width: 6px;
+}
+.order-items-detail::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+.order-items-detail::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Thẻ chi tiết sản phẩm */
+.item-detail-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid #f3f4f6;
+    border-radius: 8px;
+    background: #fff;
+    transition: 0.2s ease;
+}
+
+.item-detail-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Hình ảnh sản phẩm trong chi tiết */
+.item-detail-card .item-image-detail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 15px;
+    flex-shrink: 0; 
+}
+
+.item-info-detail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.item-info-detail p {
+    margin: 3px 0;
+    font-size: 14px;
+    color: #4b5563;
+    text-align: left;
+
+}
+.item-info-detail .item-name {
+    font-size: 16px;
+    color: #111;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+.item-info-detail .item-qty-price {
+    margin-bottom: 0;
+}
+.item-info-detail .item-subtotal {
+    margin-top: 8px;
+    font-size: 15px;
+    text-align: right;
+}
+.item-info-detail .item-subtotal strong {
+    color: #dc2626; 
+    font-size: 16px;
+}
+
+/* Tổng thanh toán */
+/* Tổng thanh toán (Container chính) */
+.payment-summary {
+    display: flex; /* Kích hoạt Flexbox */
+    justify-content: space-between; /* Đẩy nội dung ra hai bên */
+    align-items: flex-start; /* Căn trên */
+
+    background: #f0f4ff; 
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 1px solid #dbeafe;
+    margin-top: 30px;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.05);
+}
+
+.payment-summary:hover {
+    transform: none; /* Bỏ hover transform cho khối tổng thể */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.08);
+}
+
+/* KHỐI TÍNH TOÁN (BÊN PHẢI) */
+.payment-calculation {
+    text-align: right;
+    flex-shrink: 0; /* Không cho phép co lại */
+    width: 300px; /* Chiều rộng cố định cho cột tính toán */
+}
+
+.payment-calculation p {
+    margin: 6px 0;
+    font-size: 16px;
+    color: #374151;
+}
+
+.payment-calculation .final-total {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1d4ed8; 
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px dashed #bfdbfe;
+}
+
+
+/* KHỐI HÀNH ĐỘNG (BÊN TRÁI) */
+.payment-actions {
+    flex-grow: 1; /* Cho phép chiếm hết khoảng trống còn lại */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.payment-actions .action-button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-size: 14px;
+    width: 250px; /* Chiều rộng cố định cho nút */
+    text-align: center;
+}
+
+/* Style cho nút Trả hàng/Hoàn tiền */
+.refund-button {
+    background-color: #f59e0b; /* Màu cam */
+    color: white;
+    border: 1px solid #f59e0b;
+}
+.refund-button:hover {
+    background-color: #d97706;
+}
+
+/* Style cho nút Mua lại */
+.reorder-button {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+.reorder-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.payment-summary p {
+    margin: 6px 0;
+    font-size: 16px;
+    color: #374151;
+}
+
+/* Thêm highlight khi nhấn nút thanh toán */
+.payment-summary .pay-btn {
+    display: inline-block;
+    background-color: #1d4ed8;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.payment-summary .pay-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
 }
 
 

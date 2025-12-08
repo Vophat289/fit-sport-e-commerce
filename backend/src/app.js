@@ -10,6 +10,7 @@ import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsRoutes from './routes/news.routes.js';
+import orderRoutes from "./routes/order.routes.js";
 
 import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
@@ -64,6 +65,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Kết nối route admin
 app.use("/api/contact", contactRoutes);
