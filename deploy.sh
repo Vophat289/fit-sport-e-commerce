@@ -32,9 +32,13 @@ fi
 
 # Pull latest code
 echo "📥 Pulling latest code from repository..."
-git pull origin main || {
-    echo -e "${YELLOW}⚠️  Git pull failed. Attempting to resolve...${NC}"
-    # If pull fails due to .env conflict, reset and restore
+# Cấu hình Git để tự động merge khi có divergent branches
+git config pull.rebase false 2>/dev/null || true
+# Fetch và merge
+git fetch origin main
+git merge origin/main --no-edit || {
+    echo -e "${YELLOW}⚠️  Git merge failed. Resetting to origin/main...${NC}"
+    # Nếu merge thất bại, reset về origin/main (mất local changes)
     git reset --hard origin/main
 }
 
