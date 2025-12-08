@@ -8,6 +8,7 @@ set -e
 # Cấu hình
 EC2_HOST="3.27.137.100"
 EC2_USER="ubuntu"
+SSH_KEY="${SSH_KEY:-$HOME/Downloads/n8n_keypair.pem}"
 
 # Colors
 GREEN='\033[0;32m'
@@ -18,8 +19,22 @@ NC='\033[0m'
 echo -e "${GREEN}🔧 Fixing backend on EC2 server...${NC}"
 echo ""
 
+# Kiểm tra SSH key
+if [ ! -f "$SSH_KEY" ]; then
+    echo -e "${RED}❌ SSH key not found: $SSH_KEY${NC}"
+    echo -e "${YELLOW}💡 Set SSH_KEY environment variable or place key at: $SSH_KEY${NC}"
+    echo "   Example: SSH_KEY=~/path/to/key.pem ./fix-backend-remote.sh"
+    exit 1
+fi
+
+# Set permissions cho SSH key
+chmod 600 "$SSH_KEY" 2>/dev/null || true
+
+echo "🔑 Using SSH key: $SSH_KEY"
+echo ""
+
 # SSH vào server và fix
-ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
+ssh -i "$SSH_KEY" ${EC2_USER}@${EC2_HOST} << 'EOF'
   set -e
   
   echo "📂 Navigating to project directory..."
