@@ -1,7 +1,6 @@
 import Oders from '../models/oders.model.js';
 import OdersDetails from '../models/odersDetails.model.js';
 
-// Đồng bộ trạng thái với frontend
 const STATUS_LABELS = {
   PENDING: 'Chờ Xác Nhận',
   PROCESSING: 'Đang Chuẩn Bị Hàng',
@@ -11,7 +10,7 @@ const STATUS_LABELS = {
   CART: 'Giỏ hàng'
 };
 
-// Lấy danh sách đơn hàng (có tìm kiếm & phân trang)
+// -------------------------- GET ALL ORDERS --------------------------
 export const getAllOrders = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = '' } = req.query;
@@ -28,9 +27,9 @@ export const getAllOrders = async (req, res) => {
     }
 
     const total = await Oders.countDocuments(query);
+
     const orders = await Oders.find(query)
       .populate('user_id', 'username phone email')
-      .select('order_code status payment_status total_price delivery_fee receiver_name receiver_phone receiver_address createdAt user_id')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
@@ -39,8 +38,8 @@ export const getAllOrders = async (req, res) => {
     const mappedOrders = orders.map(o => ({
       ...o,
       id: o.order_code,
-      customer: o.receiver_name?.trim() || o.user_id?.username?.trim() || o.user_id?.email?.trim() || 'Khách lẻ',
-      phone: o.receiver_phone?.trim() || o.user_id?.phone?.trim() || '—',
+      customer: o.receiver_name?.trim() || o.user_id?.username || o.user_id?.email || 'Khách lẻ',
+      phone: o.receiver_phone?.trim() || o.user_id?.phone || '—',
       address: o.receiver_address || '—',
       total: (o.total_price || 0) + (o.delivery_fee || 0),
       paid: o.payment_status === 'PAID',
@@ -48,36 +47,77 @@ export const getAllOrders = async (req, res) => {
       date: o.createdAt,
     }));
 
-    res.json({ success: true, data: mappedOrders, total, page: parseInt(page), limit: parseInt(limit) });
+    res.json({
+      success: true,
+      data: mappedOrders,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Xem chi tiết 1 đơn hàng
+// -------------------------- GET ONE ORDER --------------------------
 export const getOrderById = async (req, res) => {
   try {
     const order = await Oders.findById(req.params.id)
       .populate('user_id', 'username phone email')
       .lean();
 
-    if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+    if (!order)
+      return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
 
-    const details = await OdersDetails.find({ order_id: order._id })
+    let details = await OdersDetails.find({ order_id: order._id })
       .populate('variant_id', 'product_name image')
       .lean();
 
-    const mappedDetails = details.map(d => ({
-      id: d._id,
-      productName: d.productName || d.variant_id?.product_name || 'Sản phẩm không rõ',
-      image: d.productImage || (Array.isArray(d.variant_id?.image) ? d.variant_id.image[0] : d.variant_id?.image) || 'default-image.jpg',
-      price: d.price,
-      quantity: d.quantity,
-    }));
+const mappedDetails = details.map(d => {
 
-    // Chuẩn số điện thoại + customer
-    const customerName = order.receiver_name?.trim() || order.user_id?.username?.trim() || order.user_id?.email?.trim() || 'Khách lẻ';
-    const phone = order.receiver_phone?.trim() || order.user_id?.phone?.trim() || '—';
+  let productImages = [];
+
+  if (Array.isArray(d.productImage)) {
+    productImages = d.productImage;
+  } else if (typeof d.productImage === "string" && d.productImage.trim() !== "") {
+    productImages = [d.productImage];
+  }
+
+  // lấy ảnh từ variant nếu không có ảnh gốc
+  if (d.variant_id?.image) {
+    let variantImage = Array.isArray(d.variant_id.image)
+      ? d.variant_id.image
+      : [d.variant_id.image];
+
+    // nếu là tên file, thêm prefix cloudinary
+    variantImage = variantImage.map(img => 
+      img.startsWith('http') ? img :
+      `https://res.cloudinary.com/<cloud>/image/upload/${img}`
+    );
+
+    if (productImages.length === 0) productImages = variantImage;
+  }
+
+  return {
+    id: d._id,
+    productName: d.productName || d.variant_id?.product_name || 'Sản phẩm không rõ',
+    image: productImages.length > 0 ? productImages[0] : 'assets/images/default-product.png',
+    price: d.price,
+    quantity: d.quantity
+  };
+});
+
+
+    const customerName =
+      order.receiver_name?.trim() ||
+      order.user_id?.username ||
+      order.user_id?.email ||
+      'Khách lẻ';
+
+    const phone =
+      order.receiver_phone?.trim() ||
+      order.user_id?.phone ||
+      '—';
 
     res.json({
       success: true,
@@ -86,7 +126,7 @@ export const getOrderById = async (req, res) => {
         customer: customerName,
         phone,
         total_price: (order.total_price || 0) + (order.delivery_fee || 0),
-        items: mappedDetails,
+        items: mappedDetails
       }
     });
   } catch (error) {
@@ -94,7 +134,7 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// Tạo đơn hàng
+// -------------------------- CREATE ORDER --------------------------
 export const createOrder = async (req, res) => {
   try {
     const newOrder = new Oders(req.body);
@@ -105,7 +145,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// Cập nhật trạng thái đơn hàng
+// -------------------------- UPDATE ORDER STATUS --------------------------
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -115,8 +155,14 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Trạng thái không hợp lệ' });
     }
 
-    const updatedOrder = await Oders.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    if (!updatedOrder) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+    const updatedOrder = await Oders.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder)
+      return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
 
     res.json({ success: true, data: updatedOrder });
   } catch (error) {
@@ -124,11 +170,12 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Xóa đơn hàng
+// -------------------------- DELETE ORDER --------------------------
 export const deleteOrder = async (req, res) => {
   try {
     const deletedOrder = await Oders.findByIdAndDelete(req.params.id);
-    if (!deletedOrder) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+    if (!deletedOrder)
+      return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
 
     res.json({ success: true, message: 'Xóa đơn hàng thành công' });
   } catch (error) {

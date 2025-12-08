@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const OdersDetailsSchema = new mongoose.Schema({
     order_id: {
-        type: mongoose.Schema.Types.ObjectId, // Liên kết với _id của bảng Oders
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Oders',
         required: true,
     },
@@ -11,7 +11,7 @@ const OdersDetailsSchema = new mongoose.Schema({
         ref: 'ProductsVariant',
         required: true,
     },
-    price: { // Giá tại thời điểm đặt hàng/thêm vào giỏ
+    price: {
         type: Number,
         required: true,
     },
@@ -20,9 +20,13 @@ const OdersDetailsSchema = new mongoose.Schema({
         required: true,
         min: 1,
     },
-    // Thêm các trường để lưu thông tin sản phẩm (đề phòng sản phẩm bị xóa)
+
+   
     productName: { type: String, required: false },
-    productImage: { type: String, required: false },
+
+   
+    productImage: { type: [String], default: [] },
+    
 }, { timestamps: true });
 
 const OdersDetails = mongoose.model('OdersDetails', OdersDetailsSchema);

@@ -56,7 +56,15 @@
           <h4>Products Sản phẩm đã đặt</h4>
           <div class="items">
             <div class="item" *ngFor="let item of selectedOrder?.items">
-              <img [src]="item.image" [alt]="item.productName || 'Sản phẩm'">
+
+              <!-- ------------- PHẦN ẢNH ĐÃ SỬA CHUẨN CLOUDINARY ------------- -->
+              <img
+  [src]="item.image && item.image.length ? item.image[0] : placeholderImage"
+  [alt]="item.productName"
+  (error)="onImageError($event)"
+/>
+              <!-- ------------------------------------------------------------ -->
+
               <p class="item-name">{{ item.productName || 'Sản phẩm' }}</p>
               <p class="item-info">SL: <strong>{{ item.quantity || 1 }}</strong></p>
               <p class="item-info">Giá: <strong class="price">{{ item.price ? (item.price | number:'1.0-0') : 0 }} VND</strong></p>
@@ -111,6 +119,7 @@
             <button class="update-btn" (click)="updateStatusFromModal()">Confirm Cập nhật trạng thái</button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
