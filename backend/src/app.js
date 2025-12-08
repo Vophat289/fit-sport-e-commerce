@@ -83,8 +83,69 @@ app.use("/api/vnpay", vnpayRoute);
 // Route cho VNPay return URL - VNPay merchant portal đã cấu hình URL này
 app.get("/api/payment-success/return", returnUrl);
 
+// Health check endpoint (cho Docker healthcheck)
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ 
+        status: "OK", 
+        message: "Server đang chạy",
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.get("/", (req, res) => {
     res.send("Backend + MongoDB đang chạy !");
+});
+
+// Global error handler middleware (phải đặt cuối cùng, sau tất cả routes)
+app.use((err, req, res, next) => {
+    console.error('❌ Global Error Handler:', err);
+    
+    // Mongoose validation error
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({
+            success: false,
+            message: 'Dữ liệu không hợp lệ',
+            errors: Object.values(err.errors).map(e => e.message)
+        });
+    }
+    
+    // Mongoose cast error (invalid ObjectId)
+    if (err.name === 'CastError') {
+        return res.status(400).json({
+            success: false,
+            message: 'ID không hợp lệ'
+        });
+    }
+    
+    // JWT errors
+    if (err.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+            success: false,
+            message: 'Token không hợp lệ'
+        });
+    }
+    
+    if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({
+            success: false,
+            message: 'Token đã hết hạn'
+        });
+    }
+    
+    // Default error
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Lỗi server',
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+});
+
+// 404 handler (phải đặt sau tất cả routes)
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Route không tồn tại'
+    });
 });
 
 export default app;
