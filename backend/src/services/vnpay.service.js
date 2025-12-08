@@ -4,7 +4,7 @@ import config from "../config/vnpay.config.js"
 
 // Validate config before creating instance
 if (!config.tmnCode || !config.secretKey) {
-    console.error('❌ VNPay config missing: TMN_CODE or SECRET_KEY');
+    console.error('Thiếu cấu hình VNPay: TMN_CODE hoặc SECRET_KEY');
     throw new Error('VNPay configuration is incomplete. Please check VNP_TMNCODE and VNP_HASHSECRET in .env');
 }
 
@@ -15,7 +15,7 @@ const vnpay = new VNPay({
     testMode: true 
 })
 
-console.log('✅ VNPay instance created with TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'MISSING');
+console.log('Đã tạo VNPay instance với TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'THIẾU');
 
 //khi thanh toán gọi fe gọi lên buildPayment
 export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
@@ -45,19 +45,19 @@ export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
     //     paymentConfig.vnp_IpnUrl = config.ipnUrl; // Không dùng vnp_IpUrl
     // }
     
-    console.log('🔧 Building VNPay payment URL with config:');
-    console.log('- Amount:', amount, '->', amount * 100);
-    console.log('- Order ID:', orderId);
-    console.log('- IP Address:', ipAddr);
+    console.log('Đang tạo VNPay payment URL với cấu hình:');
+    console.log('- Số tiền:', amount, '->', amount * 100);
+    console.log('- Mã đơn hàng:', orderId);
+    console.log('- Địa chỉ IP:', ipAddr);
     console.log('- Return URL:', config.returnUrl);
-    console.log('- TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'MISSING');
+    console.log('- TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'THIẾU');
     
     try {
         const paymentUrl = vnpay.buildPaymentUrl(paymentConfig);
-        console.log('✅ Payment URL created successfully');
+        console.log('Đã tạo Payment URL thành công');
         return paymentUrl;
     } catch (error) {
-        console.error('❌ Error building payment URL:', error);
+        console.error('Lỗi khi tạo payment URL:', error);
         throw error;
     }
 }
