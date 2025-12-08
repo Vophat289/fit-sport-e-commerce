@@ -42,7 +42,7 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED', 'COD'],
         default: 'INIT',
     },
 

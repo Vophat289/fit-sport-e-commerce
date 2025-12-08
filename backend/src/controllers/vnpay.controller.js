@@ -1,6 +1,31 @@
 import moment from "moment";
 import { buildPayment, verifyIpn } from "../services/vnpay.service.js";
 import Oders from "../models/oders.model.js";
+import OdersDetails from "../models/odersDetails.model.js";
+import ProductsVariant from "../models/productsVariant.model.js";
+
+// Hàm hoàn lại tồn kho và khôi phục cart khi thanh toán thất bại
+async function restoreCartAfterPaymentFailed(orderId) {
+    try {
+        // Lấy tất cả order details
+        const orderDetails = await OdersDetails.find({ order_id: orderId });
+        
+        // Hoàn lại tồn kho cho từng item
+        for (const item of orderDetails) {
+            const variant = await ProductsVariant.findById(item.variant_id);
+            if (variant) {
+                variant.quantity += item.quantity;
+                await variant.save();
+                console.log(`Đã hoàn lại ${item.quantity} sản phẩm cho variant ${variant._id}`);
+            }
+        }
+        
+        console.log(`Đã hoàn lại tồn kho cho đơn hàng ${orderId}`);
+    } catch (error) {
+        console.error('Lỗi khi hoàn lại tồn kho:', error);
+        throw error;
+    }
+}
 
 export function createPayment(req, res){
     const orderId = moment().format("YYYYMMDDHHmmss"); //tạo mã đơn hàng unique theo timestamp
@@ -49,7 +74,11 @@ export async function ipn(req, res){
         return res.json({ RspCode: "00", Message: "Thanh toán thành công"})
     }else{
         //update trạng thái đơn hàng - Thanh toán thất bại
+        // Cần hoàn lại tồn kho và khôi phục cart
+        await restoreCartAfterPaymentFailed(order._id);
+        
         order.payment_status = 'FAILED';
+        order.status = 'CART'; // Đổi về CART để user có thể checkout lại
         await order.save();
 
         return res.json({ RspCode: "07", Message: "Giao dịch không thành công"})
@@ -122,9 +151,13 @@ export async function returnUrl(req, res){
         } else {
             // Update trạng thái thanh toán thất bại
             if(order.payment_status !== 'FAILED'){
+                // Hoàn lại tồn kho và khôi phục cart
+                await restoreCartAfterPaymentFailed(order._id);
+                
                 order.payment_status = 'FAILED';
+                order.status = 'CART'; // Đổi về CART để user có thể checkout lại
                 await order.save();
-                console.log('Cập nhật database: payment_status = FAILED cho đơn hàng:', order._id);
+                console.log('Cập nhật database: payment_status = FAILED, đã hoàn lại tồn kho cho đơn hàng:', order._id);
             }
             
             console.log(`Thanh toán thất bại: ResponseCode=${vnp_ResponseCode}, TransactionStatus=${vnp_TransactionStatus}`);

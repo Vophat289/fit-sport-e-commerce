@@ -26,8 +26,18 @@
         <p class="order-code">Mã đơn hàng: <strong>{{ orderCode }}</strong></p>
       </div>
 
-      <!-- Response Code -->
-      <p class="response-code">Mã phản hồi: {{ responseCode }}</p>
+      <!-- ✅ THÔNG BÁO RIÊNG CHO COD -->
+      <div *ngIf="responseCode === 'COD'" class="cod-info">
+        <p class="cod-title"><strong>Lưu ý:</strong></p>
+        <ul class="cod-list">
+          <li>Đơn hàng sẽ được xử lý trong 24 giờ</li>
+          <li>Bạn sẽ nhận được cuộc gọi xác nhận từ nhân viên</li>
+          <li>Thanh toán khi nhận hàng (COD)</li>
+        </ul>
+      </div>
+
+      <!-- Response Code (chỉ hiển thị nếu không phải COD) -->
+      <p *ngIf="responseCode !== 'COD'" class="response-code">Mã phản hồi: {{ responseCode }}</p>
 
       <!-- Buttons -->
       <div class="popup-buttons">

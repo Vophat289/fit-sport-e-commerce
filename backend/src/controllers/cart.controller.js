@@ -16,9 +16,7 @@ const generateOrderCode = () => {
     return `FS-${timestamp}-${random}`;
 };
 
-// =======================================================
 // HÀM 1: THÊM VÀO GIỎ HÀNG (ADD TO CART)
-// =======================================================
 export const addToCart = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id; 
@@ -108,9 +106,7 @@ export const addToCart = async (req, res) => {
     }
 };
 
-// =======================================================
 // HÀM 2: XEM GIỎ HÀNG (GET CART)
-// =======================================================
 export const getCart = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
@@ -159,9 +155,7 @@ export const getCart = async (req, res) => {
         return res.status(500).json({ message: 'Lỗi server khi lấy thông tin giỏ hàng.', error: error.message });
     }
 };
-// =======================================================
 // HÀM 3: CẬP NHẬT SỐ LƯỢNG (UPDATE CART ITEM)
-// =======================================================
 export const updateCartItem = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
@@ -214,9 +208,7 @@ export const updateCartItem = async (req, res) => {
     }
 };
 
-// =======================================================
 // HÀM 4: XÓA ITEM KHỎI GIỎ HÀNG (DELETE CART ITEM)
-// =======================================================
 export const deleteCartItem = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
@@ -264,9 +256,7 @@ export const deleteCartItem = async (req, res) => {
     }
 };
 
-// =======================================================
 // HÀM 5: SYNC CART TỪ LOCALSTORAGE (SET QUANTITY CHÍNH XÁC)
-// =======================================================
 export const syncCart = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
@@ -397,8 +387,14 @@ export const checkout = async (req, res) => {
     try{
         const userId = req.user._id || req.user.id;
         const { 
-            receiver_name, receiver_mobile, receiver_address, voucher_code
+            receiver_name, receiver_mobile, receiver_address, voucher_code, payment_method
         } = req.body;
+
+        // Kiểm tra phương thức thanh toán: nếu là COD, gọi hàm checkoutCOD
+        if(payment_method === 'COD'){
+            return await checkoutCOD(req, res);
+        }
+        // Nếu không phải COD hoặc không có payment_method, mặc định là VNPay
 
         //validate thông tin ng nhận
         if(!receiver_name || !receiver_mobile || !receiver_address){
@@ -420,10 +416,10 @@ export const checkout = async (req, res) => {
             path:'variant_id',
             populate:[
                 {
-                    path: 'product_id',
+                path: 'product_id',
                     model: 'Product', // Chỉ định rõ model name
-                    select: 'name'
-                }
+                select: 'name'
+            }
             ]
         });
 
@@ -594,17 +590,180 @@ export const checkout = async (req, res) => {
         });
         
     }catch(error){
-        console.error('========== LỖI CHECKOUT ==========');
-        console.error('Thông báo lỗi:', error.message);
-        console.error('Chi tiết lỗi:', error.stack);
-        console.error('Tên lỗi:', error.name);
         if (error.response) {
             console.error('Phản hồi lỗi:', error.response);
         }
-        console.error('=====================================');
         
         return res.status(500).json({ 
             message: 'Lỗi server khi xử lý thanh toán',
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+}
+
+export const checkoutCOD = async (req, res) => {
+    try{
+        const userId = req.user._id || req.user.id;
+        const{ receiver_name, receiver_mobile, receiver_address, voucher_code } = req.body;
+
+        //validate thông tin người nhận
+        if(!receiver_name || !receiver_mobile || !receiver_address){
+            return res.status(400).json({message: 'Vui lòng điền đầy đủ thông tin người nhận.'});
+        }
+
+        //tìm cart
+        const cart = await Oders.findOne({
+            user_id: userId,
+            status: 'CART'
+        });
+
+        if(!cart){
+            return res.status(404).json({message: 'Giỏ hàng trống'});
+        }
+
+        //lấy cart details
+        const cartDetails = await OdersDetails.find({order_id: cart._id}).populate({
+            path:'variant_id',
+            populate: [{path: 'product_id', model:'Product', select: 'name'}]
+        });
+
+        if(!cartDetails || cartDetails.length === 0){
+            return res.status(404).json({message: 'Giỏ hàng không có sản phẩm'});
+        } 
+
+        //validate tồn kho
+        for(const item of  cartDetails){
+            try {
+                // Đảm bảo variant_id là ObjectId
+                const variantId = item.variant_id?._id || item.variant_id;
+                if (!variantId) {
+                    console.error('Cart item không có variant_id:', item);
+                    return res.status(400).json({ 
+                        message: 'Cart item không hợp lệ: thiếu variant_id'
+                    });
+                }
+                
+                const variant = await ProductsVariant.findById(variantId);
+                if(!variant){
+                    console.error('Không tìm thấy variant:', variantId);
+                    return res.status(400).json({ 
+                        message: 'Không tìm thấy thông tin sản phẩm'
+                    });
+                }
+                
+                // LƯU Ý: Tồn kho đã bị giảm khi thêm vào giỏ hàng (reserve mechanism)
+                // Tồn kho thực tế = tồn kho hiện tại + số lượng đã có trong giỏ của user này
+                const currentStock = variant.quantity; // Tồn kho hiện tại (đã bị giảm khi thêm vào giỏ)
+                const reservedQuantity = item.quantity; // Số lượng đã reserve trong giỏ
+                const actualStock = currentStock + reservedQuantity; // Tồn kho thực tế
+                
+                console.log(`Kiểm tra tồn kho COD - Variant ID: ${variantId}`);
+                console.log(`- Tồn kho hiện tại (đã reserve): ${currentStock}`);
+                console.log(`- Số lượng trong giỏ (reserved): ${reservedQuantity}`);
+                console.log(`- Tồn kho thực tế: ${actualStock}`);
+                
+                // Kiểm tra: Tồn kho hiện tại phải >= 0 (không bị âm)
+                // Và tồn kho thực tế phải đủ cho số lượng cần
+                if(currentStock < 0 || actualStock < reservedQuantity){
+                    const productName = item.variant_id?.product_id?.name || variant.product_id?.name || 'N/A';
+                    console.error(`Không đủ tồn kho - ${productName}: Tồn kho thực tế ${actualStock}, cần ${reservedQuantity}`);
+                    return res.status(400).json({ 
+                        message: `Sản phẩm ${productName} không đủ tồn kho (chỉ còn ${actualStock}, cần ${reservedQuantity})`
+                    });
+                }
+            } catch (itemError) {
+                console.error('Lỗi khi validate tồn kho item:', item, itemError);
+                return res.status(400).json({ 
+                    message: 'Lỗi khi kiểm tra tồn kho sản phẩm: ' + itemError.message
+                });
+            }
+        }
+
+        //tính tổng tiền 
+        let totalPrice = cartDetails.reduce((sum, item) =>  {
+            return sum + (item.price * item.quantity);
+        }, 0);
+
+        //tính phí giao hàng
+        const shipping = 1000000;
+        let deliveryFee = 0;
+        if(totalPrice > 0 && totalPrice < shipping){
+            deliveryFee = 30000;
+        }
+
+        //xử lý voucher 
+        let voucherDiscount = 0;
+        let voucherId = null;
+        if(voucher_code){
+            try {
+                const voucherResult = await validateVoucher(
+                    voucher_code,
+                    totalPrice + deliveryFee
+                );
+
+                if(voucherResult && voucherResult.valid){
+                    voucherDiscount = voucherResult.discount || 0;
+                    voucherId = voucherResult.voucher?._id || null;
+                }
+            } catch (voucherError) {
+                console.error('Lỗi khi validate voucher:', voucher_code, voucherError);
+                // Không block checkout nếu voucher lỗi, chỉ bỏ qua voucher
+                console.warn('Bỏ qua voucher do lỗi, tiếp tục checkout không có voucher');
+            }
+        }
+
+        const finalAmount = totalPrice + deliveryFee - voucherDiscount;
+
+        if(finalAmount <= 0){
+            return res.status(400).json({message: 'Tổng tiền không hợp lệ'});
+        }
+
+        //update cart thành order 
+        cart.status = 'PENDING';              // Đơn hàng đang chờ xử lý
+        cart.payment_status = 'COD';          // Payment method: COD (thanh toán khi nhận hàng)
+        cart.receiver_name = receiver_name;
+        cart.receiver_mobile = receiver_mobile;
+        cart.receiver_address = receiver_address;
+        cart.total_price = totalPrice;
+        cart.delivery_fee = deliveryFee;
+        
+        // Không cần tạo vnpay_transaction_id cho COD
+        
+        if(voucherId){
+            cart.voucher_id = voucherId;
+            //tăng số lượt sử dụng voucher
+            try {
+                await useVoucher(voucher_code);
+            } catch (useVoucherError) {
+                console.error('Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
+                // Không block checkout, chỉ log lỗi
+            }
+        }
+        
+        try {
+            await cart.save();
+            console.log('Đã tạo đơn hàng COD thành công:', cart.order_code);
+        } catch (saveError) {
+            console.error('Lỗi khi lưu đơn hàng COD:', saveError);
+            throw new Error('Lỗi khi lưu đơn hàng: ' + saveError.message);
+        }
+
+        // Trả về kết quả (không có paymentUrl)
+        return res.status(200).json({
+            success: true,
+            message: 'Đã tạo đơn hàng COD thành công. Chúng tôi sẽ liên hệ với bạn sớm nhất.',
+            orderId: cart._id,
+            orderCode: cart.order_code,
+            amount: finalAmount
+        });
+
+    }catch(error){
+        console.error('Lỗi checkout COD:', error.message);
+        console.error('Chi tiết lỗi:', error.stack);
+        
+        return res.status(500).json({ 
+            message: 'Lỗi server khi tạo đơn hàng COD.',
             error: error.message,
             details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });

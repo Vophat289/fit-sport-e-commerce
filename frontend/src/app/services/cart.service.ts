@@ -168,15 +168,16 @@ export class CartService {
     this.cartCountSubject.next(0);
   }
 
+  // Refresh cart count từ localStorage
+  refreshCartCount(): void {
+    this.updateCartCount();
+  }
+
   getCart(): Observable<any> {
     return this.http.get<any>('/api/cart');
   }
 
-  /**
- 
-   * @param selectedItems - Danh sách items đã được chọn từ localStorage
-   * @returns Observable<boolean> - true nếu sync thành công
-   */
+  // Sync cart từ localStorage lên backend
   syncCartToBackend(selectedItems: CartItem[]): Observable<boolean> {
     return new Observable<boolean>((subscriber) => {
       if (!selectedItems || selectedItems.length === 0) {
