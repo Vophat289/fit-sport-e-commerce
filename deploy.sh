@@ -80,16 +80,41 @@ docker-compose up -d
 
 # Wait for services to be healthy
 echo "⏳ Waiting for services to start..."
-sleep 10
+sleep 15
 
 # Check container status
 echo "📊 Container status:"
 docker-compose ps
 
+# Check backend health
+echo ""
+echo "🔍 Checking backend health..."
+for i in {1..5}; do
+    if curl -s http://localhost:3000/api/health > /dev/null; then
+        echo -e "${GREEN}✅ Backend is healthy!${NC}"
+        curl -s http://localhost:3000/api/health
+        break
+    else
+        echo "⏳ Waiting for backend... (attempt $i/5)"
+        sleep 5
+    fi
+done
+
 # Show logs
 echo ""
 echo "📋 Recent logs:"
 docker-compose logs --tail=50
+
+# Check if backend is running
+echo ""
+echo "🔍 Final backend check:"
+if docker ps | grep -q "backend"; then
+    echo -e "${GREEN}✅ Backend container is running${NC}"
+else
+    echo -e "${RED}❌ Backend container is NOT running!${NC}"
+    echo "📋 Backend logs:"
+    docker-compose logs --tail=20 backend
+fi
 
 echo ""
 echo -e "${GREEN}✅ Deployment completed!${NC}"
