@@ -46,17 +46,29 @@ if [ -f "./backend/.env.backup" ]; then
     git update-index --assume-unchanged backend/.env 2>/dev/null || true
 fi
 
+# Check disk space before deployment
+echo "📊 Checking disk space..."
+df -h | head -2
+
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
 docker-compose down || true
 
-# Remove old images (optional - uncomment if needed)
-# echo "🗑️  Removing old images..."
-# docker-compose down --rmi all
+# Clean up Docker để giải phóng dung lượng
+echo "🧹 Cleaning up Docker (removing unused images, containers, networks)..."
+docker system prune -af --volumes || true
+
+# Remove dangling images
+echo "🗑️  Removing dangling images..."
+docker image prune -af || true
 
 # Build images
 echo "🔨 Building Docker images..."
 docker-compose build --no-cache
+
+# Show disk space after cleanup
+echo "📊 Disk space after cleanup:"
+df -h | head -2
 
 # Start containers
 echo "🚢 Starting containers..."
