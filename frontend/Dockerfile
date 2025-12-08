@@ -2,9 +2,12 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+# Sử dụng npm ci thay vì npm install (nhanh hơn và ít tốn dung lượng hơn)
+RUN npm ci --only=production=false && npm cache clean --force
 COPY . .
 RUN npm run build
+# Dọn dẹp sau khi build để giảm dung lượng layer
+RUN rm -rf node_modules
 
 # Serve bằng Nginx
 FROM nginx:alpine
