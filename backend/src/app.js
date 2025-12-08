@@ -17,7 +17,8 @@ import { EventEmitter } from 'events';
 import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 import adminContactRoutes from './routes/admin/contact.admin.routes.js';
-
+import userOrderRoutes from './routes/order.routes.js'; // user order
+import orderAdminRoutes from './routes/admin/order.admin.routes.js';
 EventEmitter.defaultMaxListeners = 20;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,12 +56,12 @@ app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/news", newsRoutes);  
-
+app.use("/api/orders", userOrderRoutes);
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
-
+app.use("/api/admin/order", orderAdminRoutes);
 // Kết nối route admin khác
 app.use('/api/admin', adminRoutes);
 

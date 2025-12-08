@@ -1,4 +1,3 @@
-// src/models/odersDetails.model.js
 import mongoose from 'mongoose';
 
 const OdersDetailsSchema = new mongoose.Schema({
@@ -21,6 +20,9 @@ const OdersDetailsSchema = new mongoose.Schema({
         required: true,
         min: 1,
     },
+    // Thêm các trường để lưu thông tin sản phẩm (đề phòng sản phẩm bị xóa)
+    productName: { type: String, required: false },
+    productImage: { type: String, required: false },
 }, { timestamps: true });
 
 const OdersDetails = mongoose.model('OdersDetails', OdersDetailsSchema);
