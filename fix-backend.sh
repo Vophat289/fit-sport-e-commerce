@@ -2,6 +2,7 @@
 
 # Script để kiểm tra và sửa backend trên server EC2
 # Chạy trên server: bash fix-backend.sh
+# Hoặc chạy từ local nếu đã ở trong thư mục project
 
 set -e
 
@@ -14,14 +15,33 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# 1. Kiểm tra Docker containers
-echo "📋 1. Kiểm tra Docker containers:"
-cd ~/fit-sport-e-commerce || cd /home/ubuntu/fit-sport-e-commerce
+# Tự động tìm thư mục project
+if [ -f "docker-compose.yml" ]; then
+    echo "   ✅ Đã ở trong thư mục project"
+    PROJECT_DIR="$(pwd)"
+elif [ -d "$HOME/fit-sport-e-commerce" ] && [ -f "$HOME/fit-sport-e-commerce/docker-compose.yml" ]; then
+    cd "$HOME/fit-sport-e-commerce"
+    PROJECT_DIR="$(pwd)"
+    echo "   📂 Đã chuyển đến: $PROJECT_DIR"
+elif [ -d "/home/ubuntu/fit-sport-e-commerce" ] && [ -f "/home/ubuntu/fit-sport-e-commerce/docker-compose.yml" ]; then
+    cd /home/ubuntu/fit-sport-e-commerce
+    PROJECT_DIR="$(pwd)"
+    echo "   📂 Đã chuyển đến: $PROJECT_DIR"
+else
+    echo -e "${RED}❌ Không tìm thấy thư mục project!${NC}"
+    echo "   💡 Hãy chạy script từ thư mục có docker-compose.yml"
+    echo "   Hoặc đảm bảo project ở: ~/fit-sport-e-commerce hoặc /home/ubuntu/fit-sport-e-commerce"
+    exit 1
+fi
 
-if ! docker ps | grep -q "backend"; then
+# 1. Kiểm tra Docker containers
+echo ""
+echo "📋 1. Kiểm tra Docker containers:"
+
+if ! docker ps 2>/dev/null | grep -q "backend"; then
     echo -e "${RED}❌ Backend container KHÔNG chạy!${NC}"
     echo "🔄 Đang khởi động lại containers..."
-    docker-compose down
+    docker-compose down 2>/dev/null || true
     docker-compose up -d
     
     echo "⏳ Đợi 15 giây để containers khởi động..."
@@ -62,10 +82,10 @@ else
     echo "   cat backend/.env | grep MONGO_URI"
 fi
 
-# 5. Kiểm tra Nginx
+# 5. Kiểm tra Nginx (chỉ trên server, bỏ qua nếu chạy local)
 echo ""
 echo "📋 5. Kiểm tra Nginx:"
-if systemctl is-active --quiet nginx; then
+if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet nginx 2>/dev/null; then
     echo -e "${GREEN}✅ Nginx đang chạy${NC}"
     
     # Test nginx config
@@ -84,7 +104,8 @@ fi
 # 6. Kiểm tra ports
 echo ""
 echo "📋 6. Kiểm tra ports:"
-if netstat -tuln 2>/dev/null | grep -q ":3000 " || ss -tuln 2>/dev/null | grep -q ":3000 "; then
+if (command -v netstat >/dev/null 2>&1 && netstat -tuln 2>/dev/null | grep -q ":3000 ") || \
+   (command -v ss >/dev/null 2>&1 && ss -tuln 2>/dev/null | grep -q ":3000 "); then
     echo -e "${GREEN}✅ Port 3000 đang được sử dụng${NC}"
 else
     echo -e "${RED}❌ Port 3000 KHÔNG được sử dụng!${NC}"
