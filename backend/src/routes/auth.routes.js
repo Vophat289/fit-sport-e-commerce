@@ -46,12 +46,15 @@ router.get('/google', passport.authenticate('google', {
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: 'http://localhost:4200/login' }),
+  passport.authenticate('google', { 
+    failureRedirect: process.env.FRONTEND_URL || 'https://fitsport.io.vn/login' 
+  }),
   (req, res) => {
     const user = req.user;
     const token = generateToken(user);
+    const frontendUrl = process.env.FRONTEND_URL || 'https://fitsport.io.vn';
     res.redirect(
-      `http://localhost:4200/login?user=${encodeURIComponent(JSON.stringify(user))}&token=${token}`
+      `${frontendUrl}/login?user=${encodeURIComponent(JSON.stringify(user))}&token=${token}`
     );
   }
 );

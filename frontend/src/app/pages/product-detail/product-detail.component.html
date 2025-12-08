@@ -1,75 +1,84 @@
 <div class="product-detail-container">
-  
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Đang tải sản phẩm...</p>
-    </div>
-  
-    <!-- Error State -->
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Đang tải sản phẩm...</p>
+  </div>
+
+  <!-- Error State -->
   <div *ngIf="error && !loading" class="error-container">
     <p>{{ error }}</p>
     <button class="btn-outline" (click)="router.navigate(['/products'])">
       Quay về trang sản phẩm
     </button>
   </div>
-  
-    <!-- Product Detail Content -->
-    <div *ngIf="product && !loading" class="product-detail-content">
-      
-      <!-- Breadcrumb (Đường dẫn) -->
-      <nav class="breadcrumb">
-        <a routerLink="/home">Trang chủ</a>
-        <span>/</span>
-        <a routerLink="/products">Sản phẩm</a>
-        <span>/</span>
+
+  <!-- Product Detail Content -->
+  <div *ngIf="product && !loading" class="product-detail-content">
+    <!-- Breadcrumb (Đường dẫn) -->
+    <nav class="breadcrumb">
+      <a routerLink="/home">Trang chủ</a>
+      <span>/</span>
+      <a routerLink="/products">Sản phẩm</a>
+      <span>/</span>
       <span>{{ product.name }}</span>
-      </nav>
-  
-      <!-- Main Content: 2 Cột -->
+    </nav>
+
+    <!-- Main Content: 2 Cột -->
     <section class="product-main">
-        
-        <!-- Cột trái: Ảnh sản phẩm -->
-        <div class="product-images">
-          
-          <!-- Ảnh lớn (hiển thị ảnh đang chọn) -->
-          <div class="main-image">
-            <img
-              [src]="product.image && product.image[selectedImageIndex] 
-                ? product.image[selectedImageIndex] 
-                : 'assets/images/placeholder.jpg'"
-              [alt]="product.name"
-              class="main-img"
-            />
-          </div>
-  
-          <!-- Gallery: Danh sách ảnh nhỏ -->
-          <div *ngIf="product.image && product.image.length > 1" class="image-gallery">
-            <div
-              *ngFor="let img of product.image; let i = index"
-              class="gallery-thumb"
-              [class.active]="i === selectedImageIndex"
-              (click)="selectImage(i)">
-              <img [src]="img" [alt]="product.name + ' - Ảnh ' + (i + 1)">
-            </div>
+      <!-- Cột trái: Ảnh sản phẩm -->
+      <div class="product-images">
+        <!-- Ảnh lớn (hiển thị ảnh đang chọn) -->
+        <div class="main-image">
+          <img
+            [src]="
+              product.image && product.image[selectedImageIndex]
+                ? product.image[selectedImageIndex]
+                : 'assets/images/placeholder.jpg'
+            "
+            [alt]="product.name"
+            class="main-img"
+          />
+        </div>
+
+        <!-- Gallery: Danh sách ảnh nhỏ -->
+        <div
+          *ngIf="product.image && product.image.length > 1"
+          class="image-gallery"
+        >
+          <div
+            *ngFor="let img of product.image; let i = index"
+            class="gallery-thumb"
+            [class.active]="i === selectedImageIndex"
+            (click)="selectImage(i)"
+          >
+            <img [src]="img" [alt]="product.name + ' - Ảnh ' + (i + 1)" />
           </div>
         </div>
-  
-        <!-- Cột phải: Thông tin sản phẩm -->
-        <div class="product-info">
-          
-          <!-- Tên sản phẩm -->
-          <h1 class="product-title">{{ product.name }}</h1>
-  
-          <!-- Giá -->
+      </div>
+
+      <!-- Cột phải: Thông tin sản phẩm -->
+      <div class="product-info">
+        <!-- Tên sản phẩm -->
+        <h1 class="product-title">{{ product.name }}</h1>
+        <p class="text-sm text-gray-600">
+          Tồn kho:
+          <span class="font-semibold">
+            {{ currentVariantDetails?.quantity || 0 }}
+          </span>
+        </p>
+
+        <!-- Giá -->
         <div class="product-price-section">
           <div>
-            <span class="price">{{ product.price | number }} ₫</span>
+            <span class="price">{{
+              currentVariantDetails?.price | currency : "VND"
+            }}</span>
             <span class="price-tag">Giá tốt nhất hôm nay</span>
           </div>
         </div>
 
-          <!-- Lượt xem -->
+        <!-- Lượt xem -->
         <div class="product-meta">
           <span class="meta-badge">
             <i class="fa-solid fa-eye"></i>
@@ -84,63 +93,83 @@
             Giao nhanh 2h
           </span>
         </div>
-  
-          <!-- Mô tả ngắn -->
-          <!-- <div class="product-description">
+
+        <!-- Mô tả ngắn -->
+        <!-- <div class="product-description">
             <p>{{ product.description }}</p>
           </div> -->
-  
-          <!-- Chọn màu sắc -->
-          <div *ngIf="product.colors && product.colors.length > 0" class="product-options">
-            <h3 class="option-title">Màu sắc:</h3>
-            <div class="color-options">
-              <div
-                *ngFor="let color of product.colors"
-                class="color-option"
-                [class.selected]="selectedColor === color"
-                (click)="selectColor(color)"
-                [style.backgroundColor]="color"
-                [title]="color">
-              </div>
-            </div>
+
+        <!-- Chọn màu sắc -->
+        <div
+          *ngIf="product.availableColors && product.availableColors.length > 0"
+          class="product-options"
+        >
+          <h3 class="option-title">Màu sắc:</h3>
+          <div class="color-options">
+            <div
+              *ngFor="let color of product.availableColors"
+              class="color-option"
+              [class.selected]="selectedColor === color.id"
+              (click)="selectColor(color.id); updateVariantDetails()"
+              [style.backgroundColor]="color.hex_code"
+              [title]="color.name"
+            ></div>
           </div>
-  
-          <!-- Chọn kích thước -->
-          <div *ngIf="product.sizes && product.sizes.length > 0" class="product-options">
-            <h3 class="option-title">Kích thước:</h3>
-            <div class="size-options">
-              <button
-                *ngFor="let size of product.sizes"
-                class="size-option"
-                [class.selected]="selectedSize === size"
-                (click)="selectSize(size)">
-                {{ size }}
-              </button>
-            </div>
+        </div>
+
+        <!-- Chọn kích thước -->
+        <div
+          *ngIf="product.availableSizes && product.availableSizes.length > 0"
+          class="product-options"
+        >
+          <h3 class="option-title">Kích thước:</h3>
+          <div class="size-options">
+            <button
+              *ngFor="let size of product.availableSizes"
+              class="size-option"
+              [class.selected]="selectedSize === size.id"
+              (click)="selectSize(size.id); updateVariantDetails()"
+            >
+              {{ size.name }}
+            </button>
           </div>
-  
-          <!-- Số lượng (tùy chọn) -->
-          <div class="quantity-section">
-            <label>Số lượng:</label>
+        </div>
+
+        <!-- Số lượng (tùy chọn) -->
+        <div class="quantity-section">
+          <label>Số lượng:</label>
           <div class="quantity-controls">
             <button class="qty-btn" (click)="decreaseQuantity()">−</button>
-            <input type="number" [(ngModel)]="quantity" min="1" class="qty-input">
+            <input
+              type="number"
+              [(ngModel)]="quantity"
+              min="1"
+              class="qty-input"
+            />
             <button class="qty-btn" (click)="increaseQuantity()">+</button>
           </div>
-          </div>
-  
-          <!-- Nút thêm vào giỏ -->
+        </div>
+        <div *ngIf="stockMessage" style="color: red" class="text-sm mt-1">
+          {{ stockMessage }}
+        </div>
+        <!-- Nút thêm vào giỏ -->
         <div class="action-buttons">
-          <button class="btn-add-cart">
-              <i class="fa-solid fa-cart-plus"></i>
-              Thêm vào giỏ hàng
-            </button>
-            <button class="btn-buy-now">
-              <i class="fa-solid fa-bolt"></i>
-              Mua ngay
-            </button>
-          </div>
-  
+          <button
+            class="btn-add-cart"
+            (click)="addToCart()"
+            [disabled]="
+              !currentVariantDetails || currentVariantDetails.quantity === 0
+            "
+          >
+            <i class="fa-solid fa-cart-plus"></i>
+            Thêm vào giỏ hàng
+          </button>
+          <button class="btn-buy-now">
+            <i class="fa-solid fa-bolt"></i>
+            Mua ngay
+          </button>
+        </div>
+
         <!-- Thông tin bổ sung -->
         <div class="service-highlights">
           <div class="meta-item">
@@ -167,15 +196,16 @@
         </div>
       </div>
     </section>
-  
-      <!-- Tab thông tin chi tiết (mô tả, đánh giá, v.v.) -->
-      <section class="product-tabs">
-        <div class="tab-header">
-          <button class="tab-btn active">Mô tả sản phẩm</button>
-          <button class="tab-btn">Đánh giá</button>
-        </div>
-        <div class="tab-content">
-          <p>{{ product.description }}</p>
-        </div>
-      </section>
+
+    <!-- Tab thông tin chi tiết (mô tả, đánh giá, v.v.) -->
+    <section class="product-tabs">
+      <div class="tab-header">
+        <button class="tab-btn active">Mô tả sản phẩm</button>
+        <button class="tab-btn">Đánh giá</button>
+      </div>
+      <div class="tab-content">
+        <p>{{ product.description }}</p>
+      </div>
+    </section>
   </div>
+</div>

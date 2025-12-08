@@ -1,0 +1,69 @@
+
+import { VNPay } from "vnpay";
+import config from "../config/vnpay.config.js"
+
+// Validate config before creating instance
+if (!config.tmnCode || !config.secretKey) {
+    console.error('Thiếu cấu hình VNPay: TMN_CODE hoặc SECRET_KEY');
+    throw new Error('VNPay configuration is incomplete. Please check VNP_TMNCODE and VNP_HASHSECRET in .env');
+}
+
+//tạo instance để nạp TMN code, secret
+const vnpay = new VNPay({
+    tmnCode: config.tmnCode,
+    secureSecret: config.secretKey,
+    testMode: true 
+})
+
+console.log('Đã tạo VNPay instance với TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'THIẾU');
+
+//khi thanh toán gọi fe gọi lên buildPayment
+export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
+    // Validate inputs
+    if (!amount || amount <= 0) {
+        throw new Error('Amount must be greater than 0');
+    }
+    if (!orderId) {
+        throw new Error('Order ID is required');
+    }
+    if (!config.returnUrl) {
+        throw new Error('VNP_RETURNURL is not configured in .env');
+    }
+    
+    const paymentConfig = {
+        vnp_Amount: amount * 100, //Số tiền * 100 (bắt buộc theo chuẩn VNPAY)
+        vnp_IpAddr: ipAddr,
+        vnp_TxnRef: orderId, // mã đơn hàng
+        vnp_OrderInfo: `Order #${orderId}`,
+        vnp_ReturnUrl: config.returnUrl, //trả về url để redirect URL FE để redirect sau thanh toán
+    };
+    
+    // Thêm IPN URL nếu có (VNPay cần để gửi callback)
+    // Lưu ý: VNPay npm package có thể không cần parameter này trong buildPaymentUrl
+    // Chỉ cần cấu hình trong merchant portal của VNPay
+    // if (config.ipnUrl) {
+    //     paymentConfig.vnp_IpnUrl = config.ipnUrl; // Không dùng vnp_IpUrl
+    // }
+    
+    console.log('Đang tạo VNPay payment URL với cấu hình:');
+    console.log('- Số tiền:', amount, '->', amount * 100);
+    console.log('- Mã đơn hàng:', orderId);
+    console.log('- Địa chỉ IP:', ipAddr);
+    console.log('- Return URL:', config.returnUrl);
+    console.log('- TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'THIẾU');
+    
+    try {
+        const paymentUrl = vnpay.buildPaymentUrl(paymentConfig);
+        console.log('Đã tạo Payment URL thành công');
+        return paymentUrl;
+    } catch (error) {
+        console.error('Lỗi khi tạo payment URL:', error);
+        throw error;
+    }
+}
+
+//khi backend gọi verifyIpncall thì thư viện tự xác nhận chữ kí
+export function verifyIpn(query){
+    return vnpay.verifyIpnCall(query);
+}
+

@@ -18,12 +18,8 @@
           </button>
 
           <!-- Lưu thông tin (nút ngoài form) -->
-          <button
-            type="button"
-            class="save-button"
-            *ngIf="isEditing"
-            (click)="profileForm.form.valid && profileForm.ngSubmit.emit()"
-          >
+          <button type="button" class="save-button" *ngIf="isEditing"
+            (click)="profileForm.form.valid && profileForm.ngSubmit.emit()">
             Lưu
           </button>
 
@@ -38,32 +34,19 @@
 
   <div class="account-main-content">
     <aside class="account-sidebar">
-      <button
-        class="sidebar-button button-main"
-        [class.active]="currentTab === 'profile'"
-        (click)="selectTab('profile')"
-      >
+      <button class="sidebar-button button-main" [class.active]="currentTab === 'profile'"
+        (click)="selectTab('profile')">
         Thông tin cá nhân
       </button>
-      <button
-        class="sidebar-button button-main"
-        [class.active]="currentTab === 'orders'"
-        (click)="selectTab('orders')"
-      >
+      <button class="sidebar-button button-main" [class.active]="currentTab === 'orders'" (click)="selectTab('orders')">
         Đơn hàng của tôi
       </button>
-      <button
-        class="sidebar-button button-main"
-        [class.active]="currentTab === 'vouchers'"
-        (click)="selectTab('vouchers')"
-      >
+      <button class="sidebar-button button-main" [class.active]="currentTab === 'vouchers'"
+        (click)="selectTab('vouchers')">
         Vouchers của tôi
       </button>
-      <button
-        class="sidebar-button button-main"
-        [class.active]="currentTab === 'address'"
-        (click)="selectTab('address')"
-      >
+      <button class="sidebar-button button-main" [class.active]="currentTab === 'address'"
+        (click)="selectTab('address')">
         Địa chỉ của tôi
       </button>
       <button class="sidebar-button logout-button" (click)="logout()">
@@ -74,54 +57,25 @@
     <section class="account-details">
       <!-- Profile Tab -->
       <ng-container *ngIf="currentTab === 'profile'">
-        <form
-          (ngSubmit)="saveChanges()"
-          #profileForm="ngForm"
-          class="profile-form"
-        >
+        <form (ngSubmit)="saveChanges()" #profileForm="ngForm" class="profile-form">
           <div class="info-row">
             <label>Họ tên:</label>
-            <input
-              type="text"
-              [(ngModel)]="editData.name"
-              name="name"
-              [readonly]="!isEditing"
-              required
-            />
+            <input type="text" [(ngModel)]="editData.name" name="name" [readonly]="!isEditing" required />
           </div>
           <div class="info-row">
             <label>Email:</label>
-            <input
-              type="email"
-              [(ngModel)]="editData.email"
-              name="email"
-              [readonly]="!isEditing"
-              required
-            />
+            <input type="email" [(ngModel)]="editData.email" name="email" [readonly]="!isEditing" required />
           </div>
           <div class="info-row">
             <label>Số điện thoại:</label>
-            <input
-              type="tel"
-              [(ngModel)]="editData.phone"
-              name="phone"
-              [readonly]="!isEditing"
-            />
+            <input type="tel" [(ngModel)]="editData.phone" name="phone" [readonly]="!isEditing" />
           </div>
           <div class="info-row">
             <label>Giới tính:</label>
             <ng-container *ngIf="!isEditing">
-              <input
-                type="text"
-                [value]="editData.gender || '<Trống>'"
-                readonly
-              />
+              <input type="text" [value]="editData.gender || '<Trống>'" readonly />
             </ng-container>
-            <select
-              *ngIf="isEditing"
-              [(ngModel)]="editData.gender"
-              name="gender"
-            >
+            <select *ngIf="isEditing" [(ngModel)]="editData.gender" name="gender">
               <option value="">-- Chọn --</option>
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
@@ -130,48 +84,200 @@
           </div>
           <div class="info-row">
             <label>Ngày sinh:</label>
-            <input
-              type="date"
-              [(ngModel)]="editData.dob"
-              name="dob"
-              [readonly]="!isEditing"
-            />
+            <input type="date" [(ngModel)]="editData.dob" name="dob" [readonly]="!isEditing" />
           </div>
         </form>
       </ng-container>
-
       <!-- Orders Tab -->
       <ng-container *ngIf="currentTab === 'orders'">
-        <h2 class="order-page-title">Đơn hàng của tôi</h2>
-        <p class="order-summary">
-          Đang hiển thị {{ getFilteredOrders().length }} /
-          {{ getTotalFilteredOrdersCount() }} đơn hàng.
-        </p>
-        <div class="order-list-container">
-          <ng-container *ngFor="let order of getFilteredOrders()">
-            <div class="order-card">
-              <div class="order-actions">
-                <button
-                  class="detail-button"
-                  (click)="viewOrderDetail(order._id!)"
-                >
-                  Chi tiết
-                </button>
-                <p class="order-status-text">
-                  {{ getOrderStatusText(order.status) }}
-                </p>
+        <div class="order-view-wrapper">
+          <ng-container *ngIf="!selectedOrder">
+            <h2 class="order-page-title">Đơn hàng của tôi</h2>
+            <p class="order-summary">
+              Đang hiển thị {{ getFilteredOrders().length }} /
+              {{ getTotalFilteredOrdersCount() }} đơn hàng.
+            </p>
+
+            <div class="order-list-container">
+              <ng-container *ngFor="let order of getFilteredOrders()">
+                <div class="order-card">
+                  <div class="order-image-column">
+                    <img [src]="
+                        order.first_item_image_url ||
+                        'assets/images/default-product.png'
+                      " alt="Sản phẩm" class="product-image" />
+                  </div>
+
+                  <div class="order-info">
+                    <div class="order-header-info">
+                      <p class="order-code-text">
+                        <strong>Mã đơn:</strong> {{ order.order_code }}
+                      </p>
+                      <p class="order-date-text">
+                        <strong>Ngày đặt:</strong>
+                        {{ order.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                      </p>
+                    </div>
+
+                    <div class="order-detail-info">
+                      <p class="first-item-name">
+                        <strong>{{
+                          order.first_item_name || "Đơn hàng gồm nhiều sản phẩm"
+                          }}</strong>
+                      </p>
+                      <p>
+                        <strong>Người nhận:</strong>
+                        {{ order.receiver_name }} – {{ order.receiver_mobile }}
+                      </p>
+                      <p>
+                        <strong>Địa chỉ:</strong> {{ order.receiver_address }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="order-actions">
+                    <div class="order-total-price">
+                      Tổng tiền:
+                      <span class="total-amount">{{ order.total_price | number }}₫</span>
+                    </div>
+
+                    <button class="cancel-button-order" *ngIf="order.status.toUpperCase() === 'PENDING'"
+                      (click)="cancelOrder(order._id!)">
+                      Hủy đơn hàng
+                    </button>
+
+                    <button class="detail-button" (click)="viewOrderDetail(order._id!)">
+                      Chi tiết
+                    </button>
+
+                    <span class="order-status" [ngClass]="'status-' + order.status.toLowerCase()">
+                      {{ getOrderStatusText(order.status) }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <div class="load-more-orders-container" *ngIf="ordersLimit < getTotalFilteredOrdersCount()">
+              <button class="load-more-orders-button" (click)="loadMoreOrders()">
+                Xem thêm đơn hàng ({{
+                getTotalFilteredOrdersCount() - ordersLimit
+                }}
+                còn lại)
+              </button>
+            </div>
+          </ng-container>
+
+          <hr class="section-separator" *ngIf="!selectedOrder && getTotalFilteredOrdersCount() > 0" />
+
+          <ng-container *ngIf="selectedOrder">
+            <div class="order-detail-container">
+              <button class="back-button" (click)="backToOrderList()">
+                ← Quay lại danh sách
+              </button>
+
+              <h2>Chi tiết đơn hàng #{{ selectedOrder.order_code }}</h2>
+
+              <div class="detail-header-info">
+                <div class="detail-receiver-info">
+                  <h3 class="info-title">Thông tin người nhận</h3>
+                  <p>
+                    <strong>Người nhận:</strong>
+                    {{ selectedOrder.receiver_name }} –
+                    {{ selectedOrder.receiver_mobile }}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong>
+                    {{ selectedOrder.receiver_address }}
+                  </p>
+                </div>
+
+                <div class="detail-date-status-info">
+                  <p class="order-date-time">
+                    <strong>Ngày đặt:</strong>
+                    {{ selectedOrder.createdAt | date : "dd/MM/yyyy HH:mm" }}
+                  </p>
+                  <p class="order-status-line">
+                    <strong>Trạng thái:</strong>
+                    <span class="order-status" [ngClass]="'status-' + selectedOrder.status.toLowerCase()">
+                      {{ getOrderStatusText(selectedOrder.status) }}
+                    </span>
+                  </p>
+
+                  <button class="cancel-button-order detail-cancel-btn"
+                    *ngIf="selectedOrder.status.toUpperCase() === 'PENDING'" (click)="cancelOrder(selectedOrder._id!)">
+                    Hủy đơn hàng
+                  </button>
+                </div>
+              </div>
+              <hr />
+
+              <h3>Sản phẩm:</h3>
+              <div class="order-items-detail">
+                <div class="item-detail-card" *ngFor="let item of selectedOrderItems">
+                  <img [src]="
+                      item.productDetail?.image[0] ||
+                      'assets/images/default-product.png'
+                    " alt="Sản phẩm" class="item-image-detail" />
+
+                  <div class="item-info-detail">
+                    <p class="item-name">
+                      <strong>{{
+                        item.productDetail?.name || "Đang tải tên..."
+                        }}</strong>
+                    </p>
+                    <p class="item-variant">
+                      <strong>Size:</strong> {{ item.variant.size }} |
+                      <strong>Màu:</strong> {{ item.variant.color }}
+                    </p>
+                    <p class="item-qty-price">
+                      <strong>Số lượng:</strong> {{ item.quantity }} x
+                      {{ item.price | number }}₫
+                    </p>
+                    <p class="item-subtotal">
+                      <strong style="color: black">Thành tiền: </strong>
+                      <strong>{{ item.quantity * item.price | number }}₫</strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <div class="payment-summary">
+                <div class="payment-actions">
+                  <button class="action-button refund-button"
+                    *ngIf="selectedOrder.status.toUpperCase() === 'DELIVERED' || selectedOrder.status.toUpperCase() === 'SHIPPED'"
+                    (click)="requestRefund(selectedOrder._id!)">
+                    Yêu cầu Trả hàng/Hoàn tiền
+                  </button>
+
+                  <button class="action-button reorder-button" (click)="reorder(selectedOrder._id!)">
+                    Mua lại đơn hàng
+                  </button>
+                </div>
+
+                <div class="payment-calculation">
+                  <p>
+                    <strong>Tổng tiền hàng:</strong>
+                    {{ selectedOrder.total_price | number }}₫
+                  </p>
+                  <p>
+                    <strong>Phí vận chuyển:</strong>
+                    {{ selectedOrder.delivery_fee | number }}₫
+                  </p>
+
+                  <h3 class="final-total">
+                    <strong>Tổng thanh toán:</strong>
+                    {{
+                    selectedOrder.total_price + selectedOrder.delivery_fee
+                    | number
+                    }}₫
+                  </h3>
+                </div>
               </div>
             </div>
           </ng-container>
-        </div>
-        <div
-          class="load-more-orders-container"
-          *ngIf="ordersLimit < getTotalFilteredOrdersCount()"
-        >
-          <button class="load-more-orders-button" (click)="loadMoreOrders()">
-            Xem thêm đơn hàng ({{ getTotalFilteredOrdersCount() - ordersLimit }}
-            còn lại)
-          </button>
         </div>
       </ng-container>
 
@@ -193,21 +299,11 @@
       <!-- Address Tab -->
       <ng-container *ngIf="currentTab === 'address'">
         <div class="address-list">
-          <div
-            *ngFor="let address of addresses"
-            class="address-card"
-            [class.selected-address]="address._id === selectedAddressId"
-            (click)="selectAddress(address._id!)"
-          >
+          <div *ngFor="let address of addresses" class="address-card"
+            [class.selected-address]="address._id === selectedAddressId" (click)="selectAddress(address._id!)">
             <div class="address-selection-radio">
-              <span
-                class="radio-outer"
-                [class.checked]="address._id === selectedAddressId"
-              >
-                <span
-                  class="radio-inner"
-                  *ngIf="address._id === selectedAddressId"
-                ></span>
+              <span class="radio-outer" [class.checked]="address._id === selectedAddressId">
+                <span class="radio-inner" *ngIf="address._id === selectedAddressId"></span>
               </span>
             </div>
 
@@ -217,8 +313,7 @@
                 |
                 <span class="address-phone">{{ address.phone }}</span>
                 <span *ngIf="address.isDefault" class="default-tag">
-                  Mặc định</span
-                >
+                  Mặc định</span>
               </p>
               <p class="address-detail">
                 {{ address.street }}, {{ address.ward }},
@@ -227,19 +322,13 @@
             </div>
 
             <div class="address-actions">
-              <button
-                class="action-edit"
-                (click)="
+              <button class="action-edit" (click)="
                   openEditAddressModal(address); $event.stopPropagation()
-                "
-              >
+                ">
                 Sửa
               </button>
-              <button
-                class="action-delete"
-                *ngIf="!address.isDefault"
-                (click)="deleteAddress(address._id!); $event.stopPropagation()"
-              >
+              <button class="action-delete" *ngIf="!address.isDefault"
+                (click)="deleteAddress(address._id!); $event.stopPropagation()">
                 Xóa
               </button>
             </div>
@@ -256,9 +345,9 @@
           <div class="modal-header">
             <h3>
               {{
-                editingAddress && !editingAddress._id
-                  ? "Thêm địa chỉ mới"
-                  : "Sửa địa chỉ"
+              editingAddress && !editingAddress._id
+              ? "Thêm địa chỉ mới"
+              : "Sửa địa chỉ"
               }}
             </h3>
             <button class="close-modal-button" (click)="closeAddressModal()">
@@ -270,76 +359,37 @@
             <form (ngSubmit)="saveAddress()" #addressForm="ngForm">
               <div class="form-row">
                 <label>Tên người nhận</label>
-                <input
-                  [(ngModel)]="editingAddress.receiverName"
-                  name="recipientName"
-                  required
-                />
+                <input [(ngModel)]="editingAddress.receiverName" name="recipientName" required />
               </div>
               <div class="form-row">
                 <label>Số điện thoại</label>
-                <input
-                  type="tel"
-                  [(ngModel)]="editingAddress.phone"
-                  name="recipientPhone"
-                  required
-                />
+                <input type="tel" [(ngModel)]="editingAddress.phone" name="recipientPhone" required />
               </div>
               <div class="form-row">
                 <label>Tỉnh/Thành phố</label>
-                <input
-                  [(ngModel)]="editingAddress.province"
-                  name="addressProvince"
-                  required
-                />
+                <input [(ngModel)]="editingAddress.province" name="addressProvince" required />
               </div>
               <div class="form-row">
                 <label>Quận/Huyện</label>
-                <input
-                  [(ngModel)]="editingAddress.district"
-                  name="addressDistrict"
-                  required
-                />
+                <input [(ngModel)]="editingAddress.district" name="addressDistrict" required />
               </div>
               <div class="form-row">
                 <label>Phường/Xã</label>
-                <input
-                  [(ngModel)]="editingAddress.ward"
-                  name="addressWard"
-                  required
-                />
+                <input [(ngModel)]="editingAddress.ward" name="addressWard" required />
               </div>
               <div class="form-row address-detail-row">
                 <label>Địa chỉ chi tiết</label>
-                <textarea
-                  [(ngModel)]="editingAddress.street"
-                  name="addressStreet"
-                  rows="3"
-                  required
-                ></textarea>
+                <textarea [(ngModel)]="editingAddress.street" name="addressStreet" rows="3" required></textarea>
               </div>
               <div class="form-row default-checkbox">
-                <input
-                  type="checkbox"
-                  id="isDefault"
-                  [(ngModel)]="editingAddress.isDefault"
-                  name="isDefault"
-                />
+                <input type="checkbox" id="isDefault" [(ngModel)]="editingAddress.isDefault" name="isDefault" />
                 <label for="isDefault">Đặt làm địa chỉ mặc định</label>
               </div>
               <div class="modal-actions">
-                <button
-                  type="button"
-                  class="cancel-button"
-                  (click)="closeAddressModal()"
-                >
+                <button type="button" class="cancel-button" (click)="closeAddressModal()">
                   Hủy
                 </button>
-                <button
-                  type="submit"
-                  class="save-button"
-                  [disabled]="!addressForm.valid"
-                >
+                <button type="submit" class="save-button" [disabled]="!addressForm.valid">
                   Lưu địa chỉ
                 </button>
               </div>

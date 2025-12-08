@@ -6,28 +6,28 @@
     <div class="stat-card blue" (click)="navigateTo('/admin/manager-user')" style="cursor: pointer;">
       <div class="stat-number">{{ stats.totalUsers }}</div>
       <div class="stat-label">Tổng người dùng</div>
-      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.users }}</div>
+      <div class="stat-date">Ngày cập nhật: {{ updateDate }}</div>
     </div>
 
     <!-- Card 2: Tổng đơn hàng -->
     <div class="stat-card purple">
       <div class="stat-number">{{ stats.totalOrders }}</div>
       <div class="stat-label">Tổng đơn hàng</div>
-      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.orders }}</div>
+      <div class="stat-date">Ngày cập nhật: {{ updateDate }}</div>
     </div>
 
     <!-- Card 3: Tổng doanh thu -->
     <div class="stat-card red">
       <div class="stat-number">{{ formatCurrency(stats.totalRevenue) }}</div>
       <div class="stat-label">Tổng doanh thu</div>
-      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.revenue }} </div>
+      <div class="stat-date">Ngày cập nhật: {{ updateDate }}</div>
     </div>
 
     <!-- Card 4: Tổng sản phẩm -->
     <div class="stat-card green" (click)="navigateTo('/admin/products')" style="cursor: pointer;">
       <div class="stat-number">{{ stats.totalProducts }}</div>
       <div class="stat-label">Tổng sản phẩm</div>
-      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.products }}</div>
+      <div class="stat-date">Ngày cập nhật: {{ updateDate }}</div>
     </div>
   </div>
 

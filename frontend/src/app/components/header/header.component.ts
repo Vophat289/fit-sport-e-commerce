@@ -71,7 +71,7 @@ logout() {
     if (result.isConfirmed) {
       this.authService.logout().subscribe({
         next: () => {
-          this.cartService.clearCart();
+          // this.cartService.clearCart();
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           this.router.navigate(['/home']);

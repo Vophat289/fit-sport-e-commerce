@@ -35,15 +35,22 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Đơn hàng/Giỏ hàng
     status: {
         type: String,
-        enum: ['CART', 'PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+        enum: ['CART', 'PENDING', 'CONFIRMED','SHIPPING','SHIPPED', 'DELIVERED', 'CANCELLED'],
         default: 'CART', // Giỏ hàng sẽ có trạng thái là 'CART'
     },
     
+    // Phương thức thanh toán
+    payment_method: {
+        type: String,
+        enum: ['COD', 'VNPAY'],
+        default: 'VNPAY',
+    },
+
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['PENDING', 'PAID', 'REFUNDED'],
-        default: 'PENDING',
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+        default: 'INIT',
     },
 
     // Khóa Ngoại 2 (FK2) - Tùy chọn (Chỉ cần nếu bạn có PaymentGateway Model)
@@ -59,6 +66,12 @@ const OdersSchema = new mongoose.Schema({
         ref: 'Voucher',
         required: false,
     },
+
+    vnpay_transaction_id: {
+        type: String, // vnp_TxnRef từ VNPay
+        required: false,
+        index: true
+    }
 
 }, { timestamps: true });
 

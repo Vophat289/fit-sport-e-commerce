@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 
 const ProductsVariantSchema = new mongoose.Schema({
-    product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Products', required: true },
+    product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     size_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Size', required: true },
     color_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Color', required: true },
     price: { type: Number, required: true },

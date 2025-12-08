@@ -1,3 +1,4 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard.service';
@@ -16,6 +17,7 @@ import {
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -23,6 +25,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, L
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
+
 export class DashboardComponent implements OnInit, OnDestroy {
 
   stats = {
@@ -52,6 +55,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDashboard();
+
   }
 
   ngOnDestroy(): void {
@@ -149,7 +153,7 @@ this.chartInstance = new Chart(canvas, {
         ticks: {
           color: '#808080',                     
           font: { size: 13 },
-          callback: (value) => value.toLocaleString('vi-VN')
+          callback: (value: any) => value.toLocaleString('vi-VN')
         },
         grid: {
           color: '#808080'

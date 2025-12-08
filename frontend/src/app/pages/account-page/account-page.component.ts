@@ -1,9 +1,9 @@
 // src/app/pages/account-page/account-page.component.ts
-import { Component, OnInit, ViewChild  } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import {
@@ -12,6 +12,8 @@ import {
   Address,
   Order,
   Voucher,
+  SimpleProductDetail,
+  ProductVariant,
 } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -23,7 +25,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./account-page.component.css'],
 })
 export class AccountPageComponent implements OnInit {
-    @ViewChild('profileForm') profileForm!: NgForm;
+  @ViewChild('profileForm') profileForm!: NgForm;
   currentTab: 'profile' | 'orders' | 'vouchers' | 'address' = 'profile';
   isEditing: boolean = false; // PROFILE
 
@@ -46,12 +48,14 @@ export class AccountPageComponent implements OnInit {
   addresses: Address[] = [];
   selectedAddressId: string | null = null;
   isAddressModalOpen: boolean = false;
-  editingAddress?: Address; 
+  editingAddress?: Address;
 
   orders: Order[] = [];
   selectedOrder?: Order;
   ordersLimit: number = 3;
   orderFilter: 'ALL' | string = 'ALL';
+  selectedOrderItems: any[] = [];
+  productImageCache: { [productId: string]: SimpleProductDetail } = {};
 
   vouchers: Voucher[] = [];
   voucherFilter: 'ALL' | string = 'ALL';
@@ -80,7 +84,7 @@ export class AccountPageComponent implements OnInit {
       this.editData = { ...this.userInfo };
     } // 3. Tải dữ liệu ban đầu
 
-    this.loadProfile(); // Tải địa chỉ, đơn hàng, voucher ngay từ đầu
+    this.loadProfile();
     this.loadAddresses();
     this.loadOrders();
     this.loadVouchers();
@@ -237,8 +241,28 @@ export class AccountPageComponent implements OnInit {
     this.accountService.getOrders().subscribe({
       next: (data) => {
         this.orders = data;
+        this.loadFirstItemDetailsForVisibleOrders();
       },
       error: (err) => console.error('Lỗi khi tải Orders:', err),
+    });
+  }
+  loadFirstItemDetailsForVisibleOrders(): void {
+    this.getFilteredOrders().forEach((order: any) => {
+      if (order.first_item_image_url) return;
+
+      this.accountService.getOrderDetail(order._id!).subscribe({
+        next: (data) => {
+          const firstItem = data.items[0];
+          if (firstItem) {
+            order.first_item_image_url = (firstItem.variant?.image?.[0] ||
+              firstItem.product?.image?.[0] ||
+              'assets/images/default-product.png') as string;
+            order.first_item_name = firstItem.product?.name || 'Sản phẩm';
+          }
+        },
+        error: (err) =>
+          console.error(`Lỗi API khi tải chi tiết ĐH ${order._id!}:`, err),
+      });
     });
   }
 
@@ -264,10 +288,51 @@ export class AccountPageComponent implements OnInit {
 
   loadMoreOrders(): void {
     this.ordersLimit += 3;
+    this.loadFirstItemDetailsForVisibleOrders();
   }
 
   viewOrderDetail(orderId: string): void {
-    this.selectedOrder = this.orders.find((o) => o._id === orderId);
+    this.accountService.getOrderDetail(orderId).subscribe({
+      next: (data) => {
+        this.selectedOrder = data.order;
+        this.selectedOrderItems = data.items;
+
+        this.selectedOrderItems.forEach((item: any) => {
+          // Gán productDetail để HTML dùng
+          item.productDetail = item.product;
+
+          // Chỉ giữ variant với size, color, image
+          item.variant = {
+            size: item.variant?.size ?? 'N/A',
+            color: item.variant?.color ?? 'N/A',
+            image: item.variant?.image ?? item.product?.image ?? [],
+          };
+
+          // Bỏ variant_id
+          delete item.variant_id;
+
+          // Hiển thị ảnh + tên cho giao diện
+          item.displayImage =
+            item.variant.image?.[0] ??
+            item.product?.image?.[0] ??
+            'assets/images/default-product.png';
+
+          item.displayName = item.product?.name ?? 'Sản phẩm';
+        });
+      },
+      error: (err: any) => {
+        console.error('Lỗi khi lấy chi tiết đơn hàng:', err);
+        alert('Không thể tải chi tiết đơn hàng!');
+      },
+    });
+  }
+  requestRefund(orderId: string): void {
+    alert(
+      `Chức năng: Yêu cầu Trả hàng/Hoàn tiền cho đơn hàng #${orderId} đang được phát triển.`
+    );
+  }
+  reorder(orderId: string): void {
+    alert(`Chức năng: Mua lại Đơn hàng #${orderId} đang được phát triển.`);
   }
 
   backToOrderList(): void {
@@ -275,13 +340,18 @@ export class AccountPageComponent implements OnInit {
   }
 
   getOrderStatusText(status: string): string {
-    switch (status) {
+    if (!status) return '';
+    switch (status.toUpperCase()) {
       case 'PENDING':
-        return 'Đang xử lý';
+        return 'Chưa xác nhận';
+      case 'CONFIRMED':
+        return 'Đã xác nhận';
+      case 'SHIPPING':
+        return 'Đang giao hàng';
       case 'SHIPPED':
-        return 'Đang vận chuyển';
+        return 'Đã giao hàng';
       case 'DELIVERED':
-        return 'Đã giao';
+        return 'Đã giao thành công';
       case 'CANCELLED':
         return 'Đã hủy';
       default:
@@ -332,5 +402,96 @@ export class AccountPageComponent implements OnInit {
 
   toggleVoucherDisplay(): void {
     this.showAllVouchers = !this.showAllVouchers;
+  }
+  cancelOrder(orderId: string): void {
+    if (
+      !confirm(
+        'Bạn có chắc chắn muốn hủy đơn hàng này? Thao tác này không thể hoàn tác.'
+      )
+    ) {
+      return;
+    }
+
+    // 1. Lấy chi tiết đơn hàng để biết các sản phẩm và số lượng cần hoàn lại
+    this.accountService.getOrderDetail(orderId).subscribe({
+      next: (data) => {
+        const orderToCancel = data.order;
+        const orderItems = data.items;
+
+        if (orderToCancel.status.toUpperCase() !== 'PENDING') {
+          alert('Đơn hàng đã được xử lý và không thể hủy.');
+          this.loadOrders(); // Tải lại danh sách để cập nhật trạng thái
+          return;
+        }
+
+        // 2. Gọi API để hủy đơn hàng (thay đổi trạng thái thành CANCELLED)
+        this.accountService.cancelOrderApi(orderId).subscribe({
+          next: () => {
+            // 3. Hoàn lại số lượng tồn kho cho từng sản phẩm trong đơn
+            this.revertStock(orderItems).subscribe({
+              next: () => {
+                alert(
+                  `Đơn hàng #${orderToCancel.order_code} đã được hủy thành công và tồn kho đã được hoàn lại.`
+                );
+
+                // 4. Cập nhật giao diện
+                this.loadOrders();
+                this.backToOrderList();
+              },
+              error: (err: HttpErrorResponse) => {
+                console.error('Lỗi khi hoàn lại tồn kho:', err);
+                // Lưu ý: Đơn hàng đã bị hủy, chỉ có tồn kho bị lỗi
+                alert(
+                  `Hủy đơn hàng thành công, nhưng lỗi khi hoàn lại tồn kho: ${
+                    err.error?.message || 'Lỗi không xác định'
+                  }. Vui lòng liên hệ hỗ trợ.`
+                );
+                this.loadOrders();
+                this.backToOrderList();
+              },
+            });
+          },
+          error: (err: HttpErrorResponse) => {
+            console.error('Lỗi khi hủy đơn hàng:', err);
+            alert(
+              `Hủy đơn hàng thất bại: ${
+                err.error?.message || 'Lỗi không xác định'
+              }`
+            );
+          },
+        });
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Lỗi khi tải chi tiết đơn hàng để hủy:', err);
+        alert('Không thể tải chi tiết đơn hàng để xử lý hủy.');
+      },
+    });
+  }
+
+  /**
+   * Hàm hỗ trợ để gọi API hoàn lại stock cho từng item
+   * @param items Danh sách các sản phẩm trong đơn hàng
+   * @returns Observable hoàn thành sau khi tất cả các cập nhật stock đã được thực hiện
+   */
+  private revertStock(orderItems: any[]): Observable<any> {
+    const stockUpdateObservables: Observable<any>[] = [];
+
+    orderItems.forEach((item) => {
+      const variantId = item.variant?._id;
+      const quantityToAdd = item.quantity;
+
+      if (variantId && quantityToAdd > 0) {
+        stockUpdateObservables.push(
+          this.accountService.updateProductVariantStock(
+            variantId,
+            quantityToAdd
+          )
+        );
+      }
+    });
+
+    return stockUpdateObservables.length > 0
+      ? forkJoin(stockUpdateObservables)
+      : of(null);
   }
 }

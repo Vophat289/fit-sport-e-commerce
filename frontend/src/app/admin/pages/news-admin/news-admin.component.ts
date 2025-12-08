@@ -48,8 +48,9 @@ export class NewsAdminComponent implements OnInit {
   isLoading = false;
   message: { type: 'success' | 'error'; text: string } | null = null;
 
-  private readonly apiUrl = 'http://localhost:3000/api/admin/news';
-  private readonly baseUrl = 'http://localhost:3000';
+  // Sử dụng relative URL - nginx sẽ proxy đến backend
+  private readonly apiUrl = '/api/admin/news';
+  private readonly baseUrl = ''; // Không cần base URL khi dùng relative path
   private readonly placeholderImage = 'https://via.placeholder.com/120x120.png?text=No+Image';
 
   constructor(

@@ -3,7 +3,7 @@
 import Contact from '../models/contact.model.js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
 
 // POST: Gửi liên hệ + lưu DB + gửi mail
 export const sendContactMail = async (req, res) => {

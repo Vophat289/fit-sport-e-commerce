@@ -49,7 +49,6 @@ const newsSchema = new mongoose.Schema(
   }
 );
 
-newsSchema.index({ slug: 1 });          
 newsSchema.index({ createdAt: -1 });     
 newsSchema.index({ isActive: 1, createdAt: -1 }); 
 

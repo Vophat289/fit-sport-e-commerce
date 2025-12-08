@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import User from '../models/user.model.js'; // Đường dẫn đến model User, sửa theo dự án của bạn
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fitsport_2025';
 

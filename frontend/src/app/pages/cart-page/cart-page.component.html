@@ -71,45 +71,27 @@
             <p class="item-price">{{ item.price | currency : "VND" }}</p>
             <!-- QUANTITY CONTROLS -->
             <div class="quantity-control">
-              <button
-                (click)="
-                  updateQuantity(
-                    item._id,
-                    item.quantity - 1,
-                    item.maxStock ?? 1
-                  )
-                "
-              >
+              <button (click)="updateQuantity(item._id, item.quantityToAdd - 1)">
                 -
               </button>
 
               <input
                 type="number"
-                [(ngModel)]="item.quantity"
-                (ngModelChange)="
-                  updateQuantity(item._id, item.quantity, item.maxStock ?? 1)
-                "
+                [(ngModel)]="item.quantityToAdd"
+                (blur)="updateQuantity(item._id, item.quantityToAdd)"
                 [min]="0"
                 [max]="item.maxStock ?? 1"
                 class="quantity-input"
               />
 
-              <button
-                (click)="
-                  updateQuantity(
-                    item._id,
-                    item.quantity + 1,
-                    item.maxStock ?? 1
-                  )
-                "
-                [disabled]="item.quantity >= (item.maxStock ?? 1)"
-              >
+              <button (click)="updateQuantity(item._id, item.quantityToAdd + 1)">
                 +
               </button>
             </div>
+
             <!-- SUBTOTAL -->
             <p class="item-subtotal">
-              {{ item.price * item.quantity | currency : "VND" }}
+              {{ item.price * item.quantityToAdd | currency : "VND" }}
             </p>
 
             <!-- delete -->
