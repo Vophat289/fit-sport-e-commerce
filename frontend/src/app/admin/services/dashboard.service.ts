@@ -13,4 +13,7 @@ export class DashboardService{
     getDashboardData(): Observable<any>{
         return this.http.get<any>(this.apiUrl)
     }
+    getTopProducts(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/top-products`);
+  }
 }
