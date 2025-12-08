@@ -384,17 +384,30 @@ export const syncCart = async (req, res) => {
 };
 
 export const checkout = async (req, res) => {
-    try{
-        const userId = req.user._id || req.user.id;
-        const { 
-            receiver_name, receiver_mobile, receiver_address, voucher_code, payment_method
-        } = req.body;
+    try {
+        const { payment_method } = req.body;
 
         // Kiểm tra phương thức thanh toán: nếu là COD, gọi hàm checkoutCOD
         if(payment_method === 'COD'){
             return await checkoutCOD(req, res);
         }
+        
         // Nếu không phải COD hoặc không có payment_method, mặc định là VNPay
+        return await checkoutVNPay(req, res);
+    } catch (error) {
+        return res.status(500).json({ 
+            message: 'Lỗi server khi xử lý thanh toán',
+            error: error.message
+        });
+    }
+}
+
+export const checkoutVNPay = async (req, res) => {
+    try{
+        const userId = req.user._id || req.user.id;
+        const { 
+            receiver_name, receiver_mobile, receiver_address, voucher_code
+        } = req.body;
 
         //validate thông tin ng nhận
         if(!receiver_name || !receiver_mobile || !receiver_address){
@@ -518,7 +531,8 @@ export const checkout = async (req, res) => {
 
         //update cart thành order 
         cart.status = 'PENDING';
-        cart.payment_status = 'INIT'; // Tạo đơn hàng → chưa thanh toán
+        cart.payment_method = 'VNPAY';        // Phương thức thanh toán: VNPay
+        cart.payment_status = 'INIT';         // Tạo đơn hàng → chưa thanh toán
         cart.receiver_name = receiver_name;
         cart.receiver_mobile = receiver_mobile;
         cart.receiver_address = receiver_address;
@@ -720,8 +734,9 @@ export const checkoutCOD = async (req, res) => {
         }
 
         //update cart thành order 
-        cart.status = 'PENDING';              // Đơn hàng đang chờ xử lý
-        cart.payment_status = 'COD';          // Payment method: COD (thanh toán khi nhận hàng)
+        cart.status = 'PENDING';              
+        cart.payment_method = 'COD';          
+        cart.payment_status = 'PENDING';     
         cart.receiver_name = receiver_name;
         cart.receiver_mobile = receiver_mobile;
         cart.receiver_address = receiver_address;

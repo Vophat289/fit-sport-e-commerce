@@ -39,10 +39,17 @@ const OdersSchema = new mongoose.Schema({
         default: 'CART', // Giỏ hàng sẽ có trạng thái là 'CART'
     },
     
+    // Phương thức thanh toán
+    payment_method: {
+        type: String,
+        enum: ['COD', 'VNPAY'],
+        default: 'VNPAY',
+    },
+
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED', 'COD'],
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
         default: 'INIT',
     },
 

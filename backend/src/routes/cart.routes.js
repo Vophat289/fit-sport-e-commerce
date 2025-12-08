@@ -5,7 +5,9 @@ import {
   updateCartItem, 
   deleteCartItem,
   syncCart,
-  checkout
+  checkout,
+  checkoutVNPay,
+  checkoutCOD
 } from '../controllers/cart.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
