@@ -3,7 +3,8 @@ import {
   addToCart, 
   getCart, 
   updateCartItem, 
-  deleteCartItem 
+  deleteCartItem ,
+  checkout
 } from '../controllers/cart.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
@@ -20,5 +21,8 @@ router.patch('/update/:itemId', authMiddleware, updateCartItem);
 
 // Xóa sản phẩm khỏi giỏ hàng
 router.delete('/delete/:itemId', authMiddleware, deleteCartItem);
+
+//checkout và tạo payment
+router.post('/checkout', authMiddleware, checkout);
 
 export default router;

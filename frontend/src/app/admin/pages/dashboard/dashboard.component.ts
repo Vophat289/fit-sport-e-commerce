@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,14 +9,19 @@ import { CommonModule } from '@angular/common';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
-  // Thống kê tổng quan (sẽ lấy từ API sau)
+export class DashboardComponent implements OnInit {
+  loading = true;
+  
+  // Thống kê tổng quan
   stats = {
-    totalUsers: 60,        // Tổng số người dùng
-    totalOrders: 40,       // Tổng số đơn hàng
-    totalRevenue: 15000000, // Tổng doanh thu
-    totalProducts: 50      // Tổng số sản phẩm
+    totalUsers: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    totalProducts: 0
   };
+
+  // Ngày cập nhật
+  updateDate: string = '';
 
   // Dữ liệu biểu đồ doanh thu theo 12 tháng (triệu VNĐ)
   chartData = [
@@ -35,6 +41,44 @@ export class DashboardComponent {
 
   // Tìm giá trị max để scale biểu đồ
   maxRevenue = Math.max(...this.chartData.map(d => d.revenue));
+
+  constructor(private dashboardService: DashboardService) {
+    this.updateDate = this.formatDate(new Date());
+  }
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    this.loading = true;
+    this.dashboardService.getDashboardData().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.stats = {
+            totalUsers: response.data.totalUsers || 0,
+            totalOrders: response.data.totalOrders || 0,
+            totalRevenue: response.data.totalRevenue || 0,
+            totalProducts: response.data.totalProducts || 0
+          };
+          this.updateDate = this.formatDate(new Date());
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Lỗi khi tải dữ liệu dashboard:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Format ngày theo định dạng Việt Nam (dd/MM/yyyy)
+  formatDate(date: Date): string {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
 
   // Format số tiền theo định dạng Việt Nam (15.000.000)
   formatCurrency(value: number): string {

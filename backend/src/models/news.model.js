@@ -18,7 +18,6 @@ const newsSchema = new mongoose.Schema(
       required: [true, 'Nội dung bài viết là bắt buộc']
     },
 
-    // ẢNH LƯU LINK CLOUDINARY
     thumbnail: {
       type: String,
       default: null
@@ -58,5 +57,9 @@ const newsSchema = new mongoose.Schema(
 newsSchema.index({ slug: 1 });
 newsSchema.index({ createdAt: -1 });
 newsSchema.index({ isActive: 1, createdAt: -1 });
+
+newsSchema.index({ createdAt: -1 });     
+newsSchema.index({ isActive: 1, createdAt: -1 }); 
+
 
 export default mongoose.model('News', newsSchema);

@@ -157,22 +157,47 @@ textarea.form-control { min-height: 124px !important; resize: vertical; }
   gap: 12px;
 }
 
+/* Nút + Thêm bài viết */
 .btn-add {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #2f80ed;
+  justify-content: center;     /* Căn giữa nội dung */
+  gap: 8px;
+
+  padding: 10px 20px;
+  min-width: 190px;            /* Rộng hơn – nhìn cân đối */
+  height: 44px;
+
+  background: linear-gradient(135deg, #2f80ed, #60a5fa); /* Hiệu ứng xanh gradient */
   color: #fff;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;            /* Chữ đậm */
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.35); /* Bóng đổ nhẹ */
 }
 
 .btn-add i {
   font-size: 18px;
+  font-weight: bold;
 }
+
+/* Hiệu ứng hover */
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(47, 128, 237, 0.45);
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+}
+
+/* Khi bấm xuống */
+.btn-add:active {
+  transform: scale(0.96);
+  box-shadow: 0 3px 8px rgba(47, 128, 237, 0.3);
+}
+
 /* Modal */
 .modal-backdrop {
   position: fixed;

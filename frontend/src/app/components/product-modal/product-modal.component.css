@@ -1,0 +1,278 @@
+
+/* =======================================================
+   💠 ROOT VARIABLES
+========================================================== */
+:root {
+    --primary-blue: #3498db;
+    --primary-green: #2ecc71;
+    --secondary-red: #e74c3c;
+    --text-dark: #2c3e50;
+    --border-light: #e0e0e0;
+    --background-grey: #f7f7f7;
+}
+
+/* =======================================================
+   💠 RESET & MODAL OVERLAY
+========================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+/* =======================================================
+   💠 MODAL CONTENT
+========================================================== */
+.modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    position: relative;
+    font-family: Arial, sans-serif;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* =======================================================
+   💠 MODAL HEADER
+========================================================== */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #7f8c8d;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--secondary-red);
+}
+
+/* =======================================================
+   💠 MODAL BODY
+========================================================== */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* --- Product Preview --- */
+.product-preview {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--border-light);
+}
+
+.preview-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.preview-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--secondary-red);
+}
+
+.preview-stock {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary-green);
+    margin-top: 5px;
+}
+
+/* --- Variant Selection --- */
+.variant-selection {
+    display: flex;
+    flex-direction: column;
+}
+
+.variant-selection label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: var(--text-dark);
+}
+
+.options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.options-container button {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    color: var(--text-dark);
+}
+
+.options-container button:hover {
+    border-color: var(--primary-blue);
+}
+
+.options-container button.selected {
+    border-color: var(--primary-blue);
+    background-color: var(--primary-blue);
+    font-weight: 700;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(52,152,219,0.3);
+}
+
+/* --- Quantity Control --- */
+.quantity-control {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+.quantity-input-group {
+    display: flex;
+    align-items: center;
+    width: 120px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.quantity-input-group button {
+    background: var(--background-grey);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.quantity-input-group input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    padding: 8px 0;
+    font-size: 15px;
+    outline: none;
+}
+
+/* =======================================================
+   💠 MODAL FOOTER
+========================================================== */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.modal-footer button {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: #ecf0f1;
+    color: var(--text-dark);
+    border: 1px solid #ecf0f1;
+}
+
+.btn-cancel:hover {
+    background: #dcdcdc;
+}
+
+.btn-confirm {
+    background: var(--primary-green);
+    border: none;
+    background: #ecf0f1;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: #27ae60;
+    color:#ddd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(46,204,113,0.4);
+}
+
+.btn-confirm:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* =======================================================
+   💠 ANIMATION
+========================================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* =======================================================
+   💠 RESPONSIVE MODAL
+========================================================== */
+@media(max-width: 500px) {
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    .quantity-input-group {
+        width: 100px;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+}
+

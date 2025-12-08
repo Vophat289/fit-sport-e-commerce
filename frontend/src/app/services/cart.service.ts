@@ -1,6 +1,7 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 export interface AddCartPayload {
   productId: string;
@@ -11,7 +12,8 @@ export interface AddCartPayload {
   sizeName?: string;
   colorId?: string;
   colorName?: string;
-  quantity: number;
+  quantityToAdd: number; // số lượng user muốn đặt
+  stock?: number; // tồn kho thực tế từ dữ liệu sản phẩm
 }
 
 export interface CartItem {
@@ -24,9 +26,11 @@ export interface CartItem {
   sizeName?: string;
   colorId?: string;
   colorName?: string;
-  quantity: number;
+  quantityToAdd: number;
   maxStock?: number;
   selected?: boolean;
+     
+  stock: number;
 }
 
 export interface CartDetails {
@@ -40,45 +44,37 @@ export interface CartDetails {
 })
 export class CartService {
   private storageKey = 'my_cart';
-
-  // BehaviorSubject lưu trữ số lượng sản phẩm
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
-  constructor() {
-    this.updateCartCount(); // Khởi tạo số lượng khi load service
+  constructor(private http: HttpClient) {
+    this.updateCartCount();
   }
 
-  // Lấy cart từ localStorage
   private getLocalCart(): CartDetails {
     const local = localStorage.getItem(this.storageKey);
     if (local) return JSON.parse(local);
     return { cartId: 'local', items: [] };
   }
 
-  // Lưu cart và cập nhật cartCount
   private saveLocalCart(cart: CartDetails) {
     localStorage.setItem(this.storageKey, JSON.stringify(cart));
     this.updateCartCount();
   }
 
-  // Cập nhật tổng số lượng giỏ hàng
   private updateCartCount() {
     const cart = this.getLocalCart();
-    const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const count = cart.items.reduce((sum, item) => sum + item.quantityToAdd, 0);
     this.cartCountSubject.next(count);
   }
 
-  // Lấy chi tiết giỏ hàng
   getCartDetails(): Observable<CartDetails> {
     return new Observable<CartDetails>((subscriber) => {
-      const cart = this.getLocalCart();
-      subscriber.next(cart);
+      subscriber.next(this.getLocalCart());
       subscriber.complete();
     });
   }
 
-  // Thêm sản phẩm vào giỏ
   addToCart(payload: AddCartPayload): Observable<{ cart: CartDetails }> {
     return new Observable<{ cart: CartDetails }>((subscriber) => {
       const cart = this.getLocalCart();
@@ -91,7 +87,12 @@ export class CartService {
       );
 
       if (idx > -1) {
-        cart.items[idx].quantity += payload.quantity;
+        const currentQty = cart.items[idx].quantityToAdd ?? 0;
+        const maxStock = payload.stock ?? cart.items[idx].stock ?? 0;
+        const newQty = currentQty + payload.quantityToAdd;
+
+        cart.items[idx].quantityToAdd = newQty > maxStock ? maxStock : newQty;
+        cart.items[idx].stock = maxStock; // giữ tồn kho gốc
       } else {
         cart.items.push({
           _id: Date.now(),
@@ -103,12 +104,13 @@ export class CartService {
           sizeName: payload.sizeName || '—',
           colorId: payload.colorId || undefined,
           colorName: payload.colorName || '—',
-          quantity: payload.quantity,
+          quantityToAdd: payload.quantityToAdd,
+          stock: payload.stock ?? payload.quantityToAdd, // tồn kho thực tế
           selected: true,
         });
       }
 
-      this.saveLocalCart(cart); // ✅ tự động cập nhật cartCount
+      this.saveLocalCart(cart);
       subscriber.next({ cart });
       subscriber.complete();
     });
@@ -119,8 +121,12 @@ export class CartService {
     return new Observable<CartDetails>((subscriber) => {
       const cart = this.getLocalCart();
       const idx = cart.items.findIndex((i) => i._id === itemId);
-      if (idx > -1) cart.items[idx].quantity = quantity;
-      this.saveLocalCart(cart); // ✅ tự động cập nhật cartCount
+      if (idx > -1) {
+        const maxStock = cart.items[idx].stock ?? quantity;
+        cart.items[idx].quantityToAdd =
+          quantity > maxStock ? maxStock : quantity;
+      }
+      this.saveLocalCart(cart);
       subscriber.next(cart);
       subscriber.complete();
     });
@@ -131,7 +137,7 @@ export class CartService {
     return new Observable<CartDetails>((subscriber) => {
       const cart = this.getLocalCart();
       cart.items = cart.items.filter((i) => i._id !== itemId);
-      this.saveLocalCart(cart); // ✅ tự động cập nhật cartCount
+      this.saveLocalCart(cart);
       subscriber.next(cart);
       subscriber.complete();
     });
@@ -140,6 +146,64 @@ export class CartService {
   // Xóa toàn bộ giỏ
   clearCart(): void {
     localStorage.removeItem(this.storageKey);
-    this.cartCountSubject.next(0); // ✅ reset số lượng
+    this.cartCountSubject.next(0);
+  }
+
+  getCart(): Observable<any> {
+    return this.http.get<any>('/api/cart');
+  }
+
+  /**
+   * Sync selected items từ localStorage lên backend database
+   * Lưu ý: Backend sẽ tự merge nếu item đã tồn tại (tăng quantity)
+   * @param selectedItems - Danh sách items đã được chọn từ localStorage
+   * @returns Observable<boolean> - true nếu sync thành công
+   */
+  syncCartToBackend(selectedItems: CartItem[]): Observable<boolean> {
+    return new Observable<boolean>((subscriber) => {
+      if (!selectedItems || selectedItems.length === 0) {
+        subscriber.next(true);
+        subscriber.complete();
+        return;
+      }
+
+      // Sync từng item tuần tự để tránh conflict
+      let syncIndex = 0;
+      let hasError = false;
+
+      const syncNextItem = () => {
+        if (syncIndex >= selectedItems.length || hasError) {
+          if (!hasError) {
+            console.log('✅ Sync cart to backend thành công:', selectedItems.length, 'items');
+            subscriber.next(true);
+            subscriber.complete();
+          }
+          return;
+        }
+
+        const item = selectedItems[syncIndex];
+        
+        // Backend API cần: productId, sizeId, colorId, quantity
+        this.http.post('/api/cart/add', {
+          productId: item.variant_id, // variant_id trong localStorage là productId
+          sizeId: item.sizeId || '',
+          colorId: item.colorId || '',
+          quantity: item.quantityToAdd || 1
+        }).subscribe({
+          next: () => {
+            syncIndex++;
+            syncNextItem(); // Sync item tiếp theo
+          },
+          error: (error) => {
+            console.error(`❌ Lỗi khi sync item ${syncIndex + 1}/${selectedItems.length}:`, error);
+            hasError = true;
+            subscriber.error(error);
+          }
+        });
+      };
+
+      // Bắt đầu sync item đầu tiên
+      syncNextItem();
+    });
   }
 }

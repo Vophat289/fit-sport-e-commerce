@@ -60,6 +60,12 @@ const OdersSchema = new mongoose.Schema({
         required: false,
     },
 
+    vnpay_transaction_id: {
+        type: String, // vnp_TxnRef từ VNPay
+        required: false,
+        index: true
+    }
+
 }, { timestamps: true });
 
 const Oders = mongoose.model('Oders', OdersSchema);

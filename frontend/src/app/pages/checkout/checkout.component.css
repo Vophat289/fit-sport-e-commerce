@@ -1,0 +1,266 @@
+/* Màu sắc thương hiệu */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #e74c3c;
+  --background-light: #f4f4f4;
+  --text-dark: #2c3e50;
+  --border-light: #ddd;
+  --success-color: #27ae60;
+}
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: Arial, sans-serif;
+  color: var(--text-dark);
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid var(--primary-color);
+  color: var(--text-dark);
+}
+
+.checkout-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* =============================
+   CART SUMMARY (Bên trái)
+============================= */
+
+.cart-summary {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.cart-summary h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-light);
+  color: var(--text-dark);
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.cart-item:last-of-type {
+  border-bottom: 2px solid var(--border-light);
+  margin-bottom: 15px;
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  font-size: 15px;
+  color: var(--text-dark);
+}
+
+.item-variant {
+  font-size: 13px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.item-quantity {
+  font-size: 13px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.item-price {
+  font-weight: 600;
+  color: var(--secondary-color);
+  font-size: 16px;
+  min-width: 120px;
+  text-align: right;
+}
+
+.summary-section {
+  margin-top: 15px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 15px;
+}
+
+.summary-row.total-row {
+  border-top: 2px solid var(--border-light);
+  padding-top: 15px;
+  margin-top: 10px;
+  font-size: 18px;
+  color: var(--text-dark);
+}
+
+.total-row strong {
+  color: var(--secondary-color);
+  font-size: 20px;
+}
+
+/* =============================
+   CHECKOUT FORM (Bên phải)
+============================= */
+
+.checkout-form {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.checkout-form h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-light);
+  color: var(--text-dark);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 10px;
+}
+
+.checkout-btn:hover:not(:disabled) {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 50px 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+/* =============================
+   RESPONSIVE
+============================= */
+
+@media (max-width: 968px) {
+  .checkout-content {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary {
+    position: static;
+    order: 2;
+  }
+
+  .checkout-form {
+    order: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkout-container {
+    padding: 0 15px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .cart-summary,
+  .checkout-form {
+    padding: 20px;
+  }
+
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  .item-price {
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+  }
+}
+
+

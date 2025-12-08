@@ -19,20 +19,62 @@ export interface Product {
   averageRating?: number;
   totalRatings?: number;
   _displayIndex?: number;
+  availableColors?: {
+    id: string;
+    name: string;
+    hex_code?: string;
+  }[];
+
+  availableSizes?: {
+    id: string;
+    name: string;
+  }[];
+  variants?: {
+    size_id: string;
+    color_id: string;
+    price: number;
+    quantity: number;
+  }[];
+}
+export interface VariantSelection {
+  sizeId: string;
+  sizeName: string;
+  colorId: string;
+  colorName: string;
+  quantity: number;
+  price: number;
+  stock: number;
+}
+
+export interface VariantDetails {
+  price: number;
+  quantity: number;
+}
+
+export interface AvailableOption {
+  id: string;
+  name: string;
+  hex?: string;
+}
+
+export interface AvailableVariants {
+  availableSizes: AvailableOption[];
+  availableColors: AvailableOption[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  private adminApiUrl = 'http://localhost:3000/api/admin';
+  // Sử dụng relative URL - nginx sẽ proxy đến backend
+  private adminApiUrl = '/api/admin';
 
   private apiUrl = '/api/products';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl); //Observable<Product[]> là kiểu dữ liệu trả vè mảng
+    return this.http.get<Product[]>(this.apiUrl);
   }
 
   getBySlugProduct(slug: string): Observable<Product> {
@@ -82,7 +124,6 @@ export class ProductService {
     sizeId: string,
     colorId: string
   ): Observable<any> {
-    // GET /api/products/variant-details?product=...
     const url = `${this.adminApiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
     return this.http.get(url);
   }
