@@ -1,74 +1,43 @@
 <div class="dashboard">
   <!-- Stats Cards Section -->
   <div class="stats-grid">
+
     <!-- Card 1: Tổng người dùng -->
-    <div class="stat-card blue">
+    <div class="stat-card blue" (click)="navigateTo('/admin/manager-user')" style="cursor: pointer;">
       <div class="stat-number">{{ stats.totalUsers }}</div>
       <div class="stat-label">Tổng người dùng</div>
-      <div class="stat-date">Ngày cập nhật: 4/11/2025</div>
+      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.users }}</div>
     </div>
 
     <!-- Card 2: Tổng đơn hàng -->
     <div class="stat-card purple">
       <div class="stat-number">{{ stats.totalOrders }}</div>
       <div class="stat-label">Tổng đơn hàng</div>
-      <div class="stat-date">Ngày cập nhật: 4/11/2025</div>
+      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.orders }}</div>
     </div>
 
     <!-- Card 3: Tổng doanh thu -->
     <div class="stat-card red">
       <div class="stat-number">{{ formatCurrency(stats.totalRevenue) }}</div>
       <div class="stat-label">Tổng doanh thu</div>
-      <div class="stat-date">Ngày cập nhật: 4/11/2025</div>
+      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.revenue }} </div>
     </div>
 
     <!-- Card 4: Tổng sản phẩm -->
-    <div class="stat-card green">
+    <div class="stat-card green" (click)="navigateTo('/admin/products')" style="cursor: pointer;">
       <div class="stat-number">{{ stats.totalProducts }}</div>
       <div class="stat-label">Tổng sản phẩm</div>
-      <div class="stat-date">Ngày cập nhật: 4/11/2025</div>
+      <div class="stat-date">Ngày cập nhật: {{ statsUpdated.products }}</div>
     </div>
   </div>
 
   <!-- Chart Section -->
   <div class="chart-container">
     <h3 class="chart-title">Biểu Đồ Doanh Thu Theo Tháng Của FITSPORT</h3>
-    
+
     <div class="chart-wrapper">
-      <!-- Y-axis labels -->
-      <div class="y-axis">
-        <div class="y-label" *ngFor="let label of [4, 3, 2, 1, 0]">{{ label }}</div>
-      </div>
-
-      <!-- Chart area -->
-      <div class="chart-area">
-        <!-- Grid lines -->
-        <div class="grid-lines">
-          <div class="grid-line" *ngFor="let i of [0, 1, 2, 3, 4]"></div>
-        </div>
-
-        <!-- Bars -->
-        <div class="bars">
-          <div class="bar-wrapper" *ngFor="let data of chartData">
-            <div class="bar" 
-                 [style.height.%]="getBarHeight(data.revenue)"
-                 [title]="data.revenue + ' triệu'">
-            </div>
-            <div class="bar-label">{{ data.month }}</div>
-          </div>
-        </div>
-      </div>
+      <canvas id="revenueChart"></canvas>
     </div>
 
-    <!-- X-axis label -->
-    <div class="x-axis-label">Tháng</div>
-
-    <!-- Legend -->
-    <div class="legend">
-      <div class="legend-item">
-        <div class="legend-color"></div>
-        <span>Doanh Thu Hàng Tháng</span>
-      </div>
-    </div>
   </div>
 </div>
