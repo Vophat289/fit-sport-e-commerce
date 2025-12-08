@@ -1,92 +1,200 @@
-import { Component, OnInit } from '@angular/core';
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard.service';
+import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  loading = true;
-  
-  // Thống kê tổng quan
+
+export class DashboardComponent implements OnInit, OnDestroy {
+
   stats = {
     totalUsers: 0,
+    totalProducts: 0,
     totalOrders: 0,
-    totalRevenue: 0,
-    totalProducts: 0
+    totalRevenue: 0
+  };
+  
+  statsUpdated = {
+    users: '',
+    products: '',
+    orders: '',
+    revenue: ''
   };
 
-  // Ngày cập nhật
-  updateDate: string = '';
+  chartLabels: string[] = [];
+  chartDataNumbers: number[] = [];
+  topProducts: Array<any> = [];
 
-  // Dữ liệu biểu đồ doanh thu theo 12 tháng (triệu VNĐ)
-  chartData = [
-    { month: 1, revenue: 1.2 },
-    { month: 2, revenue: 1.5 },
-    { month: 3, revenue: 2.0 },
-    { month: 4, revenue: 2.3 },
-    { month: 5, revenue: 3.1 },
-    { month: 6, revenue: 2.8 },
-    { month: 7, revenue: 2.5 },
-    { month: 8, revenue: 2.7 },
-    { month: 9, revenue: 3.0 },
-    { month: 10, revenue: 2.9 },
-    { month: 11, revenue: 3.2 },
-    { month: 12, revenue: 2.8 }
-  ];
+  private subscription?: Subscription;
+  private chartInstance?: Chart;
 
-  // Tìm giá trị max để scale biểu đồ
-  maxRevenue = Math.max(...this.chartData.map(d => d.revenue));
-
-  constructor(private dashboardService: DashboardService) {
-    this.updateDate = this.formatDate(new Date());
-  }
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router      
+  ) {}
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    this.loadDashboard();
+    this.loadTopProducts();
   }
 
-  loadDashboardData(): void {
-    this.loading = true;
-    this.dashboardService.getDashboardData().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.stats = {
-            totalUsers: response.data.totalUsers || 0,
-            totalOrders: response.data.totalOrders || 0,
-            totalRevenue: response.data.totalRevenue || 0,
-            totalProducts: response.data.totalProducts || 0
-          };
-          this.updateDate = this.formatDate(new Date());
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Lỗi khi tải dữ liệu dashboard:', err);
-        this.loading = false;
+  loadTopProducts() {
+  this.dashboardService.getTopProducts().subscribe({
+    next: (res) => {
+      if (res?.success && Array.isArray(res.data)) {
+        this.topProducts = res.data;
+      } else {
+        this.topProducts = [];
       }
+    },
+    error: (err) => {
+      console.error("Lỗi loadTopProducts:", err);
+      this.topProducts = [];
+    }
+  });
+}
+
+  ngOnDestroy(): void {
+    if (this.subscription) this.subscription.unsubscribe();
+    if (this.chartInstance) this.chartInstance.destroy();
+  }
+
+  loadDashboard() {
+    this.subscription = this.dashboardService.getDashboardData().subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+
+          const d = res.data;
+
+          this.stats.totalUsers = d.totalUsers;
+          this.stats.totalProducts = d.totalProducts;
+          this.stats.totalOrders = d.totalOrders;
+          this.stats.totalRevenue = d.totalRevenue;
+
+          const u = res.data.updatedAt;
+          
+          this.statsUpdated.users = this.formatDate(u.users?.updatedAt);
+          this.statsUpdated.products = this.formatDate(u.products?.updatedAt);
+          this.statsUpdated.orders = this.formatDate(u.orders?.updatedAt);
+          this.statsUpdated.revenue = this.formatDate(u.revenue?.updatedAt);
+
+          // Chart data
+          this.chartLabels = d.chartData.map((m: any) => m.month);
+          this.chartDataNumbers = d.chartData.map((m: any) => m.revenue);
+
+          console.log("Chart Labels:", this.chartLabels);
+          console.log("Chart Data:", this.chartDataNumbers);
+
+          setTimeout(() => this.renderChart(), 0);
+        }
+      },
+      error: (err) => console.error(err)
     });
   }
 
-  // Format ngày theo định dạng Việt Nam (dd/MM/yyyy)
-  formatDate(date: Date): string {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+
+  renderChart() {
+    const canvas = document.getElementById('revenueChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.chartInstance) this.chartInstance.destroy();
+
+    const maxRevenue = Math.max(...this.chartDataNumbers, 1);
+    const roundedMax = Math.ceil(maxRevenue / 1_000_000) * 1_000_000;
+this.chartInstance = new Chart(canvas, {
+  type: 'bar',
+  data: {
+    labels: this.chartLabels,
+    datasets: [
+      {
+        data: this.chartDataNumbers,
+        label: 'Doanh thu theo tháng (VND)',
+        backgroundColor: '#0077B6',       
+        borderColor: '#0077B6',
+        borderWidth: 1,
+        hoverBackgroundColor: '#0096d1',
+        borderRadius: 8
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: '#808080',      
+          padding: 20,
+          font: { size: 14 }
+        }
+      }
+    },
+
+    scales: {
+      x: {
+        ticks: {
+          color: '#808080',                     
+          font: { size: 13 }
+        },
+        grid: {
+          color: '#808080'        
+        }
+      },
+
+      y: {
+        beginAtZero: true,
+        suggestedMax: roundedMax,
+        ticks: {
+          color: '#808080',                     
+          font: { size: 13 },
+          callback: (value: any) => value.toLocaleString('vi-VN')
+        },
+        grid: {
+          color: '#808080'
+        }
+      }
+    },
+
+    layout: {
+      padding: 10
+    }
+  }
+});
   }
 
-  // Format số tiền theo định dạng Việt Nam (15.000.000)
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+  }
+
+  formatDate(date: string | Date | undefined): string {
+    if (!date) return 'Không có dữ liệu';
+    return new Date(date).toLocaleDateString('vi-VN');
+  }
+
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('vi-VN').format(value);
-  }
-
-  // Tính phần trăm chiều cao cho bar chart
-  getBarHeight(revenue: number): number {
-    return (revenue / this.maxRevenue) * 100;
+    return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
   }
 }
