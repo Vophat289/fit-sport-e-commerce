@@ -44,6 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   chartLabels: string[] = [];
   chartDataNumbers: number[] = [];
+  topProducts: Array<any> = [];
 
   private subscription?: Subscription;
   private chartInstance?: Chart;
@@ -55,8 +56,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDashboard();
-
+    this.loadTopProducts();
   }
+
+  loadTopProducts() {
+  this.dashboardService.getTopProducts().subscribe({
+    next: (res) => {
+      if (res?.success && Array.isArray(res.data)) {
+        this.topProducts = res.data;
+      } else {
+        this.topProducts = [];
+      }
+    },
+    error: (err) => {
+      console.error("Lỗi loadTopProducts:", err);
+      this.topProducts = [];
+    }
+  });
+}
 
   ngOnDestroy(): void {
     if (this.subscription) this.subscription.unsubscribe();
