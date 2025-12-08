@@ -11,8 +11,10 @@ import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import newsRoutes from './routes/news.routes.js';
 import orderRoutes from "./routes/order.routes.js";
+// import newsRoutes from './routes/news.routes.js';
 
-import adminRoutes from './routes/admin.routes.js';
+
+// import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
@@ -32,8 +34,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(cors({
+    origin: "https://fitsport.io.vn",
+    methods: ["GET", "POST", "PUT", "DELETE","PATCH",'OPTIONS'],
+
     origin: ["http://localhost:4200", "https://fitsport.io.vn", "https://www.fitsport.io.vn"], 
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], 
+
     credentials: true
 }));
 
@@ -66,16 +72,16 @@ app.use("/api/account", accountRoutes);
 app.use("/api/voucher", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+// app.use ("/api/news", newsRoutes);
 
 // Kết nối route admin
 app.use("/api/contact", contactRoutes);
-app.use("/api/news", newsRoutes);  
+ 
 
 // Admin
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
-app.use('/api/admin', adminRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 
 app.use("/api/vnpay", vnpayRoute);

@@ -1,5 +1,4 @@
-/* ==================== ADMIN PANEL – ĐẸP HOÀN HẢO 2025 ==================== */
-
+  
 .news-admin { 
   padding: 28px; 
   background: #000; 
@@ -151,4 +150,127 @@ textarea.form-control { min-height: 124px !important; resize: vertical; }
   .btn-action { width:100%; }
   .search-wrapper { height:46px; }
   .table { min-width:800px; }
+} 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Nút + Thêm bài viết */
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;     /* Căn giữa nội dung */
+  gap: 8px;
+
+  padding: 10px 20px;
+  min-width: 190px;            /* Rộng hơn – nhìn cân đối */
+  height: 44px;
+
+  background: linear-gradient(135deg, #2f80ed, #60a5fa); /* Hiệu ứng xanh gradient */
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;            /* Chữ đậm */
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.35); /* Bóng đổ nhẹ */
+}
+
+.btn-add i {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Hiệu ứng hover */
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(47, 128, 237, 0.45);
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+}
+
+/* Khi bấm xuống */
+.btn-add:active {
+  transform: scale(0.96);
+  box-shadow: 0 3px 8px rgba(47, 128, 237, 0.3);
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75); /* tối hơn để nổi popup */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* Thân popup */
+.modal-card {
+  background: #050709; /* nền đen đậm */
+  border-radius: 18px;
+  max-width: 1100px;
+  width: 95%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #27272a;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+  color: #e5e7eb;
+}
+
+/* Header popup */
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #27272a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+  color: #f9fafb;
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.modal-title i {
+  font-size: 20px;
+}
+
+/* Body popup */
+.modal-body {
+  padding: 22px 22px 20px;
+  overflow: auto;
+  background: #050709;
+}
+
+/* Nút đóng (X) */
+.modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.modal-close:hover {
+  background: rgba(15, 23, 42, 0.4);
+  transform: translateY(-1px);
 }
