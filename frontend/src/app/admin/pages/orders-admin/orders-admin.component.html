@@ -20,26 +20,40 @@
     <table class="order-table">
       <thead>
         <tr>
-          <th>#</th><th>Mã đơn</th><th>Khách hàng</th><th>Tổng tiền</th>
-          <th>Thanh toán</th><th>Điện thoại</th><th>Địa chỉ</th>
-          <th>Ngày đặt</th><th>Trạng thái</th><th>Hành động</th>
+          <th>#</th>
+          <th>Mã đơn</th>
+          <th>Khách hàng</th>
+          <th>Tổng tiền</th>
+          <th>Điện thoại</th>
+          <th>Ngày đặt</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let order of filteredOrders; let i = index">
           <td>{{ i + 1 }}</td>
           <td><strong>{{ order.id }}</strong></td>
           <td>{{ order.customer }}</td>
           <td class="price">{{ order.total | number:'1.0-0' }} VND</td>
-          <td><span class="pay-status" [class.paid]="order.paid">{{ order.paid ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span></td>
           <td>{{ order.phone }}</td>
-          <td class="address">{{ order.address }}</td>
           <td>{{ order.date }}</td>
-          <td><span class="status-badge" [ngClass]="'status-' + order.status">{{ mapStatus(order.status) }}</span></td>
-          <td class="actions"><button class="detail-btn" (click)="viewDetails(order)">Xem</button></td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + order.status">
+              {{ mapStatus(order.status) }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="detail-btn" (click)="viewDetails(order)">Xem</button>
+          </td>
         </tr>
-        <tr *ngIf="filteredOrders.length === 0"><td colspan="10" class="empty">Không tìm thấy đơn hàng nào</td></tr>
+
+        <tr *ngIf="filteredOrders.length === 0">
+          <td colspan="10" class="empty">Không tìm thấy đơn hàng nào</td>
+        </tr>
       </tbody>
+
     </table>
   </div>
 
@@ -51,72 +65,100 @@
       <p class="order-date-modal">Ngày đặt: {{ selectedOrder?.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
 
       <div class="modal-grid">
+
         <!-- Sản phẩm -->
         <div class="modal-box products-box">
           <h4>Products Sản phẩm đã đặt</h4>
           <div class="items">
             <div class="item" *ngFor="let item of selectedOrder?.items">
-
-              <!-- ------------- PHẦN ẢNH ĐÃ SỬA CHUẨN CLOUDINARY ------------- -->
+              <!-- ảnh sản phẩm-->
               <img
-  [src]="item.image && item.image.length ? item.image[0] : placeholderImage"
-  [alt]="item.productName"
-  (error)="onImageError($event)"
-/>
-              <!-- ------------------------------------------------------------ -->
+                [src]="item.image && item.image.length ? item.image[0] : placeholderImage"
+                [alt]="item.productName"
+                (error)="onImageError($event)"
+              />
 
               <p class="item-name">{{ item.productName || 'Sản phẩm' }}</p>
               <p class="item-info">SL: <strong>{{ item.quantity || 1 }}</strong></p>
-              <p class="item-info">Giá: <strong class="price">{{ item.price ? (item.price | number:'1.0-0') : 0 }} VND</strong></p>
+              <p class="item-info">Giá:
+                <strong class="price">
+                  {{ item.price ? (item.price | number:'1.0-0') : 0 }} VND
+                </strong>
+              </p>
             </div>
           </div>
         </div>
 
-        <!-- Thông tin người nhận -->
+        <!-- USER INFO -->
         <div class="modal-box">
           <h4>User Thông tin người nhận</h4>
+
           <div class="info-group">
             <p><strong>Tên người nhận:</strong></p>
             <p>{{ selectedOrder?.customer }}</p>
           </div>
+
           <div class="info-group">
             <p><strong>Điện thoại:</strong></p>
             <p>{{ selectedOrder?.phone }}</p>
           </div>
+
           <div class="info-group">
             <p><strong>Email người đặt:</strong></p>
             <p>{{ selectedOrder?.user_id?.email || '—' }}</p>
           </div>
         </div>
 
-        <!-- Địa chỉ & thanh toán -->
+        <!-- ĐỊA CHỈ + THANH TOÁN (ĐÃ ĐƯA VÀO MODAL) -->
         <div class="modal-box">
           <h4>Location Địa chỉ & Thanh toán</h4>
-          <p class="full-address">{{ selectedOrder?.receiver_address || '—' }}</p>
+
+          <p class="full-address">
+            {{ selectedOrder?.receiver_address || '—' }}
+          </p>
+
           <hr>
+
           <div class="info-group total-price-modal">
             <p><strong>Total Tổng thanh toán:</strong></p>
-            <p class="price">{{ selectedOrder?.total_price ? (selectedOrder.total_price | number:'1.0-0') : 0 }} VND</p>
+            <p class="price">
+              {{ selectedOrder?.total_price ? (selectedOrder.total_price | number:'1.0-0') : 0 }} VND
+            </p>
           </div>
+
           <div class="info-group">
             <p><strong>Tình trạng TT:</strong></p>
-            <p><span class="pay-status" [class.paid]="selectedOrder?.payment_status === 'PAID'">{{ selectedOrder?.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span></p>
+            <p>
+              <span class="pay-status" [class.paid]="selectedOrder?.payment_status === 'PAID'">
+                {{ selectedOrder?.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+              </span>
+            </p>
           </div>
         </div>
 
         <!-- Cập nhật trạng thái -->
         <div class="modal-box status-box">
           <h4>Update Cập nhật Trạng thái</h4>
+
           <div class="info-group">
             <p><strong>Trạng thái hiện tại:</strong></p>
-            <span class="status-badge" [ngClass]="'status-' + selectedOrder?.status">{{ mapStatus(selectedOrder?.status || 'PENDING') }}</span>
+            <span class="status-badge" [ngClass]="'status-' + selectedOrder?.status">
+              {{ mapStatus(selectedOrder?.status || 'PENDING') }}
+            </span>
           </div>
+
           <div class="status-selector">
             <label for="status-select">Chọn trạng thái mới:</label>
+
             <select id="status-select" [(ngModel)]="selectedOrder.status">
-              <option *ngFor="let status of STATUS_OPTIONS" [value]="status.value">{{ status.label }}</option>
+              <option *ngFor="let status of STATUS_OPTIONS" [value]="status.value">
+                {{ status.label }}
+              </option>
             </select>
-            <button class="update-btn" (click)="updateStatusFromModal()">Confirm Cập nhật trạng thái</button>
+
+            <button class="update-btn" (click)="updateStatusFromModal()">
+              Confirm Cập nhật trạng thái
+            </button>
           </div>
         </div>
 
