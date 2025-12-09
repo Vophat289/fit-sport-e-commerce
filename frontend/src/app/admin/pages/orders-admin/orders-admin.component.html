@@ -68,7 +68,7 @@
 
         <!-- Sản phẩm -->
         <div class="modal-box products-box">
-          <h4>Products Sản phẩm đã đặt</h4>
+          <h4> Sản phẩm đã đặt</h4>
           <div class="items">
             <div class="item" *ngFor="let item of selectedOrder?.items">
               <!-- ảnh sản phẩm-->
@@ -91,7 +91,7 @@
 
         <!-- USER INFO -->
         <div class="modal-box">
-          <h4>User Thông tin người nhận</h4>
+          <h4> Thông tin người nhận</h4>
 
           <div class="info-group">
             <p><strong>Tên người nhận:</strong></p>
@@ -111,7 +111,7 @@
 
         <!-- ĐỊA CHỈ + THANH TOÁN (ĐÃ ĐƯA VÀO MODAL) -->
         <div class="modal-box">
-          <h4>Location Địa chỉ & Thanh toán</h4>
+          <h4> Địa chỉ & Thanh toán</h4>
 
           <p class="full-address">
             {{ selectedOrder?.receiver_address || '—' }}
@@ -120,14 +120,14 @@
           <hr>
 
           <div class="info-group total-price-modal">
-            <p><strong>Total Tổng thanh toán:</strong></p>
+            <p><strong> Tổng thanh toán:</strong></p>
             <p class="price">
               {{ selectedOrder?.total_price ? (selectedOrder.total_price | number:'1.0-0') : 0 }} VND
             </p>
           </div>
 
           <div class="info-group">
-            <p><strong>Tình trạng TT:</strong></p>
+            <p><strong>Tình trạng :</strong></p>
             <p>
               <span class="pay-status" [class.paid]="selectedOrder?.payment_status === 'PAID'">
                 {{ selectedOrder?.payment_status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
@@ -138,7 +138,7 @@
 
         <!-- Cập nhật trạng thái -->
         <div class="modal-box status-box">
-          <h4>Update Cập nhật Trạng thái</h4>
+          <h4> Cập nhật Trạng thái</h4>
 
           <div class="info-group">
             <p><strong>Trạng thái hiện tại:</strong></p>
@@ -157,7 +157,7 @@
             </select>
 
             <button class="update-btn" (click)="updateStatusFromModal()">
-              Confirm Cập nhật trạng thái
+              Cập nhật 
             </button>
           </div>
         </div>
