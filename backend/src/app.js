@@ -13,7 +13,7 @@ import orderRoutes from "./routes/order.routes.js";
 // import newsRoutes from './routes/news.routes.js';
 
 
-// import adminRoutes from './routes/admin.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { EventEmitter } from 'events';
@@ -78,6 +78,7 @@ app.use("/api/contact", contactRoutes);
  
 
 // Admin
+app.use("/api/admin", adminRoutes); 
 app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
