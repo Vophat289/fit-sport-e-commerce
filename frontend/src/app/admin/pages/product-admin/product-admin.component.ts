@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ProductService, Product } from '../../../services/product.service';
 import { CategoryService, Category } from '../../../services/category.service';
 // import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -44,7 +45,8 @@ export class ProductAdminComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -323,6 +325,9 @@ removeImage(index: number) {
     this.productForm.get('images')?.setValue(this.newFiles.length > 0 ? this.newFiles : this.existingImages);
   }
   this.productForm.get('images')?.updateValueAndValidity();
+}
+goToVariantAdmin(productId: string, productName: string): void {
+  this.router.navigate(['/admin/variant-admin', productId]);
 }
 
 }
