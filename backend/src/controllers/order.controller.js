@@ -1,5 +1,6 @@
 import Oders from '../models/oders.model.js';
 import OdersDetails from '../models/odersDetails.model.js';
+import { normalizeImages } from '../config/cloudinary.js';
 
 const STATUS_LABELS = {
   PENDING: 'Chờ Xác Nhận',
@@ -73,39 +74,24 @@ export const getOrderById = async (req, res) => {
       .populate('variant_id', 'product_name image')
       .lean();
 
-const mappedDetails = details.map(d => {
+    const mappedDetails = details.map(d => {
+      // Ưu tiên lấy ảnh từ snapshot (productImage)
+      let productImages = normalizeImages(d.productImage);
 
-  let productImages = [];
+      // Nếu không có snapshot, lấy từ variant
+      if (productImages.length === 0 && d.variant_id?.image) {
+        productImages = normalizeImages(d.variant_id.image);
+      }
 
-  if (Array.isArray(d.productImage)) {
-    productImages = d.productImage;
-  } else if (typeof d.productImage === "string" && d.productImage.trim() !== "") {
-    productImages = [d.productImage];
-  }
+      return {
+        id: d._id,
+        productName: d.productName || d.variant_id?.product_name || 'Sản phẩm không rõ',
+        image: productImages.length > 0 ? productImages[0] : 'assets/images/default-product.png',
+        price: d.price,
+        quantity: d.quantity
+      };
+    });
 
-  // lấy ảnh từ variant nếu không có ảnh gốc
-  if (d.variant_id?.image) {
-    let variantImage = Array.isArray(d.variant_id.image)
-      ? d.variant_id.image
-      : [d.variant_id.image];
-
-    // nếu là tên file, thêm prefix cloudinary
-    variantImage = variantImage.map(img => 
-      img.startsWith('http') ? img :
-      `https://res.cloudinary.com/<cloud>/image/upload/${img}`
-    );
-
-    if (productImages.length === 0) productImages = variantImage;
-  }
-
-  return {
-    id: d._id,
-    productName: d.productName || d.variant_id?.product_name || 'Sản phẩm không rõ',
-    image: productImages.length > 0 ? productImages[0] : 'assets/images/default-product.png',
-    price: d.price,
-    quantity: d.quantity
-  };
-});
 
 
     const customerName =
