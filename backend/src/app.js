@@ -9,7 +9,6 @@ import accountRoutes from './routes/account.routes.js';
 import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
-import newsRoutes from './routes/news.routes.js';
 import orderRoutes from "./routes/order.routes.js";
 // import newsRoutes from './routes/news.routes.js';
 
