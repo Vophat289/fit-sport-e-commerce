@@ -483,3 +483,59 @@ canvas {
   font-size: 16px;
   color: #bbb;
 }
+
+/* Light Theme Styles */
+:host-context(.admin-theme-light) .dashboard {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .stat-card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .stat-card h3 {
+  color: #64748b;
+}
+
+:host-context(.admin-theme-light) .stat-card .value {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .chart-container {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .top-products-table {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .top-products-table thead {
+  background: #f1f5f9;
+}
+
+:host-context(.admin-theme-light) .top-products-table th {
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .top-products-table td {
+  border-color: #e5e7eb;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .top-products-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+:host-context(.admin-theme-light) .name-col {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .empty-table {
+  color: #64748b;
+}

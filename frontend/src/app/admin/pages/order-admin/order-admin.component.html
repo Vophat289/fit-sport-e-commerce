@@ -1,8 +1,19 @@
 <div class="order-admin">
+  <!-- Page Header -->
   <div class="page-header">
-    <div>
+    <div class="header-left">
       <p class="sub-title">Quản lý</p>
       <h2 class="page-title">Đơn Hàng</h2>
+      <div class="stats-summary" *ngIf="!loading && total > 0">
+        <span class="stat-item">
+          <i class="bx bx-package"></i>
+          Tổng: {{ total }} đơn
+        </span>
+        <span class="stat-item">
+          <i class="bx bx-time"></i>
+          Trang {{ page }}/{{ totalPages }}
+        </span>
+      </div>
     </div>
 
     <div class="header-actions">
@@ -18,130 +29,192 @@
     </div>
   </div>
 
-  <!-- Filters -->
+  <!-- Filters Bar -->
   <div class="filters-bar">
-    <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
-      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
-    </select>
+    <div class="filters-group">
+      <label class="filter-label">
+        <i class="bx bx-filter-alt"></i>
+        Trạng thái:
+      </label>
+      <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
 
-    <select [(ngModel)]="paymentStatusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
-      <option *ngFor="let opt of paymentStatusOptions" [value]="opt.value">{{ opt.label }}</option>
-    </select>
+    <div class="filters-group">
+      <label class="filter-label">
+        <i class="bx bx-credit-card"></i>
+        Thanh toán:
+      </label>
+      <select [(ngModel)]="paymentStatusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+        <option *ngFor="let opt of paymentStatusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
 
-    <select [(ngModel)]="paymentMethodFilter" (ngModelChange)="onFilterChange()" class="filter-select">
-      <option *ngFor="let opt of paymentMethodOptions" [value]="opt.value">{{ opt.label }}</option>
-    </select>
+    <div class="filters-group">
+      <label class="filter-label">
+        <i class="bx bx-payment"></i>
+        Phương thức:
+      </label>
+      <select [(ngModel)]="paymentMethodFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+        <option *ngFor="let opt of paymentMethodOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
 
-    <button class="btn btn-secondary" (click)="resetFilters()">
+    <button class="btn btn-secondary btn-reset" (click)="resetFilters()">
       <i class="bx bx-refresh"></i>
       Reset
     </button>
   </div>
 
   <!-- Loading -->
-  <div class="loading" *ngIf="loading">
-    <i class="bx bx-loader bx-spin"></i>
-    <span>Đang tải...</span>
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading">
+      <i class="bx bx-loader bx-spin"></i>
+      <span>Đang tải dữ liệu...</span>
+    </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-container" *ngIf="!loading">
-    <table>
-      <thead>
-        <tr>
-          <th>Mã đơn</th>
-          <th>Khách hàng</th>
-          <th>Người nhận</th>
-          <th>Tổng tiền</th>
-          <th>Trạng thái</th>
-          <th>Thanh toán</th>
-          <th>Ngày tạo</th>
-          <th>Thao tác</th>
-        </tr>
-      </thead>
+  <!-- Table Container -->
+  <div class="table-wrapper" *ngIf="!loading">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-order-code">Mã đơn</th>
+            <th class="col-customer">Khách hàng</th>
+            <th class="col-receiver">Người nhận</th>
+            <th class="col-amount">Tổng tiền</th>
+            <th class="col-status">Trạng thái</th>
+            <th class="col-payment">Thanh toán</th>
+            <th class="col-date">Ngày tạo</th>
+            <th class="col-actions">Thao tác</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngIf="orders.length === 0">
-          <td colspan="8" class="empty">
-            <i class="bx bx-cart"></i>
-            <p>Chưa có đơn hàng nào</p>
-          </td>
-        </tr>
+        <tbody>
+          <tr *ngIf="orders.length === 0" class="empty-row">
+            <td colspan="8" class="empty">
+              <div class="empty-state">
+                <i class="bx bx-cart"></i>
+                <p>Chưa có đơn hàng nào</p>
+                <small *ngIf="statusFilter || paymentStatusFilter || paymentMethodFilter || search">
+                  Thử thay đổi bộ lọc để tìm kiếm
+                </small>
+              </div>
+            </td>
+          </tr>
 
-        <tr *ngFor="let order of orders">
-          <td>
-            <code>{{ order.order_code }}</code>
-          </td>
-          <td>
-            <div class="customer-info">
-              <strong>{{ order.user.name }}</strong>
-              <small>{{ order.user.email }}</small>
-              <small>{{ order.user.phone }}</small>
-            </div>
-          </td>
-          <td>
-            <div class="receiver-info">
-              <strong>{{ order.receiver.name }}</strong>
-              <small>{{ order.receiver.mobile }}</small>
-            </div>
-          </td>
-          <td>
-            <strong>{{ formatCurrency(order.final_amount) }}</strong>
-          </td>
-          <td>
-            <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
-              {{ getStatusLabel(order.status) }}
-            </span>
-          </td>
-          <td>
-            <div>
-              <span class="badge" [ngClass]="getPaymentStatusBadgeClass(order.payment_status)">
-                {{ order.payment_status }}
+          <tr *ngFor="let order of orders" class="order-row">
+            <td class="order-code-cell">
+              <div class="code-wrapper">
+                <i class="bx bx-receipt"></i>
+                <code>{{ order.order_code }}</code>
+              </div>
+            </td>
+            <td class="customer-cell">
+              <div class="customer-info">
+                <div class="customer-name">
+                  <i class="bx bx-user"></i>
+                  <strong>{{ order.user.name }}</strong>
+                </div>
+                <div class="customer-details">
+                  <small><i class="bx bx-envelope"></i> {{ order.user.email }}</small>
+                  <small><i class="bx bx-phone"></i> {{ order.user.phone }}</small>
+                </div>
+              </div>
+            </td>
+            <td class="receiver-cell">
+              <div class="receiver-info">
+                <strong>{{ order.receiver.name }}</strong>
+                <small><i class="bx bx-phone"></i> {{ order.receiver.mobile }}</small>
+                <small class="address" title="{{ order.receiver.address }}">
+                  <i class="bx bx-map"></i> {{ order.receiver.address | slice:0:30 }}{{ order.receiver.address.length > 30 ? '...' : '' }}
+                </small>
+              </div>
+            </td>
+            <td class="amount-cell">
+              <div class="amount-wrapper">
+                <strong class="amount-value">{{ formatCurrency(order.final_amount) }}</strong>
+                <small class="amount-breakdown">
+                  SP: {{ formatCurrency(order.total_price) }}<br>
+                  Ship: {{ formatCurrency(order.delivery_fee) }}
+                </small>
+              </div>
+            </td>
+            <td class="status-cell">
+              <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+                <i class="bx" [ngClass]="getStatusIcon(order.status)"></i>
+                {{ getStatusLabel(order.status) }}
               </span>
-              <small class="payment-method">{{ order.payment_method }}</small>
-            </div>
-          </td>
-          <td>
-            <small>{{ formatDate(order.createdAt) }}</small>
-          </td>
-          <td class="actions">
-            <button class="btn btn-primary btn-sm" (click)="openOrderDetail(order._id)">
-              <i class="bx bx-show"></i>
-              Xem chi tiết
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button
-        class="page-btn"
-        [disabled]="page === 1"
-        (click)="changePage(page - 1)">
-        ‹ Trước
-      </button>
-
-      <button
-        *ngFor="let p of [].constructor(totalPages); let i = index"
-        class="page-btn"
-        [class.active]="page === i + 1"
-        (click)="changePage(i + 1)">
-        {{ i + 1 }}
-      </button>
-
-      <button
-        class="page-btn"
-        [disabled]="page === totalPages"
-        (click)="changePage(page + 1)">
-        Tiếp ›
-      </button>
+            </td>
+            <td class="payment-cell">
+              <div class="payment-info">
+                <span class="badge" [ngClass]="getPaymentStatusBadgeClass(order.payment_status)">
+                  {{ order.payment_status }}
+                </span>
+                <small class="payment-method">
+                  <i class="bx" [ngClass]="order.payment_method === 'VNPAY' ? 'bx-credit-card' : 'bx-money'"></i>
+                  {{ order.payment_method }}
+                </small>
+              </div>
+            </td>
+            <td class="date-cell">
+              <div class="date-wrapper">
+                <i class="bx bx-calendar"></i>
+                <div>
+                  <div class="date">{{ formatDate(order.createdAt) | slice:0:10 }}</div>
+                  <small class="time">{{ formatDate(order.createdAt) | slice:11:16 }}</small>
+                </div>
+              </div>
+            </td>
+            <td class="actions-cell">
+              <button class="btn btn-primary btn-view" (click)="openOrderDetail(order._id)">
+                <i class="bx bx-show"></i>
+                <span>Chi tiết</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="pagination-info" *ngIf="total > 0">
-      Hiển thị {{ (page - 1) * pageSize + 1 }} - {{ page * pageSize > total ? total : page * pageSize }} 
-      trong tổng số {{ total }} đơn hàng
+    <!-- Pagination -->
+    <div class="pagination-wrapper" *ngIf="totalPages > 1">
+      <div class="pagination">
+        <button
+          class="page-btn"
+          [disabled]="page === 1"
+          (click)="changePage(page - 1)">
+          <i class="bx bx-chevron-left"></i>
+          Trước
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let p of [].constructor(totalPages); let i = index"
+            class="page-btn"
+            [class.active]="page === i + 1"
+            (click)="changePage(i + 1)">
+            {{ i + 1 }}
+          </button>
+        </div>
+
+        <button
+          class="page-btn"
+          [disabled]="page === totalPages"
+          (click)="changePage(page + 1)">
+          Tiếp
+          <i class="bx bx-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="pagination-info" *ngIf="total > 0">
+        <i class="bx bx-info-circle"></i>
+        Hiển thị <strong>{{ (page - 1) * pageSize + 1 }}</strong> - 
+        <strong>{{ page * pageSize > total ? total : page * pageSize }}</strong> 
+        trong tổng số <strong>{{ total }}</strong> đơn hàng
+      </div>
     </div>
   </div>
 

@@ -5,6 +5,7 @@
   min-height: calc(100vh - 72px); 
   color: #f4f6fb; 
   font-family: "Roboto", sans-serif; 
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Header + Tìm kiếm */
@@ -273,4 +274,89 @@ textarea.form-control { min-height: 124px !important; resize: vertical; }
 .modal-close:hover {
   background: rgba(15, 23, 42, 0.4);
   transform: translateY(-1px);
+}
+
+/* Light Theme Styles */
+:host-context(.admin-theme-light) .news-admin {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .sub-title {
+  color: #64748b;
+}
+
+:host-context(.admin-theme-light) .page-title {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .search-wrapper {
+  background: #f8f9fa;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .search-wrapper:focus-within {
+  background: #ffffff;
+  border-color: #38bdf8;
+}
+
+:host-context(.admin-theme-light) .search-input {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+}
+
+:host-context(.admin-theme-light) .form-control,
+:host-context(.admin-theme-light) textarea.form-control {
+  background: #f8f9fa !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+:host-context(.admin-theme-light) .form-control:focus,
+:host-context(.admin-theme-light) textarea.form-control:focus {
+  background: #ffffff !important;
+  border-color: #38bdf8 !important;
+}
+
+:host-context(.admin-theme-light) .file-upload {
+  background: #f8f9fa;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .file-upload:hover {
+  background: #ffffff;
+  border-color: #38bdf8;
+}
+
+:host-context(.admin-theme-light) .table-dark {
+  background: #f8f9fa !important;
+}
+
+:host-context(.admin-theme-light) .table th {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) .table td {
+  border-color: #e5e7eb;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .table tbody tr:hover {
+  background: #f8fafc;
+}
+
+:host-context(.admin-theme-light) .modal-card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .modal-body {
+  background: #f8f9fa;
 }

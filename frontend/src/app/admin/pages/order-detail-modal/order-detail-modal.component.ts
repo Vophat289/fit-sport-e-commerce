@@ -80,6 +80,18 @@ export class OrderDetailModalComponent implements OnInit {
     return statusMap[status] || status;
   }
 
+  getStatusIcon(status: string): string {
+    const iconMap: { [key: string]: string } = {
+      'PENDING': 'bx-time-five',
+      'CONFIRMED': 'bx-check-circle',
+      'PROCESSING': 'bx-package',
+      'SHIPPING': 'bx-truck',
+      'DELIVERED': 'bx-check-double',
+      'CANCELLED': 'bx-x-circle'
+    };
+    return iconMap[status] || 'bx-info-circle';
+  }
+
   getStatusBadgeClass(status: string): string {
     const statusMap: { [key: string]: string } = {
       'PENDING': 'badge-warning',
