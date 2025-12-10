@@ -176,6 +176,13 @@ export class CartService {
   getCart(): Observable<any> {
     return this.http.get<any>('/api/cart');
   }
+applyVoucher(code: string, subtotal: number) {
+  return this.http.post<{ code: string; discount: number }>(
+    'http://localhost:3000/api/voucher/apply',
+    { code, subtotal }
+  );
+}
+
 
   // Sync cart từ localStorage lên backend
   syncCartToBackend(selectedItems: CartItem[]): Observable<boolean> {

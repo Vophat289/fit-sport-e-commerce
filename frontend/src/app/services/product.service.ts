@@ -35,6 +35,10 @@ export interface Product {
     price: number;
     quantity: number;
   }[];
+  displayPrice?: number;
+  displayPrices?: number[]
+  displayColors?: string[];
+  displaySizes?: string[];
 }
 export interface VariantSelection {
   sizeId: string;
@@ -67,8 +71,6 @@ export interface AvailableVariants {
 })
 export class ProductService {
   // Sử dụng relative URL - nginx sẽ proxy đến backend
-  private adminApiUrl = '/api/admin';
-
   private apiUrl = '/api/products';
 
   constructor(private http: HttpClient) {}
@@ -112,19 +114,17 @@ export class ProductService {
 
   deleteProduct(id: string) {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
-  } // ✅ HÀM LẤY BIẾN THỂ KHẢ DỤNG (Cho Modal Frontend)
-
-  getAvailableVariants(productId: string): Observable<any> {
-    // GET /api/products/variants/:productId
-    return this.http.get<any>(`${this.adminApiUrl}/variants/${productId}`);
   }
 
+  getAvailableVariants(productId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/variants/${productId}`);
+  }
   getVariantDetails(
     productId: string,
     sizeId: string,
     colorId: string
-  ): Observable<any> {
-    const url = `${this.adminApiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
-    return this.http.get(url);
+  ): Observable<VariantDetails> {
+    const url = `${this.apiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
+    return this.http.get<VariantDetails>(url);
   }
 }
