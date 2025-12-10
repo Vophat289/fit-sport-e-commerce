@@ -14,10 +14,11 @@ passport.deserializeUser((id, done) => {
 
 // cấu hình Google Strategy
 const backendUrl = process.env.BACKEND_URL || process.env.BASE_URL || 'https://fitsport.io.vn';
+const cleanUrl = backendUrl.replace(/\/$/, '');
 passport.use(new GoogleStrategy({
   clientID: '319531500593-khepuqkj2lkq7987lqut5dj3f95di7pk.apps.googleusercontent.com',
   clientSecret: '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',
-  callbackURL: `${backendUrl}/api/auth/google/callback` 
+  callbackURL: `${cleanUrl}/api/auth/google/callback` 
 }, 
 async function(accessToken, refreshToken, profile, done) {
   //  tìm kiếm hoặc tạo user trong database 
