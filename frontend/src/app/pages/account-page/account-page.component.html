@@ -71,18 +71,6 @@
             <input type="tel" [(ngModel)]="editData.phone" name="phone" [readonly]="!isEditing" />
           </div>
           <div class="info-row">
-            <label>Giới tính:</label>
-            <ng-container *ngIf="!isEditing">
-              <input type="text" [value]="editData.gender || '<Trống>'" readonly />
-            </ng-container>
-            <select *ngIf="isEditing" [(ngModel)]="editData.gender" name="gender">
-              <option value="">-- Chọn --</option>
-              <option value="Nam">Nam</option>
-              <option value="Nữ">Nữ</option>
-              <option value="Khác">Khác</option>
-            </select>
-          </div>
-          <div class="info-row">
             <label>Ngày sinh:</label>
             <input type="date" [(ngModel)]="editData.dob" name="dob" [readonly]="!isEditing" />
           </div>
