@@ -25,29 +25,8 @@ export class LoginComponent implements OnInit {
   private toastr = inject(ToastrService);
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const userStr = params['user'];
-      const token = params['token'];
-
-      if (userStr && token) {
-        try {
-          const user = JSON.parse(decodeURIComponent(userStr));
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(user));
-          this.authService.updateCurrentUser(user);
-
-          this.toastr.success('Đăng nhập Google thành công!');
-
-          if (user.role === 'admin') {
-            this.router.navigate(['/admin']);
-          } else {
-            this.router.navigate(['/home']);
-          }
-        } catch (error) {
-          this.toastr.error('Lỗi xử lý dữ liệu đăng nhập Google');
-        }
-      }
-    });
+    // OAuth callback giờ được xử lý bởi AuthCallbackComponent
+    // Component này chỉ xử lý đăng nhập thông thường
   }
 
   login() {
