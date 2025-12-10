@@ -1,10 +1,13 @@
 import express from 'express';
 import {getAllProducts, getProductBySlug, getProductsByCategory, createProduct, updateProduct, deleteProduct, incrementViewCount, searchProducts} from "../controllers/product.controller.js";
 import upload from '../middlewares/upload.middleware.js';
+import { getAvailableVariants, getVariantDetails } from "../controllers/admin/variant.admin.controller.js";
 const router = express.Router();
 
 router.get("/search", searchProducts);
 router.get("/", getAllProducts);
+router.get("/variants/:productId", getAvailableVariants);
+router.get("/variant-details", getVariantDetails);
 router.get("/:slug", getProductBySlug);
 router.get("/category/:slug", getProductsByCategory);
 router.post("/:slug/view", incrementViewCount);
