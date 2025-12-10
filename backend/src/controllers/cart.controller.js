@@ -468,11 +468,6 @@ export const checkoutVNPay = async (req, res) => {
                 const reservedQuantity = item.quantity; // Số lượng đã reserve trong giỏ
                 const actualStock = currentStock + reservedQuantity; // Tồn kho thực tế
                 
-                console.log(`Kiểm tra tồn kho - Variant ID: ${variantId}`);
-                console.log(`- Tồn kho hiện tại (đã reserve): ${currentStock}`);
-                console.log(`- Số lượng trong giỏ (reserved): ${reservedQuantity}`);
-                console.log(`- Tồn kho thực tế: ${actualStock}`);
-                
                 // Kiểm tra: Tồn kho hiện tại phải >= 0 (không bị âm)
                 // Và tồn kho thực tế phải đủ cho số lượng cần
                 if(currentStock < 0 || actualStock < reservedQuantity){
@@ -578,9 +573,6 @@ export const checkoutVNPay = async (req, res) => {
                       || req.socket?.remoteAddress
                       || '127.0.0.1';
         
-        console.log('Đang tạo payment URL cho đơn hàng:', vnpayOrderId);
-        console.log('- Số tiền cuối cùng:', finalAmount);
-        console.log('- IP khách hàng:', clientIp);
         
         let paymentUrl;
         try {
@@ -671,11 +663,6 @@ export const checkoutCOD = async (req, res) => {
                 const currentStock = variant.quantity; // Tồn kho hiện tại (đã bị giảm khi thêm vào giỏ)
                 const reservedQuantity = item.quantity; // Số lượng đã reserve trong giỏ
                 const actualStock = currentStock + reservedQuantity; // Tồn kho thực tế
-                
-                console.log(`Kiểm tra tồn kho COD - Variant ID: ${variantId}`);
-                console.log(`- Tồn kho hiện tại (đã reserve): ${currentStock}`);
-                console.log(`- Số lượng trong giỏ (reserved): ${reservedQuantity}`);
-                console.log(`- Tồn kho thực tế: ${actualStock}`);
                 
                 // Kiểm tra: Tồn kho hiện tại phải >= 0 (không bị âm)
                 // Và tồn kho thực tế phải đủ cho số lượng cần

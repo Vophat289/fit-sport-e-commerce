@@ -134,21 +134,6 @@ export const getAvailableVariants = async (req, res) => {
             { path: 'color_id', model: 'Color', select: 'name hex_code' }
         ]);
 
-        // ✅ BỔ SUNG LOGGING ĐỂ KIỂM TRA
-        console.log('--- DEBUG VARIANT DATA ---');
-        console.log(`DEBUG: Variants found for product ${productId}: ${availableVariants.length}`);
-        
-        if (availableVariants.length > 0) {
-            // Log chi tiết biến thể đầu tiên để kiểm tra populate
-            const firstVariant = availableVariants[0];
-            console.log('DEBUG: Size ID:', firstVariant.size_id?._id, 'Name:', firstVariant.size_id?.name);
-            console.log('DEBUG: Color ID:', firstVariant.color_id?._id, 'Name:', firstVariant.color_id?.name);
-            if (!firstVariant.size_id || !firstVariant.color_id) {
-                 console.error('Size hoặc Color không được tìm thấy. Kiểm tra lại FK.');
-            }
-        }
-        console.log('---------------------------');
-        // ------------------------------------
 
 
         // 2. Tổng hợp danh sách duy nhất các Size và Color (dành cho Modal)

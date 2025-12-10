@@ -7,110 +7,42 @@
       <div class="sub-title">Quản lý nội dung</div>
       <h1 class="page-title">Bài Viết</h1>
     </div>
-    <div class="search-container">
-      <div class="search-wrapper">
-        <i class="bx bx-search search-icon"></i>
-        <input #searchInput type="text" class="search-input" placeholder="Tìm kiếm bài viết..."
-               [(ngModel)]="searchTerm" (input)="onSearch()">
-        <button *ngIf="searchTerm" class="clear-search" (click)="clearSearch()">
-          <i class="bx bx-x"></i>
-        </button>
+
+    <div class="header-right">
+      <!-- Ô tìm kiếm -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <i class="bx bx-search search-icon"></i>
+          <input #searchInput type="text" class="search-input" placeholder="Tìm kiếm bài viết..."
+                 [(ngModel)]="searchTerm" (input)="onSearch()">
+          <button *ngIf="searchTerm" class="clear-search" (click)="clearSearch()">
+            <i class="bx bx-x"></i>
+          </button>
+        </div>
       </div>
+
+      <!-- Nút + Thêm bài viết (mở popup) -->
+      <button class="btn-add" type="button" (click)="openCreateModal()">
+        <i class="bx bx-plus"></i>
+        Thêm bài viết
+      </button>
     </div>
   </div>
 
   <!-- Thông báo -->
-  <div *ngIf="message" class="alert" [class.alert-success]="message.type==='success'" [class.alert-error]="message.type==='error'">
-    <i class="bx" [class.bx-check-circle]="message.type==='success'" [class.bx-error-circle]="message.type==='error'"></i>
+  <div *ngIf="message"
+       class="alert"
+       [class.alert-success]="message.type==='success'"
+       [class.alert-error]="message.type==='error'">
+    <i class="bx"
+       [class.bx-check-circle]="message.type==='success'"
+       [class.bx-error-circle]="message.type==='error'"></i>
     {{ message.text }}
   </div>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="loading">
     <i class="bx bx-loader-alt bx-spin"></i> Đang tải...
-  </div>
-
-  <!-- ==================== FORM THÊM / SỬA ==================== -->
-  <div class="card form-card">
-    <div class="card-header">
-      <i class="bx bx-edit-alt"></i>
-      {{ isEdit ? 'SỬA BÀI VIẾT' : 'THÊM BÀI VIẾT MỚI' }}
-    </div>
-    <div class="card-body">
-      <form (ngSubmit)="save()">
-        <div class="form-grid">
-
-          <!-- Cột chính -->
-          <div class="form-main">
-            <div class="form-group">
-              <label>Tiêu đề bài viết <span class="text-danger">*</span></label>
-              <input [(ngModel)]="form.title" name="title" class="form-control" placeholder="Nhập tiêu đề..." required>
-            </div>
-
-            <div class="form-group">
-              <label>Mô tả ngắn</label>
-              <textarea [(ngModel)]="form.short_desc" name="short_desc" class="form-control" rows="4"
-                        placeholder="Tóm tắt nội dung..."></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>Nội dung bài viết <span class="text-danger">*</span></label>
-              <textarea [(ngModel)]="form.content" name="content" class="form-control content-editor"
-                        placeholder="Viết nội dung..." required></textarea>
-            </div>
-          </div>
-
-          <!-- Cột phụ -->
-          <div class="form-sidebar">
-            <div class="form-group">
-              <label>Ảnh đại diện</label>
-              <div class="file-upload">
-                <input type="file" (change)="onFileSelected($event)" accept="image/*">
-                <i class="bx bxs-image-add"></i>
-                <p>Kéo thả hoặc click để chọn ảnh</p>
-                <small>JPG, PNG, tối đa 5MB</small>
-              </div>
-
-              <!-- PREVIEW ẢNH MỚI -->
-              <div *ngIf="previewImageUrl" class="preview-thumb mt-2">
-                <img [src]="previewImageUrl" alt="Preview ảnh mới" style="max-height: 120px; border-radius: 8px;">
-                <small class="text-success">Ảnh mới (sẽ upload)</small>
-              </div>
-
-              <!-- ẢNH HIỆN TẠI (khi sửa) -->
-              <div *ngIf="form.thumbnail && isEdit && !previewImageUrl" class="preview-thumb mt-2">
-                <img [src]="getThumbnailUrl(form.thumbnail)" 
-                     alt="Ảnh hiện tại" 
-                     (error)="onImageError($event)"
-                     style="max-height: 120px; border-radius: 8px;">
-                <small class="text-muted">Ảnh hiện tại</small>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Tác giả</label>
-              <input [(ngModel)]="form.author" name="author" class="form-control" placeholder="Tên tác giả">
-            </div>
-
-            <div class="form-group">
-              <label>Tags (cách nhau bằng dấu phẩy)</label>
-              <input [(ngModel)]="form.tags" name="tags" class="form-control" placeholder="tin tức, sự kiện">
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn-action btn-success" [disabled]="isLoading">
-                <i class="bx bx-loader-alt bx-spin" *ngIf="isLoading"></i>
-                {{ isEdit ? 'CẬP NHẬT' : 'ĐĂNG BÀI' }}
-              </button>
-              <button type="button" class="btn-action btn-secondary" (click)="resetForm()" [disabled]="isLoading">
-                <i class="bx bx-reset"></i> Hủy
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </form>
-    </div>
   </div>
 
   <!-- ==================== DANH SÁCH BÀI VIẾT ==================== -->
@@ -134,8 +66,9 @@
         <tbody>
           <tr *ngFor="let item of displayedNewsList">
             <td>
-              <img [src]="getThumbnailUrl(item.thumbnail)" 
-                   alt="{{ item.title }}" 
+              <!-- ✅ dùng URL đã tính sẵn, không gọi hàm trong template -->
+              <img [src]="item.displayThumbnail"
+                   [alt]="item.title"
                    width="90" height="90"
                    (error)="onImageError($event)"
                    style="object-fit: cover; border-radius: 6px;">
@@ -147,15 +80,22 @@
               </div>
             </td>
             <td>
-              <span class="status" [class.active]="item.isActive !== false" [class.hidden]="item.isActive === false">
-                <i class="bx" [class.bx-show]="item.isActive !== false" [class.bx-hide]="item.isActive === false"></i>
+              <span class="status"
+                    [class.active]="item.isActive !== false"
+                    [class.hidden]="item.isActive === false">
+                <i class="bx"
+                   [class.bx-show]="item.isActive !== false"
+                   [class.bx-hide]="item.isActive === false"></i>
                 {{ item.isActive === false ? 'Đã ẩn' : 'Hiển thị' }}
               </span>
             </td>
             <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
 
             <td class="action-cell">
-              <button class="action-btn edit" (click)="edit(item)" data-tooltip="Sửa bài viết">
+              <!-- Khi sửa: gọi edit(item) như cũ + mở popup -->
+              <button class="action-btn edit"
+                      (click)="edit(item); openModal()"
+                      data-tooltip="Sửa bài viết">
                 <i class="bx bx-edit"></i>
               </button>
 
@@ -164,8 +104,8 @@
                       [class.hidden]="item.isActive === false"
                       (click)="toggleHide(item._id!, item.isActive === false)"
                       [attr.data-tooltip]="item.isActive === false ? 'Bỏ ẩn' : 'Ẩn'">
-                <i class="bx" 
-                   [class.bx-show]="item.isActive === false" 
+                <i class="bx"
+                   [class.bx-show]="item.isActive === false"
                    [class.bx-hide]="item.isActive !== false"></i>
               </button>
             </td>
@@ -178,6 +118,123 @@
         <p *ngIf="searchTerm; else noData">Không tìm thấy bài viết nào phù hợp</p>
         <ng-template #noData><p>Chưa có bài viết nào</p></ng-template>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== POPUP THÊM / SỬA BÀI VIẾT ==================== -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="bx bx-edit-alt"></i>
+          {{ isEdit ? 'SỬA BÀI VIẾT' : 'THÊM BÀI VIẾT MỚI' }}
+        </div>
+        <button type="button" class="modal-close" (click)="closeModal()">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="save()">
+          <div class="form-grid">
+
+            <!-- Cột chính -->
+            <div class="form-main">
+              <div class="form-group">
+                <label>Tiêu đề bài viết <span class="text-danger">*</span></label>
+                <input [(ngModel)]="form.title"
+                       name="title"
+                       class="form-control"
+                       placeholder="Nhập tiêu đề..."
+                       required>
+              </div>
+
+              <div class="form-group">
+                <label>Mô tả ngắn</label>
+                <textarea [(ngModel)]="form.short_desc"
+                          name="short_desc"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Tóm tắt nội dung..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Nội dung bài viết <span class="text-danger">*</span></label>
+                <textarea [(ngModel)]="form.content"
+                          name="content"
+                          class="form-control content-editor"
+                          placeholder="Viết nội dung..."
+                          required></textarea>
+              </div>
+            </div>
+
+            <!-- Cột phụ -->
+            <div class="form-sidebar">
+              <div class="form-group">
+                <label>Ảnh đại diện</label>
+                <div class="file-upload">
+                  <!-- ✅ thêm #fileInput để reset input được -->
+                  <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*">
+                  <i class="bx bxs-image-add"></i>
+                  <p>Kéo thả hoặc click để chọn ảnh</p>
+                  <small>JPG, PNG, tối đa 5MB</small>
+                </div>
+
+                <!-- PREVIEW ẢNH MỚI -->
+                <div *ngIf="previewImageUrl" class="preview-thumb mt-2">
+                  <img [src]="previewImageUrl"
+                       alt="Preview ảnh mới"
+                       style="max-height: 120px; border-radius: 8px;">
+                  <small class="text-success">Ảnh mới (sẽ upload)</small>
+                </div>
+
+                <!-- ẢNH HIỆN TẠI (khi sửa) -->
+                <div *ngIf="form.thumbnail && isEdit && !previewImageUrl" class="preview-thumb mt-2">
+                  <img [src]="getThumbnailUrl(form.thumbnail)"
+                    alt="Ảnh hiện tại"
+                    (error)="onImageError($event)"
+                    style="max-height: 120px; border-radius: 8px;">
+                  <small class="text-muted">Ảnh hiện tại</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Tác giả</label>
+                <input [(ngModel)]="form.author"
+                       name="author"
+                       class="form-control"
+                       placeholder="Tên tác giả">
+              </div>
+
+              <div class="form-group">
+                <label>Tags (cách nhau bằng dấu phẩy)</label>
+                <input [(ngModel)]="form.tags"
+                       name="tags"
+                       class="form-control"
+                       placeholder="tin tức, sự kiện">
+              </div>
+
+              <div class="form-actions">
+                <button type="submit"
+                        class="btn-action btn-success"
+                        [disabled]="isLoading">
+                  <i class="bx bx-loader-alt bx-spin" *ngIf="isLoading"></i>
+                  {{ isEdit ? 'CẬP NHẬT' : 'ĐĂNG BÀI' }}
+                </button>
+                <button type="button"
+                        class="btn-action btn-secondary"
+                        (click)="resetForm(); closeModal()"
+                        [disabled]="isLoading">
+                  <i class="bx bx-reset"></i> Hủy
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 </div>

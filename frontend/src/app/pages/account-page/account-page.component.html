@@ -8,7 +8,7 @@
         <img src="..." alt="Ảnh đại diện" class="avatar-placeholder" />
       </div>
       <div class="profile-greeting">
-        <h3>Xin chào, <span class="username">Tuấn</span></h3>
+        <h3>Xin chào, <span class="username" >Foden</span></h3>
         <div class="action-buttons">
           <button class="action-button">Chỉnh sửa ảnh</button>
 
@@ -69,18 +69,6 @@
           <div class="info-row">
             <label>Số điện thoại:</label>
             <input type="tel" [(ngModel)]="editData.phone" name="phone" [readonly]="!isEditing" />
-          </div>
-          <div class="info-row">
-            <label>Giới tính:</label>
-            <ng-container *ngIf="!isEditing">
-              <input type="text" [value]="editData.gender || '<Trống>'" readonly />
-            </ng-container>
-            <select *ngIf="isEditing" [(ngModel)]="editData.gender" name="gender">
-              <option value="">-- Chọn --</option>
-              <option value="Nam">Nam</option>
-              <option value="Nữ">Nữ</option>
-              <option value="Khác">Khác</option>
-            </select>
           </div>
           <div class="info-row">
             <label>Ngày sinh:</label>

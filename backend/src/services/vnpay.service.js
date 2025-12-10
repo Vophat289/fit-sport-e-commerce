@@ -39,14 +39,8 @@ export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
     };
     
     // Thêm IPN URL nếu có (VNPay cần để gửi callback)
-    // Lưu ý: VNPay npm package có thể không cần parameter này trong buildPaymentUrl
-    // Chỉ cần cấu hình trong merchant portal của VNPay
-    // if (config.ipnUrl) {
-    //     paymentConfig.vnp_IpnUrl = config.ipnUrl; // Không dùng vnp_IpUrl
-    // }
+ 
     
-    console.log('Đang tạo VNPay payment URL với cấu hình:');
-    console.log('- Số tiền:', amount, '->', amount * 100);
     console.log('- Mã đơn hàng:', orderId);
     console.log('- Địa chỉ IP:', ipAddr);
     console.log('- Return URL:', config.returnUrl);

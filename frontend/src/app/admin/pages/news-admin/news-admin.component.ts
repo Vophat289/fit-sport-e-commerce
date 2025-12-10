@@ -3,26 +3,14 @@ import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-
-interface News {
-  _id?: string;
-  title: string;
-  slug: string;
-  short_desc?: string;
-  content: string;
-  thumbnail?: string;
-  author?: string;
-  tags?: string[] | string;
-  createdAt?: string;
-  isActive?: boolean;
-}
+import { NewsService, News } from '../../../services/news.service';
 
 @Component({
   selector: 'app-news-admin',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './news-admin.component.html',
-  styleUrls: ['./news-admin.component.css'] 
+  styleUrls: ['./news-admin.component.css']
 })
 export class NewsAdminComponent implements OnInit {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -43,37 +31,33 @@ export class NewsAdminComponent implements OnInit {
   };
 
   selectedFile: File | null = null;
-  previewImageUrl: string | null = null; // thêm để template preview ảnh không lỗi
+  previewImageUrl: string | null = null;
   isEdit = false;
   isLoading = false;
   message: { type: 'success' | 'error'; text: string } | null = null;
 
-  // Sử dụng relative URL - nginx sẽ proxy đến backend
-  private readonly apiUrl = '/api/admin/news';
-  private readonly baseUrl = ''; // Không cần base URL khi dùng relative path
-  private readonly placeholderImage = 'https://via.placeholder.com/120x120.png?text=No+Image';
+  isModalOpen: boolean = false;
 
+
+  private readonly apiUrl = `${window.location.origin}/api/admin/news`;
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef, 
+    private newsService: NewsService
   ) {}
 
   ngOnInit(): void {
     this.loadNews();
   }
 
-  // ==================== HÀM XỬ LÝ ẢNH ====================
   getThumbnailUrl(thumbnail?: string): string {
-    if (!thumbnail) return this.placeholderImage;
-
-    if (thumbnail.startsWith('http')) return thumbnail;
-
-    const cleanPath = thumbnail.startsWith('/') ? thumbnail : `/${thumbnail}`;
-    return `${this.baseUrl}${cleanPath}`;
+    return this.newsService.getThumbnailUrl(thumbnail);
   }
 
   onImageError(event: any) {
-    event.target.src = this.placeholderImage;
+    if (event?.target) {
+      (event.target as HTMLImageElement).src = 'assets/no-image.png';
+    }
   }
 
   onFileSelected(event: any) {
@@ -93,12 +77,8 @@ export class NewsAdminComponent implements OnInit {
     }
 
     this.selectedFile = file;
-
     const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.previewImageUrl = e.target.result;
-      this.cdr.detectChanges();
-    };
+    reader.onload = (e: any) => this.previewImageUrl = e.target.result;
     reader.readAsDataURL(file);
   }
 
@@ -108,15 +88,17 @@ export class NewsAdminComponent implements OnInit {
     }
   }
 
-  // ==================== LOAD NEWS ====================
   loadNews() {
     this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}?limit=1000`).subscribe({
       next: (res) => {
-        this.newsList = Array.isArray(res) ? res : (res?.data || []);
+        const rawList: News[] = Array.isArray(res) ? res : (res?.data || []);
+        this.newsList = rawList.map(item => ({
+          ...item,
+          displayThumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
+        }));
         this.applyFilter();
         this.isLoading = false;
-        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Lỗi tải tin tức:', err);
@@ -124,7 +106,6 @@ export class NewsAdminComponent implements OnInit {
         this.displayedNewsList = [];
         this.isLoading = false;
         this.showMessage('error', 'Không thể tải danh sách bài viết');
-        this.cdr.detectChanges();
       }
     });
   }
@@ -163,8 +144,8 @@ export class NewsAdminComponent implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('title', this.form.title.trim());
-    formData.append('content', this.form.content.trim());
+    formData.append('title', this.form.title!.trim());
+    formData.append('content', this.form.content!.trim());
     if (this.form.short_desc?.trim()) formData.append('short_desc', this.form.short_desc.trim());
     if (this.form.author?.trim()) formData.append('author', this.form.author.trim());
 
@@ -179,25 +160,25 @@ export class NewsAdminComponent implements OnInit {
     if (this.selectedFile) formData.append('thumbnail', this.selectedFile);
 
     this.isLoading = true;
-
     const request$ = this.isEdit && this.form.slug
       ? this.http.put(`${this.apiUrl}/slug/${this.form.slug}`, formData)
       : this.http.post(this.apiUrl, formData);
 
     request$.subscribe({
       next: () => {
-        this.showMessage('success', this.isEdit ? 'Cập nhật bài viết thành công!' : 'Đăng bài thành công!');
+        this.showMessage('success', this.isEdit ? 'Cập nhật thành công!' : 'Đăng bài thành công!');
         this.resetForm();
+        this.closeModal();
         this.loadNews();
       },
-      error: (err) => {
-        console.error('Lỗi lưu bài viết:', err);
+      error: () => {
         this.showMessage('error', 'Có lỗi xảy ra, vui lòng thử lại!');
         this.isLoading = false;
       }
     });
   }
 
+  // ==================== EDIT ====================
   edit(item: News) {
     this.form = {
       ...item,
@@ -209,28 +190,49 @@ export class NewsAdminComponent implements OnInit {
     };
     this.isEdit = true;
     this.selectedFile = null;
-    this.previewImageUrl = item.thumbnail ? this.getThumbnailUrl(item.thumbnail) : null;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    this.cdr.detectChanges();
+    this.previewImageUrl = null; // để popup hiển thị “Ảnh hiện tại”
+
+    this.openModal();
+    // this.cdr.detectChanges();
   }
 
+  // ==================== POPUP ====================
+  // Mở popup để thêm bài viết mới
+  openCreateModal(): void {
+    this.isEdit = false;
+    this.resetForm();
+    this.isModalOpen = true;
+  }
+
+  // Mở popup (dùng khi sửa)
+  openModal(): void {
+    this.isModalOpen = true;
+  }
+
+  // Đóng popup
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
+
+  // ==================== ẢNH ====================
   removeSelectedImage() {
     this.selectedFile = null;
     this.previewImageUrl = null;
     this.resetFileInput();
-    if (this.isEdit && this.form.thumbnail) {
-      this.previewImageUrl = this.getThumbnailUrl(this.form.thumbnail);
-    }
-    this.cdr.detectChanges();
+    // this.cdr.detectChanges();
   }
 
+  // ==================== TOGGLE HIDE ====================
   toggleHide(id: string, currentIsActive: boolean) {
     if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
 
     this.isLoading = true;
     this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
       next: () => {
-        this.showMessage('success', currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
+        this.showMessage(
+          'success',
+          currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
+        );
         this.loadNews();
       },
       error: () => {
@@ -240,6 +242,7 @@ export class NewsAdminComponent implements OnInit {
     });
   }
 
+  // ==================== RESET FORM ====================
   resetForm() {
     this.form = {
       title: '',
@@ -254,14 +257,12 @@ export class NewsAdminComponent implements OnInit {
     this.previewImageUrl = null;
     this.isEdit = false;
     this.resetFileInput();
-    this.cdr.detectChanges();
+    // this.cdr.detectChanges();
   }
 
+  // ==================== MESSAGE ====================
   showMessage(type: 'success' | 'error', text: string) {
     this.message = { type, text };
-    setTimeout(() => {
-      this.message = null;
-      this.cdr.detectChanges();
-    }, 4000);
+    setTimeout(() => this.message = null, 4000);
   }
 }

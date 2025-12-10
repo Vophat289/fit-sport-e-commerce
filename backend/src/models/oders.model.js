@@ -1,4 +1,3 @@
-// src/models/oders.model.js
 import mongoose from 'mongoose';
 
 const OdersSchema = new mongoose.Schema({
@@ -6,7 +5,7 @@ const OdersSchema = new mongoose.Schema({
     user_id: {
         type: String, // Dùng String để hỗ trợ cả ObjectId và ID OAuth
         ref: 'User',
-        required: true,
+        required: false, // Thay đổi thành false nếu chấp nhận khách lẻ không đăng nhập
     },
     
     order_code: {
@@ -17,11 +16,11 @@ const OdersSchema = new mongoose.Schema({
     
     // Thông tin người nhận hàng
     receiver_name: { type: String, required: false },
-    receiver_mobile: { type: String, required: false },
-    receiver_address: { type: String, required: false }, // Chi tiết địa chỉ giao hàng
+    receiver_phone: { type: String, required: false }, // Đổi từ mobile sang phone
+    receiver_address: { type: String, required: false }, 
     
     // Giá và Phí
-    total_price: { // Tổng giá trị sản phẩm (chưa bao gồm phí giao hàng)
+    total_price: { 
         type: Number,
         required: true,
         default: 0,
@@ -32,11 +31,11 @@ const OdersSchema = new mongoose.Schema({
         default: 0,
     },
     
-    // Trạng thái Đơn hàng/Giỏ hàng
+    // TRẠNG THÁI ĐÃ ĐƯỢC CẬP NHẬT
     status: {
         type: String,
-        enum: ['CART', 'PENDING', 'CONFIRMED','SHIPPING','SHIPPED', 'DELIVERED', 'CANCELLED'],
-        default: 'CART', // Giỏ hàng sẽ có trạng thái là 'CART'
+        enum: ['CART', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'CANCELLED'],
+        default: 'CART', 
     },
     
     // Phương thức thanh toán
@@ -49,18 +48,18 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED'],
         default: 'INIT',
     },
 
-    // Khóa Ngoại 2 (FK2) - Tùy chọn (Chỉ cần nếu bạn có PaymentGateway Model)
+    // Khóa Ngoại 2 (FK2) 
     payment_gateway_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PaymentGateway', 
         required: false,
     },
 
-    // Khóa Ngoại 3 (FK3) - Tùy chọn (Chỉ cần nếu bạn có Voucher Model)
+    // Khóa Ngoại 3 (FK3) 
     voucher_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Voucher',

@@ -1,0 +1,254 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal" (click)="stopPropagation($event)">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-content">
+        <div class="header-top">
+          <p class="sub-title">Chi tiết đơn hàng</p>
+          <button class="btn-close" (click)="closeModal()">
+            <i class="bx bx-x"></i>
+          </button>
+        </div>
+        <div class="header-main">
+          <h3>
+            <i class="bx bx-receipt"></i>
+            {{ order.order_code }}
+          </h3>
+          <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+            <i class="bx" [ngClass]="getStatusIcon(order.status)"></i>
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMsg">
+        <i class="bx bx-error-circle"></i>
+        <span>{{ errorMsg }}</span>
+      </div>
+
+      <!-- Customer & Receiver Info (Side by Side) -->
+      <div class="info-row">
+        <!-- Customer Info -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="bx bx-user"></i>
+            Thông tin khách hàng
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <label><i class="bx bx-user-circle"></i> Tên:</label>
+              <span>{{ order.user.name }}</span>
+            </div>
+            <div class="info-item">
+              <label><i class="bx bx-envelope"></i> Email:</label>
+              <span>{{ order.user.email }}</span>
+            </div>
+            <div class="info-item">
+              <label><i class="bx bx-phone"></i> Số điện thoại:</label>
+              <span>{{ order.user.phone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiver Info -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="bx bx-map"></i>
+            Thông tin người nhận
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <label><i class="bx bx-user-circle"></i> Tên người nhận:</label>
+              <span>{{ order.receiver.name }}</span>
+            </div>
+            <div class="info-item">
+              <label><i class="bx bx-phone"></i> Số điện thoại:</label>
+              <span>{{ order.receiver.mobile }}</span>
+            </div>
+            <div class="info-item full-width">
+              <label><i class="bx bx-map-pin"></i> Địa chỉ:</label>
+              <span>{{ order.receiver.address }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items - Horizontal Table -->
+      <div class="info-section items-section">
+        <h4 class="section-title">
+          <i class="bx bx-package"></i>
+          Sản phẩm trong đơn ({{ order.items.length }})
+        </h4>
+        <div class="items-table-wrapper">
+          <div class="items-table-scroll">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th class="col-image">Hình ảnh</th>
+                  <th class="col-product">Sản phẩm</th>
+                  <th class="col-variant">Size / Color</th>
+                  <th class="col-price">Đơn giá</th>
+                  <th class="col-quantity">Số lượng</th>
+                  <th class="col-subtotal">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of order.items" class="item-row">
+                  <td class="image-cell">
+                    <div class="product-image-wrapper">
+                      <img 
+                        [src]="item.variant.image || item.product.image || '/assets/no-image.png'" 
+                        [alt]="item.product.name"
+                        class="product-image"
+                        onerror="this.src='/assets/no-image.png'"
+                      />
+                    </div>
+                  </td>
+                  <td class="product-cell">
+                    <div class="product-name">{{ item.product.name }}</div>
+                    <small class="product-slug">{{ item.product.slug }}</small>
+                  </td>
+                  <td class="variant-cell">
+                    <div class="variant-badges">
+                      <span class="variant-badge size">
+                        <i class="bx bx-ruler"></i>
+                        {{ item.variant.size }}
+                      </span>
+                      <span class="variant-badge color" [style.background-color]="item.variant.colorHex || '#ccc'">
+                        <i class="bx bx-palette"></i>
+                        {{ item.variant.color }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="price-cell">
+                    <div class="price-value">{{ formatCurrency(item.price) }}</div>
+                  </td>
+                  <td class="quantity-cell">
+                    <div class="quantity-value">
+                      <i class="bx bx-package"></i>
+                      {{ item.quantity }}
+                    </div>
+                  </td>
+                  <td class="subtotal-cell">
+                    <div class="subtotal-value">
+                      <strong>{{ formatCurrency(item.subtotal) }}</strong>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Payment Info (Side by Side) -->
+      <div class="info-row">
+        <!-- Pricing -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="bx bx-calculator"></i>
+            Tổng tiền
+          </h4>
+          <div class="pricing-details">
+            <div class="pricing-row">
+              <span class="pricing-label">Tổng sản phẩm:</span>
+              <span class="pricing-value">{{ formatCurrency(order.pricing.total_items) }}</span>
+            </div>
+            <div class="pricing-row">
+              <span class="pricing-label">Phí giao hàng:</span>
+              <span class="pricing-value">{{ formatCurrency(order.pricing.delivery_fee) }}</span>
+            </div>
+            <div class="pricing-row" *ngIf="order.voucher">
+              <span class="pricing-label">Voucher ({{ order.voucher.code }}):</span>
+              <span class="pricing-value discount">-{{ formatCurrency(order.pricing.voucher_discount) }}</span>
+            </div>
+            <div class="pricing-row total">
+              <span class="pricing-label">Tổng cộng:</span>
+              <span class="pricing-value"><strong>{{ formatCurrency(order.pricing.final_amount) }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="bx bx-credit-card"></i>
+            Thông tin thanh toán
+          </h4>
+          <div class="info-list">
+            <div class="info-item">
+              <label><i class="bx bx-payment"></i> Phương thức:</label>
+              <span class="payment-method-badge">
+                <i class="bx" [ngClass]="order.payment_method === 'VNPAY' ? 'bx-credit-card' : 'bx-money'"></i>
+                {{ order.payment_method }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label><i class="bx bx-check-circle"></i> Trạng thái:</label>
+              <span class="badge" [ngClass]="getPaymentStatusBadgeClass(order.payment_status)">
+                {{ order.payment_status }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="order.vnpay_transaction_id">
+              <label><i class="bx bx-receipt"></i> Transaction ID:</label>
+              <code>{{ order.vnpay_transaction_id }}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Update -->
+      <div class="info-section status-update-section">
+        <h4 class="section-title">
+          <i class="bx bx-edit"></i>
+          Thay đổi trạng thái đơn hàng
+        </h4>
+        <div class="status-update">
+          <select 
+            [(ngModel)]="selectedStatus" 
+            class="status-select"
+            [disabled]="updating">
+            <option *ngFor="let opt of statusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+          <button 
+            class="btn btn-primary" 
+            (click)="updateStatus()"
+            [disabled]="updating || selectedStatus === order.status">
+            <i class="bx bx-loader-alt bx-spin" *ngIf="updating"></i>
+            <i class="bx bx-check" *ngIf="!updating"></i>
+            <span *ngIf="!updating">Cập nhật trạng thái</span>
+            <span *ngIf="updating">Đang cập nhật...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Dates -->
+      <div class="info-section dates-section">
+        <div class="info-grid">
+          <div class="info-item">
+            <label><i class="bx bx-calendar-plus"></i> Ngày tạo:</label>
+            <span>{{ formatDate(order.createdAt) }}</span>
+          </div>
+          <div class="info-item">
+            <label><i class="bx bx-calendar-check"></i> Cập nhật lần cuối:</label>
+            <span>{{ formatDate(order.updatedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()">
+        <i class="bx bx-x"></i>
+        Đóng
+      </button>
+    </div>
+  </div>
+</div>
