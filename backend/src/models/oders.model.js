@@ -35,8 +35,11 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Đơn hàng/Giỏ hàng
     status: {
         type: String,
-        enum: ['CART', 'PENDING', 'CONFIRMED','SHIPPING','SHIPPED', 'DELIVERED', 'CANCELLED'],
+        enum: ['CART', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED', 'CANCELLED'],
         default: 'CART', // Giỏ hàng sẽ có trạng thái là 'CART'
+        // Trạng thái chính: PENDING (Chờ xác nhận), CONFIRMED (Đã xác nhận), 
+        // PROCESSING (Đang xử lý/Chuẩn bị hàng), SHIPPING (Đang giao), DELIVERED (Giao hàng thành công)
+        // Trạng thái phụ: CANCELLED (Đơn bị hủy)
     },
     
     // Phương thức thanh toán
@@ -49,7 +52,7 @@ const OdersSchema = new mongoose.Schema({
     // Trạng thái Thanh toán
     payment_status: {
         type: String,
-        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'],
+        enum: ['INIT', 'PENDING', 'SUCCESS', 'FAILED'],
         default: 'INIT',
     },
 

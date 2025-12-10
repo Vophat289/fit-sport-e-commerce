@@ -21,6 +21,7 @@ import adminVoucherRoutes from './routes/admin/voucher.admin.routes.js';
 import adminDashboardRoutes from './routes/admin/dashboard.routes.js';
 import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 import adminNewsRoutes from './routes/admin/news.admin.routes.js';
+import adminOrderRoutes from './routes/admin/order.admin.routes.js';
 import vnpayRoute from "./routes/vnpay.route.js";
 import { returnUrl } from "./controllers/vnpay.controller.js";
 
@@ -83,6 +84,7 @@ app.use("/api/admin/vouchers", adminVoucherRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/contacts", adminContactRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
+app.use("/api/admin/orders", adminOrderRoutes);
 
 app.use("/api/vnpay", vnpayRoute);
 

@@ -1,0 +1,155 @@
+<div class="order-admin">
+  <div class="page-header">
+    <div>
+      <p class="sub-title">Quản lý</p>
+      <h2 class="page-title">Đơn Hàng</h2>
+    </div>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          placeholder="Tìm theo mã đơn, tên, SĐT..." 
+          [(ngModel)]="search" 
+          (ngModelChange)="onSearchChange()" 
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+
+    <select [(ngModel)]="paymentStatusFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+      <option *ngFor="let opt of paymentStatusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+
+    <select [(ngModel)]="paymentMethodFilter" (ngModelChange)="onFilterChange()" class="filter-select">
+      <option *ngFor="let opt of paymentMethodOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+
+    <button class="btn btn-secondary" (click)="resetFilters()">
+      <i class="bx bx-refresh"></i>
+      Reset
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <i class="bx bx-loader bx-spin"></i>
+    <span>Đang tải...</span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Mã đơn</th>
+          <th>Khách hàng</th>
+          <th>Người nhận</th>
+          <th>Tổng tiền</th>
+          <th>Trạng thái</th>
+          <th>Thanh toán</th>
+          <th>Ngày tạo</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="orders.length === 0">
+          <td colspan="8" class="empty">
+            <i class="bx bx-cart"></i>
+            <p>Chưa có đơn hàng nào</p>
+          </td>
+        </tr>
+
+        <tr *ngFor="let order of orders">
+          <td>
+            <code>{{ order.order_code }}</code>
+          </td>
+          <td>
+            <div class="customer-info">
+              <strong>{{ order.user.name }}</strong>
+              <small>{{ order.user.email }}</small>
+              <small>{{ order.user.phone }}</small>
+            </div>
+          </td>
+          <td>
+            <div class="receiver-info">
+              <strong>{{ order.receiver.name }}</strong>
+              <small>{{ order.receiver.mobile }}</small>
+            </div>
+          </td>
+          <td>
+            <strong>{{ formatCurrency(order.final_amount) }}</strong>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </span>
+          </td>
+          <td>
+            <div>
+              <span class="badge" [ngClass]="getPaymentStatusBadgeClass(order.payment_status)">
+                {{ order.payment_status }}
+              </span>
+              <small class="payment-method">{{ order.payment_method }}</small>
+            </div>
+          </td>
+          <td>
+            <small>{{ formatDate(order.createdAt) }}</small>
+          </td>
+          <td class="actions">
+            <button class="btn btn-primary btn-sm" (click)="openOrderDetail(order._id)">
+              <i class="bx bx-show"></i>
+              Xem chi tiết
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        [disabled]="page === 1"
+        (click)="changePage(page - 1)">
+        ‹ Trước
+      </button>
+
+      <button
+        *ngFor="let p of [].constructor(totalPages); let i = index"
+        class="page-btn"
+        [class.active]="page === i + 1"
+        (click)="changePage(i + 1)">
+        {{ i + 1 }}
+      </button>
+
+      <button
+        class="page-btn"
+        [disabled]="page === totalPages"
+        (click)="changePage(page + 1)">
+        Tiếp ›
+      </button>
+    </div>
+
+    <div class="pagination-info" *ngIf="total > 0">
+      Hiển thị {{ (page - 1) * pageSize + 1 }} - {{ page * pageSize > total ? total : page * pageSize }} 
+      trong tổng số {{ total }} đơn hàng
+    </div>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <app-order-detail-modal
+    *ngIf="showDetailModal && selectedOrder"
+    [order]="selectedOrder"
+    (close)="closeDetailModal()"
+    (statusUpdated)="onStatusUpdated()">
+  </app-order-detail-modal>
+</div>
