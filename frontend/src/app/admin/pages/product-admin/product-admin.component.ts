@@ -6,11 +6,13 @@ import { CategoryService, Category } from '../../../services/category.service';
 // import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { VariantService } from '../../services/variant.service';
+import { PriceRangePipe } from '../price-range.pipe';
 
 @Component({
   selector: 'app-product-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PriceRangePipe],
   templateUrl: './product-admin.component.html',
   styleUrls: ['./product-admin.component.css'],
 })
@@ -47,6 +49,7 @@ export class ProductAdminComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private router: Router,
+    private variantService: VariantService,
   ) {}
 
   ngOnInit(): void {
@@ -61,17 +64,41 @@ export class ProductAdminComponent implements OnInit {
   }
 
   loadProducts() {
-    this.productService.getAll().subscribe((res) => {
-      this.products = res;
+  this.productService.getAll().subscribe((res) => {
+    this.products = res;
 
-      this.products.forEach((p, idx) => {
-      p._displayIndex = idx + 1; 
+    let count = 0;
+
+    this.products.forEach((p, idx) => {
+      p._displayIndex = idx + 1;
+
+      // Gọi API lấy biến thể của sản phẩm
+      this.variantService.getVariantsByProduct(p._id!).subscribe(variants => {
+
+        if (!variants || variants.length === 0) {
+          p.displayPrice = p.price;
+          p.displayColors = [];
+          p.displaySizes = [];
+        } else {
+          const prices = variants.map(v => v.price);
+          p.displayPrice = Math.min(...prices);
+          p.displayPrices = prices;
+
+          p.displayColors = Array.from(new Set(variants.map(v => v.color_id?.hex_code).filter(c => c)));
+          p.displaySizes = Array.from(new Set(variants.map(v => v.size_id?.name).filter(s => s)));
+        }
+
+        count++;
+        if (count === this.products.length) {
+          this.updatePagedProducts();
+        }
+
+      });
     });
 
-      this.currentPage = 1;
-      this.updatePagedProducts();
-    });
-  }
+  });
+}
+
 
   loadCategories() {
     this.categoryService.getAll().subscribe((res) => {
@@ -82,11 +109,8 @@ export class ProductAdminComponent implements OnInit {
 initForm() {
 this.productForm = this.fb.group({
   name: ['', [Validators.required, Validators.minLength(2)]],
-  price: [0, [Validators.required, Validators.min(1)]],
   description: [''],
   category: ['', Validators.required],
-  colors: ['', [Validators.required, Validators.pattern(/^#?[0-9A-Fa-f]{6}(,\s*#?[0-9A-Fa-f]{6})*$/)]],
-  sizes: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+(,\s*[a-zA-Z0-9]+)*$/)]],
   images: [null, [Validators.required,]],
 });
 }
@@ -229,19 +253,10 @@ submit() {
 
   const formData = new FormData();
   const values = this.productForm.value;
-  const colorsArray = values.colors ? values.colors.split(',').map((c: string) => c.trim()).filter(Boolean) : [];
-  const sizesArray = values.sizes ? values.sizes.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
-
+ 
   formData.append('name', values.name);
-  formData.append('price', values.price.toString());
   formData.append('description', values.description || '');
   formData.append('category', values.category);
-
-  // formData.append('colors', JSON.stringify(values.colors.split(',').map((c: string) => c.trim())));
-  // formData.append('sizes', JSON.stringify(values.sizes.split(',').map((s: string) => s.trim())));
-
-  formData.append('colors', JSON.stringify(colorsArray));
-  formData.append('sizes', JSON.stringify(sizesArray));
 
   formData.append('existingImages', JSON.stringify(this.existingImages));
   this.newFiles.forEach((file) => formData.append('images', file));
@@ -273,8 +288,12 @@ submit() {
 
       alert(this.isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!');
 
-      this.openCreate(); // reset form
       this.showForm = false;
+      this.productForm.reset();
+      this.existingImages = [];
+      this.newFiles = [];
+      this.newFilePreviews = [];
+      this.loadProducts();
     },
 
     error: () => {

@@ -35,6 +35,10 @@ export interface Product {
     price: number;
     quantity: number;
   }[];
+  displayPrice?: number;
+  displayPrices?: number[]
+  displayColors?: string[];
+  displaySizes?: string[];
 }
 export interface VariantSelection {
   sizeId: string;

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { VariantService } from '../../services/variant.service';
 import { ProductService } from '../../../services/product.service';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -44,7 +44,7 @@ interface Variant {
   selector: 'app-variant-admin',
   templateUrl: './variant-admin.component.html',
   styleUrls: ['./variant-admin.component.css'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
 })
 export class VariantAdminComponent implements OnInit {
   public productId: string | null = null;
@@ -57,6 +57,10 @@ export class VariantAdminComponent implements OnInit {
   public editingVariantId: string | null = null;
   public isLoading: boolean = false;
   public message: { type: 'success' | 'error'; text: string } | null = null;
+
+  public newSize: string = '';
+  public newColor: string = '';
+  public newColorHex: string = '#000000';
 
   constructor(
     private route: ActivatedRoute,
@@ -80,13 +84,14 @@ export class VariantAdminComponent implements OnInit {
       this.loadProductDetails(this.productId);
       this.loadOptions();
       this.loadVariants(this.productId);
+      this.loadProductDetails(this.productId);
     } else {
       this.router.navigate(['/admin/products']);
     }
   }
 
   loadProductDetails(productId: string): void {
-    this.http.get<any>(`/api/product-detail/${productId}`).subscribe({
+    this.variantService.getProductDetails(productId).subscribe({
       next: (data) => {
         this.productName = data.name || 'Không có tên';
       },
@@ -110,7 +115,6 @@ export class VariantAdminComponent implements OnInit {
     this.isLoading = true;
     this.variantService.getVariantsByProduct(productId).subscribe({
       next: (data: any[]) => {
-        console.log('Variants loaded:', data);
         this.variants = data as Variant[];
         this.isLoading = false;
       },
@@ -138,10 +142,9 @@ export class VariantAdminComponent implements OnInit {
       price: formValue.price,
       quantity: formValue.quantity,
     };
-    // ------------------------------------------------------------------
 
     if (this.isEditMode && this.editingVariantId) {
-      this.variantService // Dùng 'payload' thay vì 'newVariantData'
+      this.variantService
         .updateVariant(this.editingVariantId, payload)
         .subscribe({
           next: () => {
@@ -152,7 +155,6 @@ export class VariantAdminComponent implements OnInit {
           error: () => this.showMessage('error', 'Lỗi khi cập nhật biến thể.'),
         });
     } else {
-      // Dùng 'payload' thay vì 'newVariantData'
       this.variantService.addVariant(payload).subscribe({
         next: () => {
           this.showMessage('success', 'Thêm biến thể thành công.');
@@ -182,6 +184,8 @@ export class VariantAdminComponent implements OnInit {
       price: variant.price,
       quantity: variant.quantity,
     });
+    this.variantForm.get('size_id')?.disable();
+    this.variantForm.get('color_id')?.disable();
   }
 
   deleteVariant(id: string): void {
@@ -208,7 +212,7 @@ export class VariantAdminComponent implements OnInit {
       size_id: '',
       color_id: '',
     });
-  } // --- HÀM HIỂN THỊ HỖ TRỢ (FIXED) ---
+  }
   getOptionName(id: string, options: any[]): string {
     return options.find((o) => o._id === id)?.name || 'N/A';
   }
@@ -220,25 +224,15 @@ export class VariantAdminComponent implements OnInit {
   goBackToProducts(): void {
     this.router.navigate(['/admin/products']);
   }
-  /**
-   * Trả về Tên Size (ưu tiên từ đối tượng populate)
-   */
-
   getSizeDisplay(variant: any): string {
     if (typeof variant.size_id === 'object' && variant.size_id) {
       return variant.size_id.name;
-    } // Nếu là string ID, gọi hàm tìm kiếm trong mảng đã load
+    }
     return this.getOptionName(variant.size_id as string, this.sizes);
   }
-  /**
-   * Hàm phụ trợ lấy mã màu từ mảng colors đã tải
-   */
   getColorCodeFromId(id: string, colors: any[]): string {
     return colors.find((c) => c._id === id)?.hex_code || '#cccccc';
   }
-  /**
-   * Trả về Tên Màu hoặc Mã Màu (ưu tiên từ đối tượng populate)
-   */
   getColorDisplay(variant: any, type: 'name' | 'code'): string {
     // 1. Nếu dữ liệu đã được populate (là Object)
     if (typeof variant.color_id === 'object' && variant.color_id) {
@@ -250,12 +244,41 @@ export class VariantAdminComponent implements OnInit {
     if (type === 'name') {
       return this.getOptionName(variant.color_id as string, this.colors);
     } else {
-      // type === 'code'
       const colorCode = this.getColorCodeFromId(
         variant.color_id as string,
         this.colors
       );
       return colorCode;
     }
+  }
+  createSize() {
+    if (!this.newSize.trim()) return;
+
+    this.variantService.addSize(this.newSize).subscribe({
+      next: (res) => {
+        this.showMessage('success', 'Thêm size thành công');
+        this.newSize = '';
+        this.loadOptions(); // load lại danh sách size
+      },
+      error: () => this.showMessage('error', 'Size đã tồn tại hoặc lỗi server'),
+    });
+  }
+  createColor() {
+    if (!this.newColor.trim()) return;
+
+    const payload = {
+      name: this.newColor,
+      hex_code: this.newColorHex,
+    };
+
+    this.variantService.addColor(payload).subscribe({
+      next: () => {
+        this.showMessage('success', 'Thêm màu thành công');
+        this.newColor = '';
+        this.newColorHex = '#000000';
+        this.loadOptions();
+      },
+      error: () => this.showMessage('error', 'Màu đã tồn tại hoặc lỗi server'),
+    });
   }
 }

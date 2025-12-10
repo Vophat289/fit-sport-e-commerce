@@ -40,8 +40,8 @@ interface VariantPayload {
 type VariantResponse = {
   _id: string;
   product_id: string | any;
-  size_id: string | SizeOption;
-  color_id: string | ColorOption;
+  size_id: SizeOption;
+  color_id: ColorOption;
   price: number;
   quantity: number;
 };
@@ -51,8 +51,9 @@ type VariantResponse = {
 })
 export class VariantService {
   private adminApiUrl = '/api/admin';
+  private productDetailUrl = `${this.adminApiUrl}/product-detail`;
   private apiUrl = `${this.adminApiUrl}/variants`;
-  private sizeUrl = `${this.adminApiUrl}/sizes`;  
+  private sizeUrl = `${this.adminApiUrl}/sizes`;
   private colorUrl = `${this.adminApiUrl}/colors`;
 
   constructor(private http: HttpClient) {}
@@ -86,6 +87,12 @@ export class VariantService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
   getProductDetails(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.productDetailUrl}/${id}`);
+  }
+  addSize(sizeName: string) {
+    return this.http.post<any>(`/api/admin/sizes`, { name: sizeName });
+  }
+  addColor(payload: { name: string; hex_code: string }) {
+    return this.http.post(`${this.apiUrl}/colors`, payload);
   }
 }
