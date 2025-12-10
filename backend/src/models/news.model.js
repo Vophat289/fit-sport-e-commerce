@@ -54,11 +54,7 @@ const newsSchema = new mongoose.Schema(
 );
 
 // Index tối ưu 
-newsSchema.index({ slug: 1 });
-newsSchema.index({ createdAt: -1 });
-newsSchema.index({ isActive: 1, createdAt: -1 });
-
-newsSchema.index({ createdAt: -1 });     
+// createdAt đã có từ timestamps: true
 newsSchema.index({ isActive: 1, createdAt: -1 }); 
 
 

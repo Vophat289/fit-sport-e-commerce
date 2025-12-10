@@ -1,12 +1,13 @@
 <div class="contact-admin">
+
   <div class="page-header">
     <div>
       <p class="sub-title">Liên hệ</p>
       <h2 class="page-title">Quản lý liên hệ</h2>
     </div>
 
+    <!-- Search nằm bên phải, đã xóa nút thêm liên hệ -->
     <div class="header-actions">
-      <!-- Search -->
       <div class="search-box">
         <i class="bx bx-search"></i>
         <input
@@ -16,13 +17,8 @@
           (input)="onSearch()"
         />
       </div>
-
-      <!-- Add Contact Button -->
-      <button class="btn btn-primary" (click)="openCreateForm()">
-        <i class="bx bx-plus"></i>
-        Thêm liên hệ
-      </button>
     </div>
+
   </div>
 
   <!-- Loading -->

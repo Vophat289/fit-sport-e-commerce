@@ -40,7 +40,6 @@ export const getProfile = async (req, res) => {
         const user = await findUserByIdOrOauth(userId);
 
         if (!user) {
-            console.warn(`DEBUG-RESULT: User not found for ID: ${userId}`);
             return res.status(404).json({ message: 'Không tìm thấy hồ sơ người dùng.' });
         }
 

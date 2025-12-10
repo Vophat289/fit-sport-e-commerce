@@ -96,7 +96,7 @@ export const getAllOrders = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Lỗi getAllOrders:", error);
+    console.error("Lỗi getAllOrders:", error);
     res.status(500).json({ 
       success: false,
       message: "Lỗi server khi lấy danh sách đơn hàng",
@@ -228,7 +228,7 @@ export const getOrderDetail = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Lỗi getOrderDetail:", error);
+    console.error("Lỗi getOrderDetail:", error);
     res.status(500).json({ 
       success: false,
       message: "Lỗi server khi lấy chi tiết đơn hàng",
@@ -294,6 +294,13 @@ export const updateOrderStatus = async (req, res) => {
       );
     }
 
+    //Tự động chuyển payment_status cho COD khi giao hàng thành công
+    if (status === 'DELIVERED' && 
+        order.payment_method === 'COD' && 
+        order.payment_status === 'PENDING') {
+      order.payment_status = 'SUCCESS';
+    }
+
     // Cập nhật trạng thái
     order.status = status;
     await order.save();
@@ -305,12 +312,13 @@ export const updateOrderStatus = async (req, res) => {
         _id: order._id,
         order_code: order.order_code,
         status: order.status,
+        payment_status: order.payment_status, // Trả về payment_status đã được cập nhật
         updatedAt: order.updatedAt
       }
     });
 
   } catch (error) {
-    console.error("❌ Lỗi updateOrderStatus:", error);
+    console.error("Lỗi updateOrderStatus:", error);
     res.status(500).json({ 
       success: false,
       message: "Lỗi server khi cập nhật trạng thái đơn hàng",
@@ -372,7 +380,7 @@ export const getOrderStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Lỗi getOrderStats:", error);
+    console.error("Lỗi getOrderStats:", error);
     res.status(500).json({ 
       success: false,
       message: "Lỗi server khi lấy thống kê đơn hàng",
