@@ -1,9 +1,60 @@
-<div *ngIf="success; else fail">
-  <h2 style="color: green;">Thanh toán thành công!</h2>
-  <p>Mã phản hồi: {{ responseCode }}</p>
-</div>
+<div class="payment-popup-overlay" (click)="closePopup()">
+  <div class="payment-popup-container" (click)="$event.stopPropagation()">
+    <div class="payment-popup-content" [class.success]="success" [class.failed]="!success">
+      
+      <!-- Icon -->
+      <div class="popup-icon">
+        <div *ngIf="success" class="success-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#10b981" opacity="0.2"/>
+            <path d="M9 12l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div *ngIf="!success" class="failed-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#ef4444" opacity="0.2"/>
+            <path d="M15 9l-6 6M9 9l6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
 
-<ng-template #fail>
-  <h2 style="color: red;">Thanh toán thất bại!</h2>
-  <p>Mã phản hồi: {{ responseCode }}</p>
-</ng-template>
+      <!-- Title -->
+      <h2 class="popup-title">{{ message }}</h2>
+
+      <!-- Order Info (chỉ hiển thị khi thành công) -->
+      <div *ngIf="success && orderCode" class="order-info">
+        <p class="order-code">Mã đơn hàng: <strong>{{ orderCode }}</strong></p>
+      </div>
+
+      <!-- ✅ THÔNG BÁO RIÊNG CHO COD -->
+      <div *ngIf="responseCode === 'COD'" class="cod-info">
+        <p class="cod-title"><strong>Lưu ý:</strong></p>
+        <ul class="cod-list">
+          <li>Đơn hàng sẽ được xử lý trong 24 giờ</li>
+          <li>Bạn sẽ nhận được cuộc gọi xác nhận từ nhân viên</li>
+          <li>Thanh toán khi nhận hàng (COD)</li>
+        </ul>
+      </div>
+
+      <!-- Response Code (chỉ hiển thị nếu không phải COD) -->
+      <p *ngIf="responseCode !== 'COD'" class="response-code">Mã phản hồi: {{ responseCode }}</p>
+
+      <!-- Buttons -->
+      <div class="popup-buttons">
+        <button *ngIf="success" class="btn btn-primary" (click)="goToOrders()">
+          Xem đơn hàng
+        </button>
+        <button class="btn btn-secondary" (click)="goToHome()">
+          Về trang chủ ({{ countdown }}s)
+        </button>
+      </div>
+
+      <!-- Close button -->
+      <button class="popup-close" (click)="closePopup()" aria-label="Đóng">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

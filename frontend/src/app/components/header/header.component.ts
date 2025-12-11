@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { CartService } from '../../services/cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { Product, ProductService } from '@app/services/product.service';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -39,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.userName = user?.displayName || user?.name || null;
     });
 
-    // ✅ Lắng nghe số lượng sản phẩm trong giỏ
+    // số lượng sản phẩm trong giỏ
     this.cartSub = this.cartService.cartCount$.subscribe((count) => {
       this.cartCount = count;
     });
@@ -58,8 +59,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/cart']);
   }
 
-  logout() {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+logout() {
+  Swal.fire({
+    title: 'Đăng xuất?',
+    text: 'Bạn có chắc chắn muốn đăng xuất không?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Đăng xuất',
+    cancelButtonText: 'Hủy',
+  }).then(result => {
+    if (result.isConfirmed) {
       this.authService.logout().subscribe({
         next: () => {
           // this.cartService.clearCart();
@@ -67,10 +76,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
           localStorage.removeItem('user');
           this.router.navigate(['/home']);
         },
-        error: () => alert('Đăng xuất thất bại. Vui lòng thử lại.'),
+        error: () => Swal.fire('Lỗi', 'Đăng xuất thất bại', 'error'),
       });
     }
-  }
+  });
+}
   //search
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;

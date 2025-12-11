@@ -12,6 +12,7 @@ import { VoucherComponent } from './pages/voucher/voucher.component';
 import { CartPageComponent } from './pages/cart-page/cart-page.component';
 import { DataSeederComponent } from './pages/admin-seeder/data-seeder.component';
 import { NewsComponent } from './pages/news/news.component';
+import { NewsDetailComponent } from './components/news-detail/news-detail.component';
 
 // Auth pages
 import { LoginComponent } from './pages/login/login.component';
@@ -19,6 +20,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { AuthCallbackComponent } from './pages/auth-callback/auth-callback.component';
 
 // Admin routes 
 import { AdminRoutes } from './admin/admin.routes';
@@ -40,10 +42,12 @@ export const routes: Routes = [
       { path: 'account', component: AccountPageComponent }, 
       { path: 'contact', component: ContactComponent }, 
       { path: 'voucher', component: VoucherComponent }, 
-      { path: 'news', component: NewsComponent }, 
+      { path: 'news', component: NewsComponent },
+      { path: 'news/:slug', component: NewsDetailComponent },
 
       // Các route đăng nhập/đăng ký cũng nên được đặt trong Client Layout nếu muốn hiển thị header/footer
       { path: 'login', component: LoginComponent },
+      { path: 'auth/callback', component: AuthCallbackComponent }, // OAuth callback route
       { path: 'verify-pin', component: VerifyPinComponent},
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },

@@ -18,15 +18,35 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🚀 Deploying to EC2 Server...${NC}"
 echo ""
 
+# Kiểm tra SSH key
+SSH_KEY="${SSH_KEY:-$HOME/Downloads/n8n_keypair.pem}"
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo -e "${YELLOW}⚠️  SSH key not found: $SSH_KEY${NC}"
+    echo -e "${YELLOW}💡 Trying without key (if already configured)...${NC}"
+    SSH_CMD="ssh"
+else
+    chmod 600 "$SSH_KEY" 2>/dev/null || true
+    SSH_CMD="ssh -i $SSH_KEY"
+    echo "🔑 Using SSH key: $SSH_KEY"
+fi
+
 # SSH vào server và deploy
-ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
+$SSH_CMD ${EC2_USER}@${EC2_HOST} << 'EOF'
   set -e
   
   echo "📂 Navigating to project directory..."
   cd ~/fit-sport-e-commerce
   
   echo "📥 Pulling latest code from main branch..."
-  git pull origin main
+  # Cấu hình Git để tự động merge khi có divergent branches
+  git config pull.rebase false 2>/dev/null || true
+  # Fetch và merge
+  git fetch origin main
+  git merge origin/main --no-edit || {
+    echo "⚠️  Git merge failed. Resetting to origin/main..."
+    git reset --hard origin/main
+  }
   
   echo "🔨 Running deployment script..."
   ./deploy.sh

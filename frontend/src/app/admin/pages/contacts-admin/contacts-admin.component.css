@@ -12,21 +12,19 @@ html, body {
   box-sizing: border-box;
 }
 
-/* ====================== MAIN CONTAINER (căn giữa + co lại) ====================== */
+/* ====================== MAIN CONTAINER ====================== */
 .admin-container {
   min-height: 100vh;
   background: #0e0e10;
-  padding: 24px 16px;               /* padding nhỏ 2 bên */
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
 }
 
-/* Phần QUAN TRỌNG NHẤT - co nội dung lại giống hệt ảnh */
 .content-wrapper {
   width: 100%;
-  max-width: 1400px;                /* rộng tối đa giống ảnh gốc */
-  margin: 0 auto;                   /* căn giữa hoàn hảo */
-  background: transparent;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ====================== PAGE HEADER ====================== */
@@ -36,7 +34,6 @@ html, body {
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
 }
 
 .sub-title {
@@ -58,10 +55,13 @@ html, body {
 /* ====================== SEARCH + BUTTON ====================== */
 .header-actions {
   display: flex;
-  gap: 12px;
+  justify-content: flex-end;
   align-items: center;
-  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 20px;
 }
+
+
 
 .search-box {
   position: relative;
@@ -73,7 +73,7 @@ html, body {
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
-  color: #64748b;
+  color: #9ca3af; /* màu xám */
   pointer-events: none;
 }
 
@@ -122,7 +122,8 @@ html, body {
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   border: 1px solid #27272a;
-  width: 100%;                      /* full trong wrapper */
+  width: 100%;
+  margin-top: 20px;
 }
 
 table {
@@ -158,37 +159,6 @@ tbody tr:hover {
   background: #1e1e21;
 }
 
-/* Thumbnail */
-.thumb {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid #333;
-  background: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Màu sắc */
-.color-box {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  margin-right: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-}
-
 /* Action icons */
 td.actions {
   text-align: center;
@@ -221,11 +191,11 @@ td.actions {
 /* ====================== PAGINATION ====================== */
 .pagination {
   display: flex;
-  justify-content: center;
+  justify-content: center; 
   align-items: center;
   gap: 8px;
   margin-top: 28px;
-  user-select: none;
+  width: 100%;
 }
 
 .pagination button {
@@ -252,8 +222,9 @@ td.actions {
   cursor: not-allowed;
 }
 
+/* màu xanh dương cho active */
 .pagination button.active {
-  background: #ef4444;
+  background: #0ea5e9;
   color: white;
   font-weight: 600;
 }
