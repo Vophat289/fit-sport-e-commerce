@@ -9,7 +9,7 @@ import Voucher from "../models/voucher.model.js";
 export const getAvailable = async (req, res) => {
   try {
     const vouchers = await getAvailableVouchers();
-    res.json({ success: true, vouchers });
+    res.json(vouchers);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

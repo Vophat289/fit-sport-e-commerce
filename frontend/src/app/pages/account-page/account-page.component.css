@@ -798,21 +798,92 @@ body {
     4. VOUCHER STYLES
 ========================================================== */
 
-.voucher-grid {
+.voucher-list  {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    grid-template-columns: repeat(3, 1fr); /* 3 cột trên desktop */
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
+/* Voucher Card */
 .voucher-card {
     border-radius: 12px;
     padding: 20px;
     color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    min-height: 120px;
+    background: linear-gradient(135deg, #3498db, #2980b9); /* gradient đẹp */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    min-height: 140px;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.voucher-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Tiêu đề voucher */
+.voucher-card .voucher-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+/* Nội dung voucher */
+.voucher-card .voucher-desc {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Giá trị giảm */
+.voucher-card .voucher-value {
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* Nút áp dụng voucher */
+.voucher-card .voucher-apply-btn {
+    margin-top: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.voucher-card .voucher-apply-btn:hover {
+    background-color: rgba(255,255,255,0.4);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .voucher-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột trên tablet */
+    }
+}
+
+@media (max-width: 600px) {
+    .voucher-grid {
+        grid-template-columns: 1fr; /* 1 cột trên điện thoại */
+    }
+    .voucher-card {
+        min-height: 120px;
+        padding: 15px;
+    }
+    .voucher-card .voucher-title {
+        font-size: 16px;
+    }
+    .voucher-card .voucher-value {
+        font-size: 20px;
+    }
 }
 
 /* =======================================================

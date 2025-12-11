@@ -54,6 +54,11 @@ export interface Voucher {
   description: string;
   status?: 'ACTIVE' | 'EXPIRING' | 'EXPIRED';
   expiryTime?: number;
+  type?: 'percent' | 'fixed'; 
+  value?: number;              
+  min_order_value?: number;    
+  start_date?: string;      
+  end_date?: string;
 }
 export interface SimpleProductDetail {
     _id: string;

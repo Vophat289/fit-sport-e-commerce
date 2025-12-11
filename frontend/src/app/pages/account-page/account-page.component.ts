@@ -358,20 +358,29 @@ export class AccountPageComponent implements OnInit {
         return status;
     }
   } // VOUCHERS METHODS
-  loadVouchers(): void {
+  loadVouchers() {
     this.accountService.getVouchers().subscribe({
       next: (data) => {
-        this.vouchers = data;
-        this.calculateVoucherStatus();
+        console.log('Vouchers raw data from API:', data);
+        this.vouchers = data.map(v => ({
+          code: v.code,
+          discountValue: v.value ?? 0,
+          minOrderValue: v.min_order_value ?? 0,
+          expiryDate: v.end_date ? new Date(v.end_date).toLocaleDateString('en-GB') : '',
+          description: v.description || '',
+          status: 'ACTIVE' as 'ACTIVE' | 'EXPIRING' | 'EXPIRED'
+        }));
+        this.calculateVoucherStatus(); // ❗ bắt buộc phải gọi
       },
-      error: (err) => console.error('Lỗi khi tải Vouchers:', err),
+      error: (err) => console.error(err)
     });
   }
 
-  private parseDate(dateStr: string): Date {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    return new Date(year, month - 1, day);
-  }
+  private parseDate(dateStr?: string): Date {
+  if (!dateStr) return new Date(); // fallback
+  const [day, month, year] = dateStr.split('/').map(Number);
+  return new Date(year, month - 1, day);
+}
 
   calculateVoucherStatus(): void {
     const today = new Date();
@@ -397,8 +406,10 @@ export class AccountPageComponent implements OnInit {
   }
 
   getFilteredVouchers(): Voucher[] {
-    return this.vouchers;
+    if (this.voucherFilter === 'ALL') return this.vouchers;
+    return this.vouchers.filter(v => v.status === this.voucherFilter);
   }
+
 
   toggleVoucherDisplay(): void {
     this.showAllVouchers = !this.showAllVouchers;
