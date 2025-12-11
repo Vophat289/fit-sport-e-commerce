@@ -93,6 +93,6 @@ export class VariantService {
     return this.http.post<any>(`/api/admin/sizes`, { name: sizeName });
   }
   addColor(payload: { name: string; hex_code: string }) {
-    return this.http.post(`${this.apiUrl}/colors`, payload);
+  return this.http.post(this.colorUrl, payload);
   }
 }

@@ -370,7 +370,7 @@ export class AccountPageComponent implements OnInit {
           description: v.description || '',
           status: 'ACTIVE' as 'ACTIVE' | 'EXPIRING' | 'EXPIRED'
         }));
-        this.calculateVoucherStatus(); // ❗ bắt buộc phải gọi
+        this.calculateVoucherStatus();
       },
       error: (err) => console.error(err)
     });
