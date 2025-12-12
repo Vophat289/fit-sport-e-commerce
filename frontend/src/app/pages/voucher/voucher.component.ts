@@ -37,7 +37,7 @@ export class VoucherComponent implements OnInit {
   isLoggedIn = false;
 
   currentPage = 1;
-  pageSize = 5;
+  pageSize = 3;
   hasMore = true;
 
   constructor(
@@ -49,49 +49,41 @@ export class VoucherComponent implements OnInit {
 
   ngOnInit() {
     this.checkLogin();
-    this.loadLatestNews()
-    if(this.isLoggedIn) {
-      this.fetchVouchers(1);
-    }
+    this.fetchVouchers(1);
   }
 
-loadLatestNews() {
-  this.newsService.getLatestNews().subscribe({
-    next: (res) => {
-      this.latestNews = Array.isArray(res) ? res.slice(0, 5) : [];
-    },
-    error: (err) => console.error("Lỗi load bài viết mới:", err)
-  });
-} 
 
   checkLogin() {
     const token = localStorage.getItem("token");
     this.isLoggedIn = !!token;
   }
 
-  fetchVouchers(page: number = 1) {
-    this.loading = true;
-    this.http.get<any>(`/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
-      .subscribe({
-        next: (res) => {
-          if(page === 1) {
-            this.vouchers = res.vouchers || [];
-          } else {
-            this.vouchers.push(...(res.vouchers || []));
-          }
-          this.applyFilter(this.activeFilter);
-          this.loading = false;
-          this.hasMore = this.vouchers.length < (res.total || 0);
-          this.currentPage = page;
-        },
-        error: () => {
-          this.loading = false;
-          this.vouchers = [];
-          this.filteredVouchers = [];
-          this.hasMore = false;
+fetchVouchers(page: number = 1) {
+  this.loading = true;
+  this.http.get<any>(`/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
+    .subscribe({
+      next: (res) => {
+        if (page === 1) {
+          this.vouchers = res.vouchers || [];
+        } else {
+          this.vouchers.push(...(res.vouchers || []));
         }
-      });
-  }
+
+        this.applyFilter(this.activeFilter);
+        this.loading = false;
+
+        this.hasMore = this.vouchers.length < (res.total || 0);
+        this.currentPage = page;
+      },
+      error: () => {
+        this.loading = false;
+        this.vouchers = [];
+        this.filteredVouchers = [];
+        this.hasMore = false;
+      }
+    });
+}
+
 
   applyFilter(type: string) {
     this.activeFilter = type;
