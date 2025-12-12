@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { VariantDetails } from '@app/services/product.service';
 import { CartService, AddCartPayload } from '@app/services/cart.service';
 import { AuthService } from '@app/services/auth.service';
+import { AccountService } from '@app/services/account.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -30,12 +31,19 @@ export class ProductDetailComponent implements OnInit {
   quantityToAdd: number = 1;
   stockMessage: string | null = null;
 
+  //review
+  reviews: any[] = [];
+  loadingReviews: boolean = false;
+  // Tab quản lý
+  activeTab: 'description' | 'reviews' = 'description';
+
   constructor(
     private route: ActivatedRoute,
     public router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private accountService: AccountService
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +54,12 @@ export class ProductDetailComponent implements OnInit {
     } else {
       //k có thì quay về trang sp
       this.router.navigate(['/products']);
+    }
+  }
+  switchTab(tab: 'description' | 'reviews') {
+    this.activeTab = tab;
+    if (tab === 'reviews' && this.product?._id && this.reviews.length === 0) {
+      this.loadReviews(this.product._id);
     }
   }
 
@@ -70,6 +84,9 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
 
         this.incrementViewCount(slug);
+        if (this.product._id) {
+          this.loadReviews(this.product._id);
+        }
       },
       error: (err) => {
         console.error('Lỗi tải sản phẩm', err);
@@ -84,6 +101,39 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+    loadReviews(productId: string): void {
+      this.loadingReviews = true;
+      this.accountService.getProductReviews(productId).subscribe({
+        next: (res: any) => {
+          this.reviews = (res.data || []).map((r: any) => ({
+            ...r,
+            isClicked: false,
+            helpfulCount: r.helpfulCount || 0,
+          }));
+          
+          this.loadingReviews = false;
+        },
+        error: (err: any) => {
+          console.error('Lỗi khi load review:', err);
+          this.loadingReviews = false;
+        },
+      });
+}
+markHelpful(reviewId: string): void {
+  const review = this.reviews.find((r: any) => r._id === reviewId); 
+
+  if (review) {
+    if (review.isClicked) {
+      review.helpfulCount -= 1;
+      review.isClicked = false;
+      console.log(`Un-liked review ${reviewId}. New count: ${review.helpfulCount}`);
+    } else {
+      review.helpfulCount += 1;
+      review.isClicked = true;
+      console.log(`Liked review ${reviewId}. New count: ${review.helpfulCount}`);
+    }
+  }
+}
   //image
   selectImage(index: number): void {
     this.selectedImageIndex = index;
