@@ -1,5 +1,5 @@
 // controllers/favorite.controller.js
-import Favorite from '../models/Favorite.model.js';
+import Favorite from '../models/favorite.model.js';
 import Products from '../models/product.model.js';
 
 export const getFavorites = async (req, res) => {
