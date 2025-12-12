@@ -65,11 +65,6 @@ export class CartService {
   private updateCartCount() {
     const cart = this.getLocalCart();
     const count = cart.items.reduce((sum, item) => sum + (item.quantityToAdd || 0), 0);
-    console.log('Update cart count:', {
-      itemsCount: cart.items.length,
-      totalQuantity: count,
-      items: cart.items.map(i => ({ name: i.name, qty: i.quantityToAdd }))
-    });
     this.cartCountSubject.next(count);
   }
 

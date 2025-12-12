@@ -266,6 +266,13 @@ applyVoucher(): void {
     }
     // Lưu selected items vào localStorage để checkout có thể lấy
     localStorage.setItem('selectedCartItems', JSON.stringify(selected));
+      // Lưu thông tin voucher
+    localStorage.setItem('appliedVoucher', JSON.stringify({
+      code: this.voucherCode,
+      discount: this.voucherDiscount
+    }));
+      // Lưu tổng cộng (tạm tính + phí vận chuyển - voucher)
+    localStorage.setItem('checkoutTotal', JSON.stringify(this.totalAmount));
     this.router.navigate(['/checkout']);
   }
   deleteSelectedItems(): void {

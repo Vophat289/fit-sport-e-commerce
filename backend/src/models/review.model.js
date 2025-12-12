@@ -10,7 +10,8 @@ const reviewSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Account', 
+      // ref: 'Account', 
+      ref: 'User', 
       required: true,
     },
     order: {
@@ -36,8 +37,8 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 1 user chỉ được review 1 lần / 1 sản phẩm
-reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+// 1 user chỉ được review 1 lần / 1 sản phẩm /đơn
+reviewSchema.index({ product: 1, user: 1, order: 1 }, { unique: true });
 
 const Review = mongoose.model('Review', reviewSchema);
 export default Review;

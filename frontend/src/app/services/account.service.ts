@@ -38,6 +38,14 @@ export interface Order {
   first_item_image_url?: string;
   first_item_name?: string;
 }
+export interface Review {
+  _id?: string;
+  product_id: string;
+  order_id: string;
+  rating: number;
+  comment: string;
+}
+
 export interface ProductVariant {
   _id: string;
   size: string;
@@ -50,6 +58,7 @@ export interface Voucher {
   code: string;
   discountValue: number;
   minOrderValue: number;
+  discountType?: 'percentage' | 'fixed';
   expiryDate: string;
   description: string;
   status?: 'ACTIVE' | 'EXPIRING' | 'EXPIRED';
@@ -72,6 +81,7 @@ export interface SimpleProductDetail {
 export class AccountService {
   private baseUrl = '';
   private apiUrl = `${this.baseUrl}/api/account`;
+  private review = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
   // PROFILE
@@ -168,4 +178,30 @@ export class AccountService {
   getVoucherDetail(code: string): Observable<Voucher> {
     return this.http.get<Voucher>(`${this.apiUrl}/vouchers/${code}`);
   }
+  //đánh giá
+  submitReview(review: Review): Observable<any> {
+    const token = localStorage.getItem('token');
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+    return this.http.post(`${this.review}/api/reviews`, review);
+  }
+
+  getReviewsByOrder(orderId: string): Observable<Review[]> {
+    // Lấy tất cả review của đơn hàng, để hiển thị lại nếu muốn
+    return this.http.get<Review[]>(`/api/reviews?order_id=${orderId}`);
+  }
+  getUserReviews(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+
+  return this.http.get(`${this.review}/api/reviews/user`, { headers });
+}
+  getProductReviews(productId: string): Observable<any> {
+      return this.http.get<any>(`${this.review}/api/reviews/product/${productId}`);
+    }
 }

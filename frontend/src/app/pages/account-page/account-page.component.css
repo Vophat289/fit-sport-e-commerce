@@ -3,7 +3,6 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
 }
 
 .breadcrumb {
@@ -46,7 +45,6 @@
 }
 
 .logout-button {
-  margin-top: auto;
   color: #ef4444;
 }
 
@@ -186,7 +184,7 @@
   font-size: 13px;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
+  width: 151px;
 }
 
 .detail-button {
@@ -223,10 +221,10 @@
   padding: 8px 16px;
   border-radius: 4px;
   font-weight: 500;
+  width: 120px;
   font-size: 13px;
   display: inline-block;
   text-align: center;
-  width: 100%;
   border: 1px solid;
 }
 
@@ -421,7 +419,7 @@
 /* Profile */
 .header-and-avatar {
   display: flex;
-  justify-content: space-between;
+  gap:50px;
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -529,18 +527,6 @@
   cursor: not-allowed;
 }
 
-/* Vouchers */
-.voucher-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.voucher-list {
-  display: flex;
-  gap: 10px; /* khoảng cách giữa các button */
-  margin-top: 10px;
-}
 
 /* Nút chung */
 .action-buttons button {
@@ -552,6 +538,93 @@
   transition: background-color 0.3s, color 0.3s;
 }
 /*ORDER LIST STYLES*/
+/* =======================================================
+    1. ORDER FILTERS
+========================================================== */
+.order-filters {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa các nút */
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+}
+
+.order-filters .filter-button {
+  background: #f7f7f7;
+  color: #333;
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s ease-in-out;
+}
+
+.order-filters .filter-button:not(.active):hover {
+  background-color: #e9e9e9;
+  border-color: #ccc;
+}
+
+.order-filters .filter-button.active {
+  background-color: #007bff; /* Primary blue */
+  color: white;
+  border-color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+/* =======================================================
+    3. PAGINATION
+========================================================== */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 5px;
+}
+
+.pagination-container button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pagination-container button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination-container button:not(.active):hover {
+  background-color: #f0f0f0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .order-image-column img.product-image {
+    width: 80px;
+    height: 80px;
+  }
+  .order-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .order-filters {
+    gap: 6px;
+  }
+}
 /* Order Card */
 .order-card {
     display: flex;
@@ -753,7 +826,7 @@
     cursor: pointer;
     font-weight: 500;
     transition: 0.2s ease;
-    width: 100%;
+    width: 151px;
     text-align: center;
     margin-top: 4px; 
     margin-bottom: 4px;
@@ -768,18 +841,20 @@
     margin-top: 0; 
     margin-bottom: 0;
     order: 3;
+    width: 151px;
 }
 
 .order-actions .cancel-button-order {
     order: 2;
     width: auto;
     min-width: 100px;
+    width:151px;
 }
 
 .detail-date-status-info .detail-cancel-btn {
     margin-top: 15px;
-    width: auto;
     min-width: 150px;
+    margin-left: 80px;
 }
 /*ORDER DETAIL STYLES - MỚI*/
 .order-detail-container {
@@ -1060,15 +1135,15 @@
     transform: translateY(-2px);
 }
 
-
 /* =======================================================
     4. VOUCHER STYLES
 ========================================================== */
 
-.voucher-list  {
+.voucher-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 cột trên desktop */
-    gap: 20px;
+    /* Thiết lập 3 cột, hiển thị 6 cái (2 hàng x 3 cột) */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 25px; /* Tăng khoảng cách */
     margin-bottom: 30px;
 }
 
@@ -1076,10 +1151,12 @@
 .voucher-card {
     border-radius: 12px;
     padding: 20px;
-    color: white;
-    background: linear-gradient(135deg, #3498db, #2980b9); /* gradient đẹp */
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-    min-height: 140px;
+    color: #333; /* Đổi màu chữ sang tối hơn để dễ đọc */
+    /* Sử dụng background trắng hoặc màu sáng để nổi bật */
+    background: #ffffff; 
+    border: 1px solid #eee; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Giảm độ đậm của box-shadow */
+    min-height: 180px; /* Tăng chiều cao tối thiểu */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -1089,74 +1166,190 @@
 }
 
 .voucher-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transform: translateY(-3px); /* Giảm độ nhấc */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
-/* Tiêu đề voucher */
+/* Header - Chứa mã và giá trị */
+.voucher-card .card-header {
+    border-bottom: 2px dashed #e0e0e0; /* Dấu gạch đứt ngăn cách */
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+/* Tiêu đề voucher (Mã voucher) */
 .voucher-card .voucher-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+/* Giá trị giảm - Làm nổi bật */
+.voucher-card .voucher-value {
+    font-size: 26px; /* Kích thước lớn */
+    font-weight: 800;
+    color: #e74c3c; /* Màu đỏ nổi bật cho giá trị giảm */
+    line-height: 1.1;
 }
 
 /* Nội dung voucher */
 .voucher-card .voucher-desc {
     font-size: 14px;
     font-weight: 500;
+    color: #3498db; /* Màu xanh cho mô tả */
+    margin-bottom: 8px;
 }
 
-/* Giá trị giảm */
-.voucher-card .voucher-value {
-    font-size: 22px;
-    font-weight: 700;
-    margin-top: 10px;
+/* Chi tiết (Hạn dùng, Trạng thái) */
+.voucher-card .voucher-detail {
+    margin: 3px 0;
+    font-size: 12px;
+    color: #7f8c8d;
 }
+
+/* Trạng thái ACTIVE */
+.voucher-card .voucher-status-active {
+    font-weight: 600;
+    color: #2ecc71; /* Màu xanh lá cho ACTIVE */
+}
+
+/* Footer - Chứa nút Áp dụng */
+.voucher-card .card-footer {
+    padding-top: 10px;
+    text-align: right; /* Đẩy nút sang phải */
+}
+
 
 /* Nút áp dụng voucher */
 .voucher-card .voucher-apply-btn {
-    margin-top: 15px;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 8px 18px;
+    border-radius: 20px; /* Bo tròn nút */
     border: none;
-    background-color: rgba(255,255,255,0.2);
+    background-color: #3498db; 
     color: white;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .voucher-card .voucher-apply-btn:hover {
-    background-color: rgba(255,255,255,0.4);
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* --- PHÂN TRANG (PAGINATION) STYLES --- */
+.pagination {
+    display: flex;
+    justify-content: center; /* Căn giữa phân trang */
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+}
+
+.page-link, .page-number {
+    padding: 8px 15px;
+    margin: 0 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    transition: all 0.2s;
+}
+
+.page-link {
+    background-color: #f8f8f8;
+    color: #3498db;
+    text-decoration: none;
+}
+
+.page-link:hover:not(.disabled) {
+    background-color: #ecf0f1;
+}
+
+.page-link.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    color: #aaa;
+    border-color: #eee;
+}
+
+.page-number.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+    font-weight: 700;
+}
+
+.page-number:not(.active):hover {
+    background-color: #f0f0f0;
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-    .voucher-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 cột trên tablet */
+@media (max-width: 1200px) {
+    .voucher-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 600px) {
-    .voucher-grid {
-        grid-template-columns: 1fr; /* 1 cột trên điện thoại */
+    .voucher-list {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     .voucher-card {
-        min-height: 120px;
+        min-height: 160px;
         padding: 15px;
     }
-    .voucher-card .voucher-title {
-        font-size: 16px;
-    }
     .voucher-card .voucher-value {
-        font-size: 20px;
+        font-size: 24px;
+    }
+    .page-link, .page-number {
+        padding: 6px 12px;
+        margin: 0 2px;
     }
 }
+/* CONTAINER cho Bộ lọc */
+.voucher-filters {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa các nút */
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0; /* Đường phân cách nhẹ */
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+}
 
-.voucher-card p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #666;
+/* Kiểu dáng chung của nút */
+.voucher-filters .filter-button {
+  /* Thiết lập chung */
+  background: #f7f7f7;
+  color: #333;
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px; /* Bo góc nhẹ */
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap; /* Ngăn nút bị ngắt dòng */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hiệu ứng di chuột (Hover) */
+.voucher-filters .filter-button:not(.active):hover {
+  background-color: #e9e9e9;
+  border-color: #ccc;
+}
+
+/* TRẠNG THÁI ACTIVE (đang được chọn) */
+.voucher-filters .filter-button.active {
+  background-color: #007bff; /* Màu chủ đạo (Primary Blue) */
+  color: white;
+  border-color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2); /* Tạo chiều sâu nhẹ */
 }
 
 /* Address */
@@ -1473,4 +1666,112 @@
     grid-template-columns: 1fr;
   }
 }
+/* NÚT ĐÁNH GIÁ */
+.review-button {
+  padding: 8px 16px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+  margin-top: 10px;
+  display: inline-block;
+}
 
+.review-button:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+
+/* TEXT ĐÃ ĐÁNH GIÁ */
+.reviewed-text {
+  color: #28a745;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* FORM ĐÁNH GIÁ */
+.review-form {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f8f8f8;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+.review-form label {
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: block;
+  color: #333;
+}
+
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.review-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* NÚT GỬI ĐÁNH GIÁ */
+.submit-review-btn {
+  margin-top: 12px;
+  padding: 10px 18px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.submit-review-btn:hover {
+  background: #0056c1;
+  transform: translateY(-2px);
+}
+
+/* HIỆU ỨNG HIỆN FORM */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Container sao */
+.rating-stars {
+  display: flex;
+  gap: 4px; /* khoảng cách giữa các sao */
+  cursor: pointer;
+  font-size: 24px; /* cỡ sao */
+}
+
+/* Sao bình thường (chưa active) */
+.rating-stars .bx.bxs-star {
+  color: #ccc; /* màu xám nhạt */
+  transition: color 0.2s ease-in-out;
+}
+
+/* Sao active (được chọn hoặc hover) */
+.rating-stars .bx.bxs-star.active {
+  color: #ffb400; /* màu vàng */
+}
+
+
+
+/* Tùy chỉnh cho mobile */
+@media (max-width: 768px) {
+  .rating-stars {
+    font-size: 20px;
+    gap: 3px;
+  }
+}
