@@ -60,25 +60,41 @@
       <!-- Cột phải: Thông tin sản phẩm -->
       <div class="product-info">
         <!-- Tên sản phẩm -->
-        <h1 class="product-title">{{ product.name }}</h1>
-        <p class="text-sm text-gray-600">
-          Tồn kho:
-          <span class="font-semibold">
-            {{ currentVariantDetails?.quantity || 0 }}
-          </span>
-        </p>
+<h1 class="product-title">{{ product.name }}</h1>
 
-        <!-- Giá -->
-        <div class="product-price-section">
-          <div>
-            <span class="price">{{
-              currentVariantDetails?.price | currency : "VND"
-            }}</span>
-            <span class="price-tag">Giá tốt nhất hôm nay</span>
-          </div>
-        </div>
+<!-- Tồn kho + nút yêu thích -->
+<div class="stock-favorite-container" style="display: flex; align-items: center; gap: 8px;">
+  <span class="stock-text text-sm text-gray-600">
+    Tồn kho:
+    <span class="font-semibold">
+      {{ currentVariantDetails?.quantity || 0 }}
+    </span>
+  </span>
 
-       <!-- Lượt xem -->
+  <!-- Nút yêu thích kế bên -->
+  <button 
+    class="favorite-btn" 
+    (click)="toggleFavorite(); $event.stopPropagation()"
+    [class.active]="isProductFavorite"
+    [title]="isProductFavorite ? 'Đã yêu thích' : 'Yêu thích'"
+>
+    <i class="fa-solid fa-heart"></i>
+</button>
+</div>
+
+
+
+<!-- Giá -->
+<div class="product-price-section">
+  <div>
+    <span class="price">
+      {{ currentVariantDetails?.price | currency : 'VND' }}
+    </span>
+    <span class="price-tag">Giá tốt nhất hôm nay</span>
+  </div>
+</div>
+
+<!-- Lượt xem và thông tin khác -->
 <div class="product-meta">
   <span class="meta-badge">
     <i class="fa-solid fa-eye"></i>
@@ -91,11 +107,6 @@
   <span class="meta-badge">
     <i class="fa-solid fa-truck-fast"></i>
     Giao nhanh 2h
-  </span>
-  <!-- Icon trái tim mới -->
-  <span class="meta-badge">
-    <i class="fa-solid fa-heart"></i>
-    Yêu thích
   </span>
 </div>
 
