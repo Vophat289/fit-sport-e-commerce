@@ -58,6 +58,7 @@ export interface Voucher {
   code: string;
   discountValue: number;
   minOrderValue: number;
+  discountType?: 'percentage' | 'fixed';
   expiryDate: string;
   description: string;
   status?: 'ACTIVE' | 'EXPIRING' | 'EXPIRED';
