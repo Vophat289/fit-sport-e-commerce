@@ -20,6 +20,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { FavoriteComponent } from './pages/favorite/favorite.component';
 
 // Admin routes 
 import { AdminRoutes } from './admin/admin.routes';
@@ -54,7 +55,7 @@ export const routes: Routes = [
       { path: 'admin/seed', component: DataSeederComponent },
       { path: 'cart', component: CartPageComponent },
       { path: 'checkout', component: CheckoutComponent },
-
+        { path: 'favorite', component: FavoriteComponent },
       //vnpay
       { path: 'payment-success', component: PaymentSuccessComponent},
 
