@@ -24,6 +24,8 @@ import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 import adminNewsRoutes from './routes/admin/news.admin.routes.js';
 import adminOrderRoutes from './routes/admin/order.admin.routes.js';    
 import adminVariantRoutes from './routes/admin/variant.admin.routes.js';
+import adminReviewRoutes from "./routes/admin/review.admin.routes.js";
+
 import vnpayRoute from "./routes/vnpay.route.js";
 import { returnUrl } from "./controllers/vnpay.controller.js";
 
@@ -86,7 +88,7 @@ app.use("/api/admin/contacts", adminContactRoutes);
 app.use("/api/admin", adminVariantRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
-// app.use("/api/admin/reviews", adminReviewRoutes);
+ app.use("/api/admin/reviews", adminReviewRoutes);
 app.use("/api/vnpay", vnpayRoute);
 
 // Route cho VNPay return URL - VNPay merchant portal đã cấu hình URL này
