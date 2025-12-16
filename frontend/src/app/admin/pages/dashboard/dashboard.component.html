@@ -33,11 +33,29 @@
   </div>
 
   <!-- Chart Section -->
-  <div class="chart-container">
-    <h3 class="chart-title">Biểu Đồ Doanh Thu Theo Tháng Của FITSPORT</h3>
+  <div class="chart-section">
+    <div class="chart-container">
+      <h3 class="chart-title">Biểu Đồ Doanh Thu Theo Tháng Của FITSPORT</h3>
 
-    <div class="chart-wrapper">
-      <canvas id="revenueChart"></canvas>
+      <div class="chart-wrapper">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+
+    <div class="date-filter">
+      <h4 class="filter-title">Lọc Theo Thời Gian</h4>
+      <div class="filter-group">
+        <label>Từ ngày:</label>
+        <input type="date" [(ngModel)]="fromDate">
+      </div>
+      <div class="filter-group">
+        <label>Đến ngày:</label>
+        <input type="date" [(ngModel)]="toDate">
+      </div>
+      <div class="filter-actions">
+        <button class="btn-filter" (click)="applyDateFilter()">Lọc</button>
+        <button class="btn-reset" (click)="resetDateFilter()">Reset</button>
+      </div>
     </div>
   </div>
 
@@ -76,5 +94,40 @@
     Chưa có dữ liệu
   </div>
 </div>
+
+<div class="top-products-table-card">
+  <h4 class="table-title">Top 5 khách hàng mua nhiều nhất</h4>
+
+  <table class="top-products-table">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Tên khách hàng</th>
+        <th>Email</th>
+        <th>Số đơn</th>
+        <th>Tổng chi</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of topUsers; let i = index">
+        <td>{{ i + 1 }}</td>
+
+        <td class="name-col">{{ u.name }}</td>
+
+        <td>{{ u.email }}</td>
+
+        <td class="sold">{{ u.totalOrders }}</td>
+
+        <td>{{ formatCurrency(u.totalSpent) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="topUsers.length === 0" class="empty-table">
+    Chưa có dữ liệu
+  </div>
+</div>
+
 
 </div>

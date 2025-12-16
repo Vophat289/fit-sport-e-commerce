@@ -7,6 +7,9 @@ import mongoose from "mongoose";
 
 export const getDashboardData = async (req, res) => {
   try {
+
+    const { from, to } = req.query;
+
     // 1. Tổng Users & Products
     const [totalUsers, totalProducts] = await Promise.all([
       User.countDocuments(),
@@ -14,10 +17,19 @@ export const getDashboardData = async (req, res) => {
     ]);
 
     // 2. Lấy các đơn hàng hợp lệ (không phải CART)
-    const paidOrders = await Orders.find({
+    const orderFilter = {
       status: { $ne: "CART" },
-      payment_status: { $in: [ "SUCCESS"] },
-    });
+      payment_status: { $in: ["SUCCESS"] },
+    };
+
+    if (from && to) {
+      orderFilter.createdAt = {
+        $gte: new Date(from),
+        $lte: new Date(to),
+      };
+    }
+
+    const paidOrders = await Orders.find(orderFilter);
 
     // 3. Tổng đơn hàng
     const totalOrders = paidOrders.length;
@@ -86,13 +98,14 @@ export const getDashboardData = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 export const getTopProducts = async (req, res) => {
   try {
     const pipeline = [
       // 1) join order để lọc trạng thái đơn hợp lệ
       {
         $lookup: {
-          from: "oders", // collection name (model Oders -> collection 'oders')
+          from: "oders", 
           localField: "order_id",
           foreignField: "_id",
           as: "order",
@@ -183,3 +196,90 @@ export const getTopProducts = async (req, res) => {
     return res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
   }
 };
+
+export const getTopUsers = async (req, res) => {
+  try {
+    const pipeline = [
+      // 1️⃣ convert user_id string → ObjectId
+      {
+        $lookup: {
+          from: "oders",
+          let: { userId: { $toString: "$_id" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$user_id", "$$userId"],
+                },
+              },
+            },
+            {
+              $match: {
+                status: { $nin: ["CART", "CANCELLED"] },
+                payment_status: { $in: ["SUCCESS", "COD"] },
+              },
+            },
+          ],
+          as: "orders",
+        },
+      },
+
+      // 2️⃣ chỉ lấy user có orders
+      {
+        $match: {
+          "orders.0": { $exists: true },
+        },
+      },
+
+      // 3️⃣ tính tổng đơn & tổng tiền
+      {
+        $addFields: {
+          totalOrders: { $size: "$orders" },
+          totalSpent: {
+            $sum: {
+              $map: {
+                input: "$orders",
+                as: "o",
+                in: {
+                  $add: [
+                    { $ifNull: ["$$o.total_price", 0] },
+                    { $ifNull: ["$$o.delivery_fee", 0] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // 4️⃣ sort & limit
+      { $sort: { totalSpent: -1 } },
+      { $limit: 5 },
+
+      // 5️⃣ project
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          totalOrders: 1,
+          totalSpent: 1,
+        },
+      },
+    ];
+
+    const topUsers = await User.aggregate(pipeline);
+
+    return res.json({
+      success: true,
+      data: topUsers,
+    });
+  } catch (error) {
+    console.error("getTopUsers error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+    });
+  }
+};
+

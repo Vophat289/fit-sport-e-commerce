@@ -60,28 +60,218 @@
   color: #888;
 }
 
+/* Chart Section with Flexbox */
+.chart-section {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 30px;
+  align-items: flex-start;
+}
+
 .chart-container {
-  background: #ffffff10;
-  padding: 25px;
-  border-radius: 16px;
-  backdrop-filter: blur(8px);
+  flex: 1;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+  padding: 32px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3),
+    0 0 1px rgba(148, 163, 184, 0.2) inset;
 }
 
 .chart-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #f1f5f9;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  font-size: 16px;
+  color: #94a3b8;
+  border-left: 4px solid #0ea5e9;
+  padding-left: 16px;
 }
 
 .chart-wrapper {
   width: 100%;
-  height: 480px;   /* chỉnh kích thước tại đây */
+  height: 480px;
 }
 
 canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+/* Professional Date Filter Panel */
+.date-filter {
+  min-width: 320px;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+  padding: 28px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(148, 163, 184, 0.1) inset;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.date-filter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0ea5e9 0%, #06b6d4 50%, #0ea5e9 100%);
+}
+
+.filter-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+  text-align: left;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.15);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-title::before {
+  content: '📊';
+  font-size: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group input[type="date"] {
+  padding: 14px 16px;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f1f5f9;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.filter-group input[type="date"]:hover {
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.filter-group input[type="date"]:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15),
+    0 4px 12px rgba(14, 165, 233, 0.2);
+  transform: translateY(-1px);
+}
+
+.filter-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) brightness(1.2);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.filter-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.filter-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.filter-actions button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-actions button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+}
+
+.filter-actions button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-filter {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.35),
+    0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.btn-filter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(14, 165, 233, 0.45),
+    0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.btn-filter:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-reset {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(100, 116, 139, 0.25),
+    0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.btn-reset:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.35),
+    0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.btn-reset:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .y-axis {
@@ -196,8 +386,17 @@ canvas {
     grid-template-columns: 1fr;
   }
 
-  .chart-wrapper {
+  .chart-section {
     flex-direction: column;
+  }
+
+  .date-filter {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .chart-wrapper {
+    height: 350px;
   }
 
   .y-axis {
@@ -236,13 +435,62 @@ canvas {
 }
 
 :host-context(.admin-theme-light) .chart-container {
-  background: #f8f9fa;
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  background: linear-gradient(145deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.9) 100%);
+  border: 1px solid rgba(203, 213, 225, 0.5);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08),
+    0 0 1px rgba(100, 116, 139, 0.1) inset;
 }
 
 :host-context(.admin-theme-light) .chart-title {
   color: #0f172a;
+  border-left-color: #0ea5e9;
+}
+
+:host-context(.admin-theme-light) .date-filter {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1),
+    0 0 0 1px rgba(100, 116, 139, 0.05) inset;
+}
+
+:host-context(.admin-theme-light) .date-filter::before {
+  background: linear-gradient(90deg, #0ea5e9 0%, #06b6d4 50%, #0ea5e9 100%);
+}
+
+:host-context(.admin-theme-light) .filter-title {
+  color: #0f172a;
+  border-bottom-color: rgba(203, 213, 225, 0.6);
+}
+
+:host-context(.admin-theme-light) .filter-group label {
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) .filter-group input[type="date"] {
+  background: rgba(248, 250, 252, 0.9);
+  border-color: rgba(203, 213, 225, 0.5);
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .filter-group input[type="date"]:hover {
+  background: #ffffff;
+  border-color: rgba(203, 213, 225, 0.7);
+}
+
+:host-context(.admin-theme-light) .filter-group input[type="date"]:focus {
+  background: #ffffff;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1),
+    0 4px 12px rgba(14, 165, 233, 0.15);
+}
+
+:host-context(.admin-theme-light) .filter-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0) brightness(0.5);
+  opacity: 0.6;
+}
+
+:host-context(.admin-theme-light) .filter-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 :host-context(.admin-theme-light) .y-label,
@@ -285,7 +533,7 @@ canvas {
   gap: 12px;
   padding: 8px;
   border-radius: 8px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
 }
 
 .rank {
@@ -325,6 +573,7 @@ canvas {
   border-radius: 8px;
   cursor: pointer;
 }
+
 .top-products-card {
   margin-top: 22px;
   background: #111;
@@ -351,7 +600,7 @@ canvas {
   gap: 12px;
   padding: 8px;
   border-radius: 8px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
 }
 
 .rank {
@@ -391,6 +640,7 @@ canvas {
   border-radius: 8px;
   cursor: pointer;
 }
+
 /* CARD chứa bảng */
 .top-products-table-card {
   background: #0d0d0d;
@@ -398,7 +648,7 @@ canvas {
   border-radius: 18px;
   margin-top: 28px;
   border: 1px solid #222;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Tiêu đề */
@@ -459,7 +709,7 @@ canvas {
   object-fit: cover;
   border-radius: 10px;
   border: 2px solid #444;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Tên sản phẩm */
@@ -473,7 +723,8 @@ canvas {
 /* Đã bán */
 .sold {
   font-weight: 700;
-  color: #4dd0e1; /* xanh cyan nổi bật trên nền đen */
+  color: #4dd0e1;
+  /* xanh cyan nổi bật trên nền đen */
 }
 
 /* Không có dữ liệu */
