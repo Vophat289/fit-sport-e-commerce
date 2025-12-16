@@ -214,7 +214,7 @@ export const deleteNews = async (req, res) => {
 export const getPublicNews = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 6;
+    const limit = 4;
     const skip = (page - 1) * limit;
 
     const news = await News.find({ isActive: true })

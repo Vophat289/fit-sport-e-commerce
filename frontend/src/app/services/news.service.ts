@@ -48,7 +48,7 @@ export class NewsService {
     return this.http.get<any>(`${this.API_URL}/public?page=${page}`);
   }
 
-  getLatestNews(limit: number = 6): Observable<News[]> {
+  getLatestNews(limit: number = 4): Observable<News[]> {
     return this.http.get<News[]>(`${this.API_URL}/latest?limit=${limit}`);
   }
 
@@ -85,7 +85,6 @@ export class NewsService {
     return this.http.post<News>(this.API_URL, formData).pipe(
       tap((newNews) => {
         console.log('News created:', newNews);
-        // Thông báo tin đã được tạo
         this.newsUpdated.next();
       })
     );
@@ -114,7 +113,6 @@ export class NewsService {
     return this.http.put<News>(`${this.API_URL}/slug/${slug}`, formData).pipe(
       tap((updatedNews) => {
         console.log('News updated:', updatedNews);
-        // Thông báo tin đã được cập nhật
         this.newsUpdated.next();
       })
     );
@@ -124,7 +122,6 @@ export class NewsService {
     return this.http.delete(`${this.API_URL}/${id}`).pipe(
       tap(() => {
         console.log('News deleted:', id);
-        // Thông báo tin đã xóa
         this.newsUpdated.next();
       })
     );
@@ -134,7 +131,6 @@ export class NewsService {
     return this.http.patch(`${this.API_URL}/${id}/toggle-hide`, {}).pipe(
       tap(() => {
         console.log('News status toggled:', id);
-        // Thông báo trạng thái đã thay đổi
         this.newsUpdated.next();
       })
     );

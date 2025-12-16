@@ -1,29 +1,60 @@
 <!-- news.component.html -->
 <div class="news-container">
-  <h1 class="page-title">Bài viết mới nhất</h1>
-  <p class="page-subtitle">
-    Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!
-  </p>
+
+  <!-- Hero / Header -->
+  <div class="news-hero">
+    <div class="hero-left">
+      <h1 class="page-title">Bài viết mới nhất</h1>
+      <p class="page-subtitle">
+        Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!
+      </p>
+    </div>
+
+    <!-- ✅ Thanh tìm kiếm theo tag (#) - đối xứng subtitle -->
+    <div class="hero-right">
+      <div class="tag-search">
+        <span class="hash">#</span>
+        <input
+          type="text"
+          [(ngModel)]="tagQuery"
+          (input)="onTagInput()"
+          placeholder="Tìm theo tag... (vd: #yoga, #dinhduong)"
+          aria-label="Tìm theo tag"
+        />
+        <button class="btn-clear" *ngIf="tagQuery" (click)="clearTagFilter()" title="Xóa lọc">✕</button>
+      </div>
+
+      <!-- Chip tags gợi ý -->
+      <div class="tag-chips" *ngIf="getAvailableTags().length">
+        <button
+          class="chip"
+          *ngFor="let t of getAvailableTags()"
+          [class.active]="normalizeTag(t) === normalizeTag(selectedTag || tagQuery)"
+          (click)="selectTag(t)"
+          type="button">
+          #{{ t }}
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Grid bài viết -->
   <div class="news-grid" *ngIf="paginatedNews.length > 0">
     <article class="news-card" *ngFor="let item of paginatedNews">
-      
-      <!-- Thumbnail + hover -->
       <a [routerLink]="['/news', item.slug]" class="thumb-link">
         <div class="img-box">
-          <img 
+          <img
             [src]="item.thumbnail"
             [alt]="item.title"
             loading="lazy"
-            (error)="handleImageError($event)">
+            (error)="handleImageError($event)"
+          />
           <div class="overlay">
             <span class="read-more-text">Xem chi tiết</span>
           </div>
         </div>
       </a>
 
-      <!-- Nội dung -->
       <div class="content-box">
         <h2 class="news-title">
           <a [routerLink]="['/news', item.slug]" [title]="item.title">
@@ -37,24 +68,36 @@
 
         <div class="news-meta">
           <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
-          <span class="separator">•</span>
-          <span class="tag" *ngIf="item.tags && item.tags.length > 0">
-            {{ item.tags[0] }}
-          </span>
+
+          <div class="tags" *ngIf="item.tags && item.tags.length > 0">
+            <button
+              class="tag-pill"
+              type="button"
+              *ngFor="let tg of item.tags | slice:0:2"
+              (click)="selectTag(tg)">
+              #{{ tg }}
+            </button>
+          </div>
         </div>
 
         <a [routerLink]="['/news', item.slug]" class="readmore">
-          Đọc thêm
+          Đọc thêm →
         </a>
       </div>
     </article>
   </div>
 
-  <!-- Phân trang -->
+  <!-- Empty khi filter không ra -->
+  <div class="empty-state" *ngIf="news.length > 0 && paginatedNews.length === 0">
+    <p>Không tìm thấy bài viết phù hợp với tag này.</p>
+    <button class="empty-btn" (click)="clearTagFilter()">Xóa bộ lọc</button>
+  </div>
+
+  <!-- Phân trang (giữ nguyên) -->
   <div class="pagination-wrapper" *ngIf="totalPages > 1">
-    <button 
-      class="pagination-btn prev" 
-      (click)="changePage(currentPage - 1)" 
+    <button
+      class="pagination-btn prev"
+      (click)="changePage(currentPage - 1)"
       [disabled]="currentPage === 1">
       ← Trước
     </button>
@@ -63,9 +106,9 @@
       Trang <strong>{{ currentPage }}</strong> / {{ totalPages }}
     </span>
 
-    <button 
-      class="pagination-btn next" 
-      (click)="changePage(currentPage + 1)" 
+    <button
+      class="pagination-btn next"
+      (click)="changePage(currentPage + 1)"
       [disabled]="currentPage === totalPages">
       Sau →
     </button>
@@ -75,4 +118,5 @@
   <div class="empty-state" *ngIf="news.length === 0">
     <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
   </div>
+
 </div>
