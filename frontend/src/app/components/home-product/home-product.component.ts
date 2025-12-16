@@ -1,57 +1,48 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { ProductService, Product } from '@app/services/product.service';
-import { CartService } from '@app/services/cart.service';
-import { FavoriteService } from '@app/services/favorite.service';
 
 import {
   ProductModalComponent,
   VariantSelection,
 } from '@app/components/product-modal/product-modal.component';
+import { CartService, CartItem } from '@app/services/cart.service';
 
 @Component({
   selector: 'app-home-product',
-  standalone: true,
   imports: [CommonModule, ProductModalComponent],
   templateUrl: './home-product.component.html',
-  styleUrls: ['./home-product.component.css'],
+  styleUrl: './home-product.component.css',
 })
 export class HomeProductComponent implements OnInit {
   products: Product[] = [];
-  loading = true; 
+  loading = true; //loading chờ sp
   isModalOpen: boolean = false;
   selectedProduct: Product | null = null;
-
-  favoriteIds: Set<string> = new Set();
-
+  //khởi tạo service
   constructor(
     private productService: ProductService,
     private router: Router,
-    private cartService: CartService,
-    private favoriteService: FavoriteService,
-    private cdr: ChangeDetectorRef
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
-
-    // Subscribe để update trạng thái favorite trên UI
-    this.favoriteService.favorites$.subscribe((products) => {
-      this.favoriteIds = new Set(products.map((p) => p._id));
-      this.cdr.detectChanges(); // đảm bảo UI cập nhật
-    });
+    this.loadProducts(); // hàm load sản phẩm
   }
 
-  /** ===== Load sản phẩm ===== */
+  //load sp từ api
   loadProducts(): void {
+    //gọi service để lấy danh sách sp
     this.productService.getAll().subscribe({
+      //next xử lí khi thành cong
       next: (data) => {
         this.products = [...data].sort(
           (a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)
         );
         this.loading = false;
+        console.log('Sản phẩm đã tải: ', data);
       },
       error: (err) => {
         console.error('Lỗi tải sản phẩm: ', err);
@@ -60,7 +51,12 @@ export class HomeProductComponent implements OnInit {
     });
   }
 
-  /** ===== Navigation & Modal ===== */
+  //UI Tĩnh test
+  addToCart(product: any) {
+    console.log('🛒 Đã thêm vào giỏ:', product.name);
+  }
+
+  // Navigate to product detail page
   viewProductDetail(product: Product): void {
     this.router.navigate(['/products', product.slug || product._id]);
   }
@@ -68,7 +64,7 @@ export class HomeProductComponent implements OnInit {
   openVariantModal(product: Product): void {
     this.selectedProduct = product;
     this.isModalOpen = true;
-    this.cdr.detectChanges();
+    // Nếu sử dụng ChangeDetectorRef, hãy gọi: this.cdr.detectChanges();
   }
 
   closeModal(): void {
@@ -76,17 +72,14 @@ export class HomeProductComponent implements OnInit {
     this.selectedProduct = null;
   }
 
-  /** ===== Cart ===== */
   handleAddToCart(payload: VariantSelection): void {
-    if (!this.selectedProduct) return;
-
-    const imageString = Array.isArray(this.selectedProduct.image)
-      ? this.selectedProduct.image[0]
-      : this.selectedProduct.image || 'assets/images/placeholder-shirt.png';
+    const imageString = Array.isArray(this.selectedProduct!.image)
+      ? this.selectedProduct!.image[0]
+      : this.selectedProduct!.image || 'assets/images/placeholder-shirt.png';
 
     const cartPayload = {
-      productId: this.selectedProduct._id as string,
-      name: this.selectedProduct.name,
+      productId: this.selectedProduct!._id as string,
+      name: this.selectedProduct!.name,
       price: payload.price,
       image: imageString,
       sizeId: payload.sizeId,
@@ -97,6 +90,7 @@ export class HomeProductComponent implements OnInit {
       stock: payload.stock,
     };
 
+    // Logic kiểm tra tồn kho và gọi service
     this.cartService.getCartDetails().subscribe((cartData) => {
       const existingItem = cartData.items.find(
         (i) =>
@@ -127,32 +121,18 @@ export class HomeProductComponent implements OnInit {
       this.cartService.addToCart(cartPayload).subscribe({
         next: () => {
           alert(
-            `Đã thêm ${cartPayload.quantityToAdd} ${this.selectedProduct!.name} vào giỏ hàng!`
+            `Đã thêm ${cartPayload.quantityToAdd} ${
+              this.selectedProduct!.name
+            } vào giỏ hàng!`
           );
           this.closeModal();
         },
+        // 3b. Khai báo kiểu tường minh cho 'err'
         error: (err: any) => {
           console.error('Thêm vào giỏ hàng thất bại:', err);
           alert('Thêm vào giỏ hàng thất bại.');
         },
       });
-    });
-  }
-
-  /** ===== FAVORITE ===== */
-  isFavorite(product: Product): boolean {
-    return product._id ? this.favoriteIds.has(product._id) : false;
-  }
-
-  toggleFavorite(product: Product, event?: Event): void {
-    event?.stopPropagation(); // tránh click lan ra card
-
-    this.favoriteService.toggleFavorite(product).subscribe({
-      next: () => {
-        // UI sẽ tự động update nhờ subscription ở ngOnInit
-        console.log(`${product.name} đã toggle favorite`);
-      },
-      error: (err) => console.error('Lỗi favorite:', err),
     });
   }
 }

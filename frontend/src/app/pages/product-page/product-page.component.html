@@ -136,23 +136,10 @@
                     <div class="product-info">
                         <h3 class="product-name">{{ product.name }}</h3>
                         <p class="product-price">{{ product.price | number }} ₫</p>
-                       <!-- Container chứa lượt xem + trái tim -->
-    <div class="product-meta">
-        <p class="product-views">
-            <i class="fa-solid fa-eye"></i> 
-            {{ product.viewCount || 0 }} lượt xem
-        </p>
-
-        <!-- Nút yêu thích -->
-        <button 
-            class="favorite-btn" 
-            (click)="toggleFavorite(product); $event.stopPropagation()"
-            [class.active]="isFavorite(product)">
-            <i class="fa-solid fa-heart"></i>
-        </button>
-    </div>
-</div>
-                   
+                        <p class="product-views">
+                            <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
+                        </p>
+                    </div>
 
                     <div class="product-action">
                         <button class="btn-cart" (click)="openVariantModal(product)">

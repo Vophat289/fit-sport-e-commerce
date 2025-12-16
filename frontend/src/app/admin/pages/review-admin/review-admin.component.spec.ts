@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OrdersAdminComponent } from './orders-admin.component';
+import { ReviewAdminComponent } from './review-admin.component';
 
-describe('OrdersAdminComponent', () => {
-  let component: OrdersAdminComponent;
-  let fixture: ComponentFixture<OrdersAdminComponent>;
+describe('ReviewAdminComponent', () => {
+  let component: ReviewAdminComponent;
+  let fixture: ComponentFixture<ReviewAdminComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OrdersAdminComponent]
+      imports: [ReviewAdminComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(OrdersAdminComponent);
+    fixture = TestBed.createComponent(ReviewAdminComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

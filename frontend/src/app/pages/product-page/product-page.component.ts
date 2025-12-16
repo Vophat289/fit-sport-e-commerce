@@ -5,7 +5,6 @@ import { CategoryService, Category } from '@app/services/category.service';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '@app/services/cart.service';
-import { FavoriteService } from '@app/services/favorite.service';
 import {
   ProductModalComponent,
   VariantSelection,
@@ -16,7 +15,6 @@ import {
   imports: [CommonModule, FormsModule, RouterLink, ProductModalComponent],
   templateUrl: './product-page.component.html',
   styleUrls: ['./product-page.component.css'],
-  standalone: true
 })
 export class ProductPageComponent implements OnInit {
   loading: boolean = true;
@@ -25,10 +23,11 @@ export class ProductPageComponent implements OnInit {
   allProducts: Product[] = [];
   filteredProducts: Product[] = [];
 
-  // Dùng cho bộ lọc
+  // Dùng cho bộ lọc (filter)
   availableSizes: string[] = [];
 
   filters = {
+    // lưu trạng thái filter
     category: null as string | null,
     sizes: [] as string[],
     priceRange: {
@@ -37,7 +36,7 @@ export class ProductPageComponent implements OnInit {
     },
   };
 
-  // Modal
+  // Dùng cho modal
   isModalOpen: boolean = false;
   selectedProduct: Product | null = null;
 
@@ -48,7 +47,6 @@ export class ProductPageComponent implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private cartService: CartService,
-    private favoriteService: FavoriteService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -58,26 +56,6 @@ export class ProductPageComponent implements OnInit {
     this.loadCategories();
     this.listenToRouteCategory();
   }
-
-  // ==================== YÊU THÍCH - SỬ DỤNG FAVORITE SERVICE ====================
-
-  toggleFavorite(product: Product, event?: Event): void {
-    event?.stopPropagation();
-
-    this.favoriteService.toggleFavorite(product).subscribe({
-      next: () => {
-        console.log(`Toggle yêu thích thành công: ${product.name}`);
-        this.cdr.detectChanges(); // cập nhật giao diện ngay
-      },
-      error: (err) => console.error('Toggle yêu thích thất bại', err)
-    });
-  }
-
-  isFavorite(product: Product): boolean {
-    return this.favoriteService.isFavorite(product._id);
-  }
-
-  // ============================================================
 
   loadProducts(): void {
     this.loading = true;
@@ -117,6 +95,7 @@ export class ProductPageComponent implements OnInit {
   applyFilters(): void {
     let result = [...this.allProducts];
 
+    //lọc theo danh mục
     if (this.filters.category) {
       result = result.filter((product) => {
         const categorySlug =
@@ -127,13 +106,19 @@ export class ProductPageComponent implements OnInit {
       });
     }
 
+    //lọc theo size
     if (this.filters.sizes.length > 0) {
       result = result.filter((product) => {
-        if (!product.sizes || product.sizes.length === 0) return false;
-        return this.filters.sizes.some((size) => product.sizes!.includes(size));
+        if (!product.sizes || product.sizes.length === 0) {
+          return false;
+        }
+        return this.filters.sizes.some((selectedSize) =>
+          product.sizes!.includes(selectedSize)
+        );
       });
     }
 
+    //lọc theo giá
     result = result.filter((product) => {
       return (
         product.price >= this.filters.priceRange.min &&
@@ -152,7 +137,9 @@ export class ProductPageComponent implements OnInit {
   }
 
   handleRouteCategory(): void {
-    if (!this.allProducts.length) return;
+    if (!this.allProducts.length) {
+      return;
+    }
 
     if (this.pendingCategorySlug) {
       this.filterByCategory(this.pendingCategorySlug);
@@ -192,10 +179,18 @@ export class ProductPageComponent implements OnInit {
     const minPercent = ((min - minValue) / range) * 100;
     const maxPercent = ((max - minValue) / range) * 100;
 
-    const sliderContainer = document.querySelector('.slider-container') as HTMLElement;
+    const sliderContainer = document.querySelector(
+      '.slider-container'
+    ) as HTMLElement;
     if (sliderContainer) {
-      sliderContainer.style.setProperty('--slider-min-percent', minPercent + '%');
-      sliderContainer.style.setProperty('--slider-max-percent', maxPercent + '%');
+      sliderContainer.style.setProperty(
+        '--slider-min-percent',
+        minPercent + '%'
+      );
+      sliderContainer.style.setProperty(
+        '--slider-max-percent',
+        maxPercent + '%'
+      );
     }
   }
 
@@ -203,35 +198,45 @@ export class ProductPageComponent implements OnInit {
     this.filters = {
       category: null,
       sizes: [],
-      priceRange: { min: 20000, max: 5000000 },
+      priceRange: {
+        min: 20000,
+        max: 5000000,
+      },
     };
     this.selectedCategory = null;
-
     setTimeout(() => {
-      this.updateSliderRange(this.filters.priceRange.min, this.filters.priceRange.max);
+      this.updateSliderRange(
+        this.filters.priceRange.min,
+        this.filters.priceRange.max
+      );
     }, 100);
     this.filteredProducts = [...this.allProducts];
   }
 
   loadCategories(): void {
     this.categoryService.getAll().subscribe({
-      next: (data: Category[]) => (this.categories = data),
+      next: (data: Category[]) => {
+        this.categories = data;
+      },
       error: (err: any) => console.error('Lỗi tải danh mục', err),
     });
   }
 
+  // Mở modal
   openVariantModal(product: Product): void {
     this.selectedProduct = product;
     this.isModalOpen = true;
     this.cdr.detectChanges();
   }
 
+  // Đóng modal
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedProduct = null;
     this.cdr.detectChanges();
   }
 
+  // Xử lý Thêm vào Giỏ hàng (Nhận sự kiện từ modal component)
   handleAddToCart(payload: VariantSelection): void {
     const imageString = Array.isArray(this.selectedProduct!.image)
       ? this.selectedProduct!.image[0]
@@ -268,16 +273,22 @@ export class ProductPageComponent implements OnInit {
           alert(`Đã hết tồn kho cho sản phẩm này.`);
           return;
         }
+
         const confirmAdd = confirm(
           `Số lượng yêu cầu vượt quá tồn kho. Bạn có muốn thêm ${canAdd} sản phẩm còn lại không?`
         );
         if (!confirmAdd) return;
+
         cartPayload.quantityToAdd = canAdd;
       }
 
       this.cartService.addToCart(cartPayload).subscribe({
         next: () => {
-          alert(`Đã thêm ${cartPayload.quantityToAdd} ${this.selectedProduct!.name} vào giỏ hàng!`);
+          alert(
+            `Đã thêm ${cartPayload.quantityToAdd} ${
+              this.selectedProduct!.name
+            } vào giỏ hàng!`
+          );
           this.closeModal();
         },
         error: (err) => {

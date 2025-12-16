@@ -11,7 +11,9 @@
       <!-- ẢNH SẢN PHẨM -->
       <div class="product-image">
         <img [src]="product.image && product.image.length > 0 ? product.image[0] : 'assets/images/placeholder.jpg'"
-             [alt]="product.name" class="product-img" />
+          [alt]="product.name" class="product-img" />
+
+        <!-- Overlay khi hover -->
         <div class="product-overlay">
           <button class="btn-detail" (click)="viewProductDetail(product)">Xem chi tiết</button>
           <button class="btn-buy">Mua ngay</button>
@@ -20,44 +22,37 @@
 
       <!-- THÔNG TIN SẢN PHẨM -->
       <div class="product-info">
+        <!-- LƯỢT XEM -->
+
+
+        <!-- TÊN SẢN PHẨM -->
         <h3 class="product-name">{{ product.name }}</h3>
+
+        <!-- GIÁ SẢN PHẨM -->
         <p class="product-price">{{ product.price | number }} ₫</p>
-
-        <!-- Container lượt xem + trái tim -->
-        <div class="product-meta">
-          <span class="product-views">
-            <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
-          </span>
-
-          <button class="favorite-btn" 
-        [class.active]="isFavorite(product)" 
-        (click)="toggleFavorite(product, $event)">
-  <i class="fa fa-heart"></i>
-</button>
-        </div>
-      </div> <!-- ĐÓNG product-info -->
-
-      <!-- NÚT THÊM VÀO GIỎ -->
-      <div class="product-action">
-        <button class="btn-cart" (click)="openVariantModal(product)">
-          <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-        </button>
+        <p class="product-views">
+          <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
+        </p>
       </div>
 
-    </div> <!-- ĐÓNG product-card -->
+      <!-- ✅ NÚT THÊM VÀO GIỎ -->
+      <div class="product-action">
+        <button class="btn-cart" (click)="openVariantModal(product)">
+  <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+</button>
+      </div>
 
-  </div> <!-- ĐÓNG product-list -->
+    </div>
+  </div>
 
   <!-- Nếu không có sản phẩm -->
   <p *ngIf="!loading && products.length === 0" class="empty">
     Chưa có sản phẩm nào
   </p>
-
-  <app-product-modal 
-      [isModalOpen]="isModalOpen" 
-      [selectedProduct]="selectedProduct"
-      (closeModal)="closeModal()"
-      (confirmAddToCart)="handleAddToCart($event)">
-  </app-product-modal>
-
+<app-product-modal 
+    [isModalOpen]="isModalOpen" 
+    [selectedProduct]="selectedProduct"
+    (closeModal)="closeModal()"
+    (confirmAddToCart)="handleAddToCart($event)">
+</app-product-modal>
 </section>

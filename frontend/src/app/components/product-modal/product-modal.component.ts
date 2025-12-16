@@ -68,6 +68,7 @@ export class ProductModalComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedProduct'] && this.selectedProduct) {
+      console.log('selectedProduct nhận được:', this.selectedProduct);
       this.loadVariantData(this.selectedProduct);
     } else if (changes['isModalOpen'] && !this.isModalOpen) {
         // Reset trạng thái khi modal đóng
@@ -88,6 +89,7 @@ export class ProductModalComponent implements OnChanges {
     this.resetSelection();
     this.productService.getAvailableVariants(product._id).subscribe({
       next: (data: AvailableVariants) => {
+        console.log('Available variants từ API:', data);
         this.availableVariantSizes = data.availableSizes; 
         this.availableColors = data.availableColors;
 

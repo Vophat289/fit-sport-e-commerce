@@ -46,6 +46,14 @@ export class CheckoutComponent implements OnInit{
   ngOnInit(): void {
     this.loadSelectedItems();
     this.loadAddresses();
+    //lấy voucher từ cart
+    const appliedVoucherStr = localStorage.getItem('appliedVoucher');
+    if (appliedVoucherStr) {
+      const appliedVoucher = JSON.parse(appliedVoucherStr);
+      this.voucher_code = appliedVoucher.code || '';
+      this.voucherDiscount = appliedVoucher.discount || 0;
+    }
+    this.calculateTotals(); // tính tổng với voucher
   }
 
   loadAddresses() {

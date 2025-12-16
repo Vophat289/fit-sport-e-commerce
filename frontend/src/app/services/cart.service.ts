@@ -65,11 +65,6 @@ export class CartService {
   private updateCartCount() {
     const cart = this.getLocalCart();
     const count = cart.items.reduce((sum, item) => sum + (item.quantityToAdd || 0), 0);
-    console.log('Update cart count:', {
-      itemsCount: cart.items.length,
-      totalQuantity: count,
-      items: cart.items.map(i => ({ name: i.name, qty: i.quantityToAdd }))
-    });
     this.cartCountSubject.next(count);
   }
 
@@ -176,6 +171,13 @@ export class CartService {
   getCart(): Observable<any> {
     return this.http.get<any>('/api/cart');
   }
+applyVoucher(code: string, subtotal: number) {
+  return this.http.post<{ code: string; discount: number }>(
+    'http://localhost:3000/api/voucher/apply',
+    { code, subtotal }
+  );
+}
+
 
   // Sync cart từ localStorage lên backend
   syncCartToBackend(selectedItems: CartItem[]): Observable<boolean> {
