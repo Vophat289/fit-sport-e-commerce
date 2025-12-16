@@ -28,6 +28,7 @@
     "chart.js": "^4.5.1",
     "chartjs": "^0.3.24",
     "cloudinary": "^2.8.0",
+    "gsap": "^3.14.2",
     "multer": "^2.0.2",
     "ngx-qrcode": "^0.1.0-rc.1",
     "ngx-toastr": "^19.1.0",
