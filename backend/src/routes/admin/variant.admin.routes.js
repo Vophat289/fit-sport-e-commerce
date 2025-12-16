@@ -7,6 +7,8 @@ import * as adminProductController from "../../controllers/admin/variant.admin.c
 
 router.get("/sizes", adminProductController.getSizes);
 router.get("/colors", adminProductController.getColors);
+router.post("/sizes", adminProductController.addSize);
+router.post("/colors", adminProductController.addColor);
 
 
 router.get(

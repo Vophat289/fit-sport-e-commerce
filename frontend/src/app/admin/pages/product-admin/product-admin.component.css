@@ -14,6 +14,7 @@ html, body {
   min-height: calc(100vh - 72px);
   color: #f4f6fb;
   font-family: "Roboto", sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .page-header {
@@ -537,4 +538,70 @@ small.error {
   table {
     min-width: 800px;
   }
+}
+
+/* Light Theme Styles */
+:host-context(.admin-theme-light) .product-admin {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .sub-title {
+  color: #64748b;
+}
+
+:host-context(.admin-theme-light) .page-title {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .search-box input {
+  background: #f8f9fa;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .table-container {
+  background: #f8f9fa;
+  border-color: #cbd5e1;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+:host-context(.admin-theme-light) thead {
+  background: #f1f5f9;
+}
+
+:host-context(.admin-theme-light) th {
+  color: #475569;
+}
+
+:host-context(.admin-theme-light) td {
+  border-top-color: #e5e7eb;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) tbody tr:hover {
+  background: #f8fafc;
+}
+
+:host-context(.admin-theme-light) .btn.ghost {
+  border-color: #cbd5e1;
+  color: #1d4ed8;
+}
+
+:host-context(.admin-theme-light) .btn.icon {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .modal {
+  background: #f8f9fa;
+  border-color: #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .modal-body input,
+:host-context(.admin-theme-light) .modal-body select,
+:host-context(.admin-theme-light) .modal-body textarea {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
 }

@@ -7,6 +7,7 @@ import { ProductAdminComponent } from './pages/product-admin/product-admin.compo
 import { ContactsAdminComponent } from './pages/contacts-admin/contacts-admin.component';
 import { UserAdminComponent } from './pages/manager-user/manager-user.component';
 import { NewsAdminComponent } from './pages/news-admin/news-admin.component';
+import { OrderAdminComponent } from './pages/order-admin/order-admin.component';
 import { AdminGuard } from './guards/admin.guards';
 import { VariantAdminComponent } from './pages/variant-admin/variant-admin.component';
 import { ReviewAdminComponent } from './pages/review-admin/review-admin.component';
@@ -26,6 +27,7 @@ export const AdminRoutes: Routes = [
       { path: 'news', component: NewsAdminComponent },
       { path: 'contacts', component: ContactsAdminComponent },
       { path: 'manager-user', component: UserAdminComponent },
+      { path: 'orders', component: OrderAdminComponent },
       { path: 'variant-admin/:productId', component: VariantAdminComponent },
       { path: 'review-admin', component: ReviewAdminComponent},
     ],

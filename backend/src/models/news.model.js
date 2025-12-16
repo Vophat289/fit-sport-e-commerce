@@ -15,22 +15,25 @@ const newsSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: [true, 'Nội dung bài viết là bắt buộc'],
-      trim: true
+      required: [true, 'Nội dung bài viết là bắt buộc']
     },
+
     thumbnail: {
       type: String,
-      default: null   
+      default: null
     },
+
     author: {
       type: String,
       default: 'Admin',
       trim: true
     },
-    tags: [{
-      type: String,
-      trim: true
-    }],
+
+    tags: {
+      type: [String],
+      default: []
+    },
+
     slug: {
       type: String,
       required: true,
@@ -38,18 +41,21 @@ const newsSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
+
     isActive: {
       type: Boolean,
       default: true,
-      index: true   
+      index: true
     }
   },
   {
-    timestamps: true   
+    timestamps: true
   }
 );
 
-newsSchema.index({ createdAt: -1 });     
+// Index tối ưu 
+// createdAt đã có từ timestamps: true
 newsSchema.index({ isActive: 1, createdAt: -1 }); 
+
 
 export default mongoose.model('News', newsSchema);

@@ -16,7 +16,6 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: [true, "Giá sản phẩm là bắt buộc"],
         min: [0, "Giá không hợp lệ"],
     },
     description:{
@@ -39,18 +38,10 @@ const productSchema = new mongoose.Schema({
     colors: {
         type: [String],
         default: [],
-        validate: {
-            validator: (arr) => arr.length > 0,
-            message: "Sản phẩm phải có ít nhất 1 màu sắc",
-        },
     },
     sizes: {
         type: [String],
         default: [],
-        validate: {
-            validator: (arr) => arr.length > 0,
-            message: "Sản phẩm phải có ít nhất 1 kích cỡ",
-        },
     },
 
     viewCount: {

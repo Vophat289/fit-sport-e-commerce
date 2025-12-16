@@ -32,6 +32,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
   freeShipThreshold = 1000000;
   voucherCode = '';
 
+  voucherMessage: string = '';    
+  voucherMessageType: 'success' | 'warning' | 'error' | '' = '';
   constructor(
     private cartService: CartService,
     private authService: AuthService,
@@ -87,7 +89,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
           quantityToAdd: item.quantityToAdd ?? 1,
           maxStock: item.stock ?? 0,
         }));
-        console.log('Cart loaded:', this.cartItems);
         this.calculateTotals();
       });
   }
@@ -220,17 +221,42 @@ export class CartPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  applyVoucher(): void {
-    const code = this.voucherCode.trim().toUpperCase();
-    if (code === 'FSDISCOUNT') {
-      this.voucherDiscount = Math.round(this.subtotal * 0.05);
-      alert('Áp dụng mã thành công!');
-    } else {
-      this.voucherDiscount = 0;
-      alert('Mã giảm giá không hợp lệ!');
-    }
-    this.calculateTotals();
+applyVoucher(): void {
+  const code = this.voucherCode.trim().toUpperCase();
+  if (!code) {
+    this.voucherMessage = 'Vui lòng nhập mã voucher';
+    this.voucherMessageType = 'error';
+    return;
   }
+
+  this.cartService.applyVoucher(code, this.subtotal).subscribe({
+    next: (res: any) => {
+      if (res.success) {
+        // Áp dụng thành công
+        this.voucherDiscount = res.discount || 0;
+        this.voucherMessage = `Áp dụng voucher thành công! Giảm ${this.voucherDiscount.toLocaleString('vi-VN')} VND`;
+        this.voucherMessageType = 'success';
+      } else {
+        // Không áp dụng được
+        this.voucherDiscount = 0;
+        this.voucherMessage = res.message || 'Voucher không hợp lệ hoặc không đủ điều kiện';
+
+        // Kiểu thông báo dựa trên type từ backend
+        if (res.type === 'invalid') this.voucherMessageType = 'error';
+        else if (res.type === 'condition') this.voucherMessageType = 'warning';
+        else this.voucherMessageType = 'error';
+      }
+      this.calculateTotals();
+    },
+    error: (err) => {
+      console.error('Lỗi khi áp dụng voucher:', err);
+      this.voucherDiscount = 0;
+      this.voucherMessage = 'Đã có lỗi xảy ra, vui lòng thử lại';
+      this.voucherMessageType = 'error';
+      this.calculateTotals();
+    }
+  });
+}
 
   proceedToCheckout(): void {
     const selected = this.cartItems.filter((i) => i.selected);
@@ -240,6 +266,13 @@ export class CartPageComponent implements OnInit, OnDestroy {
     }
     // Lưu selected items vào localStorage để checkout có thể lấy
     localStorage.setItem('selectedCartItems', JSON.stringify(selected));
+      // Lưu thông tin voucher
+    localStorage.setItem('appliedVoucher', JSON.stringify({
+      code: this.voucherCode,
+      discount: this.voucherDiscount
+    }));
+      // Lưu tổng cộng (tạm tính + phí vận chuyển - voucher)
+    localStorage.setItem('checkoutTotal', JSON.stringify(this.totalAmount));
     this.router.navigate(['/checkout']);
   }
   deleteSelectedItems(): void {

@@ -10,13 +10,14 @@ const reviewSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
+      // ref: 'Account', 
       ref: 'User', 
       required: true,
     },
-    // order: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Order',
-    // },
+    order: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Order',
+    },
     rating: {
       type: Number,
       min: 1,

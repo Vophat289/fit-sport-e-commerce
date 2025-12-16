@@ -8,7 +8,7 @@ import { NewsService, News } from '../../services/news.service';
 @Component({
   selector: 'app-news-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './news-detail.component.html',
   styleUrls: ['./news-detail.component.css']
 })

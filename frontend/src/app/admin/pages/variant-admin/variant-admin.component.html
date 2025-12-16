@@ -40,7 +40,7 @@
     >
       <label>
         Size <span class="required"></span>
-        <select formControlName="size_id" [disabled]="isEditMode">
+        <select formControlName="size_id">
           <option value="">-- Chọn Size --</option>
           <option *ngFor="let s of sizes" [value]="s._id">{{ s.name }}</option>
         </select>
@@ -57,7 +57,7 @@
 
       <label>
         Màu sắc <span class="required"></span>
-        <select formControlName="color_id" [disabled]="isEditMode">
+        <select formControlName="color_id">
           <option value="">-- Chọn Màu --</option>
           <option *ngFor="let c of colors" [value]="c._id">{{ c.name }}</option>
         </select>
@@ -171,3 +171,23 @@
     </table>
   </div>
 </div>
+
+  
+    <div class="add-option-box">
+      <div class="add-size">
+        <h4>Thêm Size mới</h4>
+        <div class="input-group">
+          <input type="text" [(ngModel)]="newSize" name="newSize" placeholder="Nhập size">
+          <button (click)="createSize()">Thêm Size</button>
+        </div>
+      </div>
+
+      <div class="add-color">
+        <h4>Thêm Màu mới</h4>
+        <div class="input-group">
+            <input type="text" [(ngModel)]="newColor" name="newColor" placeholder="Tên màu">
+            <input type="color" [(ngModel)]="newColorHex" name="newColorHex">
+          <button (click)="createColor()">Thêm Màu</button>
+        </div>
+      </div>
+    </div>

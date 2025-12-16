@@ -119,6 +119,44 @@ const getAllOptions = (Model) => async (req, res) => {
 export const getSizes = getAllOptions(Size);
 export const getColors = getAllOptions(Color);
 
+export const addSize = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) return res.status(400).json({ message: "Tên size là bắt buộc" });
+
+    // Kiểm tra trùng
+    const exists = await Size.findOne({ name });
+    if (exists)
+      return res.status(400).json({ message: "Size đã tồn tại" });
+
+    const newSize = new Size({ name });
+    await newSize.save();
+
+    res.status(201).json({ message: "Thêm size thành công", size: newSize });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi thêm size", error: error.message });
+  }
+};
+export const addColor = async (req, res) => {
+  try {
+    const { name, hex_code } = req.body;
+
+    if (!name) return res.status(400).json({ message: "Tên màu là bắt buộc" });
+
+    const exists = await Color.findOne({ name });
+    if (exists)
+      return res.status(400).json({ message: "Màu đã tồn tại" });
+
+    const newColor = new Color({ name, hex_code });
+    await newColor.save();
+
+    res.status(201).json({ message: "Thêm màu thành công", color: newColor });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi thêm màu", error: error.message });
+  }
+};
+
 // 5. Lấy chi tiết sản phẩm
 export const getProductDetails = async (req, res) => {
   try {
