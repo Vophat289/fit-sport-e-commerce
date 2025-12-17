@@ -123,24 +123,11 @@
             }}
           </span>
         </div>
-        <div class="summary-row" *ngIf="voucherDiscount > 0">
-          <span>Voucher giảm giá</span>
-          <span class="discount-amount">-{{ voucherDiscount | currency : 'VND' }}</span>
-        </div>
-
 
         <div class="summary-row total-row">
           <strong>Tổng cộng</strong>
           <strong>{{ totalAmount | currency : "VND" }}</strong>
         </div>
-        <!-- Thông báo voucher -->
-        <div *ngIf="voucherMessage" class="voucher-message"
-          [class.success]="voucherMessageType === 'success'"
-          [class.warning]="voucherMessageType === 'warning'"
-          [class.error]="voucherMessageType === 'error'">
-        {{ voucherMessage }}
-      </div>
-
 
         <!-- VOUCHER -->
         <div class="summary-voucher">

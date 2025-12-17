@@ -20,7 +20,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { VerifyPinComponent } from './pages/verify-pin/verify-pin.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
-import { AuthCallbackComponent } from './pages/auth-callback/auth-callback.component';
+import { FavoriteComponent } from './pages/favorite/favorite.component';
 
 // Admin routes 
 import { AdminRoutes } from './admin/admin.routes';
@@ -47,7 +47,6 @@ export const routes: Routes = [
 
       // Các route đăng nhập/đăng ký cũng nên được đặt trong Client Layout nếu muốn hiển thị header/footer
       { path: 'login', component: LoginComponent },
-      { path: 'auth/callback', component: AuthCallbackComponent }, // OAuth callback route
       { path: 'verify-pin', component: VerifyPinComponent},
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },
@@ -56,7 +55,7 @@ export const routes: Routes = [
       { path: 'admin/seed', component: DataSeederComponent },
       { path: 'cart', component: CartPageComponent },
       { path: 'checkout', component: CheckoutComponent },
-
+        { path: 'favorite', component: FavoriteComponent },
       //vnpay
       { path: 'payment-success', component: PaymentSuccessComponent},
 

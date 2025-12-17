@@ -33,4 +33,24 @@
       </button>
     </div>
   </div>
+
+  <div class="voucher-right">
+    <h2>Bài viết mới</h2>
+
+    <div class="news-item" *ngFor="let n of latestNews">
+      <a [routerLink]="['/news', n.slug]">
+        <img [src]="n.thumbnail" alt="thumbnail" class="thumb" />
+      </a>
+
+      <div class="news-info">
+        <a [routerLink]="['/news', n.slug]" class="news-title">
+          {{ n.title }}
+        </a>
+        <span class="news-date">
+          {{ n.createdAt | date:'dd/MM/yyyy' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
 </div>

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import {
   AccountService,
@@ -14,7 +14,6 @@ import {
   Voucher,
   SimpleProductDetail,
   ProductVariant,
-  Review,
 } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -57,41 +56,24 @@ export class AccountPageComponent implements OnInit {
   orderFilter: 'ALL' | string = 'ALL';
   selectedOrderItems: any[] = [];
   productImageCache: { [productId: string]: SimpleProductDetail } = {};
-  orderCurrentPage: number = 1;
-  orderPageSize: number = 3;
-  orderTotalPages: number = 1;
 
   vouchers: Voucher[] = [];
   voucherFilter: 'ALL' | string = 'ALL';
   showAllVouchers: boolean = false;
-  voucherCurrentPage: number = 1;
-  voucherPageSize: number = 6;
-  voucherTotalPages: number = 1;
-
-  reviewFormVisible: { [key: string]: boolean } = {};
-  productReviews: {
-    [productId: string]: { rating: number | null; comment: string };
-  } = {};
-  userReviews: any[] = [];
-  hasReviewed: { [key: string]: boolean } = {};
-  stars = [1, 2, 3, 4, 5];
-  hoveredStars: { [productId: string]: number } = {};
 
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Kiểm tra đăng nhập
+    // 1. Kiểm tra đăng nhập
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/home']);
       return;
-    }
+    } // 2. Lấy payload ban đầu
 
-    // Lấy payload ban đầu
     const payload = this.accountService.getPayload();
     if (payload) {
       this.userInfo = {
@@ -100,25 +82,12 @@ export class AccountPageComponent implements OnInit {
         email: payload.email || this.userInfo.email,
       };
       this.editData = { ...this.userInfo };
-    }
+    } // 3. Tải dữ liệu ban đầu
 
-    // Xử lý tab từ URL (chỉ 1 lần)
-    const tabFromUrl = this.route.snapshot.queryParamMap.get('tab');
-    if (
-      tabFromUrl &&
-      ['profile', 'orders', 'vouchers', 'address'].includes(tabFromUrl)
-    ) {
-      this.currentTab = tabFromUrl as any;
-    } else {
-      this.currentTab = 'profile';
-    }
-
-    // Load dữ liệu
     this.loadProfile();
     this.loadAddresses();
     this.loadOrders();
     this.loadVouchers();
-    this.loadUserReviews();
   }
 
   loadProfile(): void {
@@ -184,7 +153,6 @@ export class AccountPageComponent implements OnInit {
     this.isEditing = false;
     this.selectedOrder = undefined;
     this.ordersLimit = 3;
-    // Load dữ liệu nếu cần
     if (tab === 'orders' && this.orders.length === 0) {
       this.loadOrders();
     }
@@ -278,39 +246,8 @@ export class AccountPageComponent implements OnInit {
       error: (err) => console.error('Lỗi khi tải Orders:', err),
     });
   }
-  // ------------------------ ORDERS PAGINATION ------------------------
-  getFilteredOrdersPaginated(): Order[] {
-    const filtered =
-      this.orderFilter === 'ALL'
-        ? this.orders
-        : this.orders.filter((o) => o.status === this.orderFilter);
-
-    this.orderTotalPages = Math.ceil(filtered.length / this.orderPageSize);
-
-    const startIndex = (this.orderCurrentPage - 1) * this.orderPageSize;
-    const endIndex = startIndex + this.orderPageSize;
-
-    return filtered.slice(startIndex, endIndex);
-  }
-
-  getOrderPageNumbers(): number[] {
-    return Array.from({ length: this.orderTotalPages }, (_, i) => i + 1);
-  }
-
-goToOrderPage(page: number) {
-  this.orderCurrentPage = page;
-  this.loadFirstItemDetailsForVisibleOrders();
-}
-
-
-  setOrderFilter(status: string): void {
-    this.orderFilter = status;
-    this.selectedOrder = undefined;
-    this.orderCurrentPage = 1; // reset về trang 1 khi đổi filter
-  }
-
   loadFirstItemDetailsForVisibleOrders(): void {
-    this.getFilteredOrdersPaginated().forEach((order: any) => {
+    this.getFilteredOrders().forEach((order: any) => {
       if (order.first_item_image_url) return;
 
       this.accountService.getOrderDetail(order._id!).subscribe({
@@ -329,110 +266,10 @@ goToOrderPage(page: number) {
     });
   }
 
-  //Review
-  // Load tất cả review của user và tạo map hasReviewed dựa trên order + product
-  loadUserReviews() {
-    this.accountService.getUserReviews().subscribe((res: any) => {
-      this.userReviews = res.data || res;
-
-      // Khởi tạo hasReviewed theo order + product
-      this.hasReviewed = {};
-      (this.userReviews || []).forEach((r: any) => {
-        if (r.order && r.product) {
-          this.hasReviewed[`${r.order}_${r.product}`] = true;
-        }
-      });
-    });
-  }
-
-  // Đảm bảo object review cho productId tồn tại
-  ensureReview(productId: string) {
-    if (!this.productReviews[productId]) {
-      this.productReviews[productId] = { rating: 0, comment: '' };
-    }
-  }
-
-  // Hiển thị form review, chỉ khi sản phẩm chưa được review trong đơn hiện tại
-  toggleReviewForm(productId: string) {
-    if (!this.selectedOrder?._id) return;
-
-    const reviewKey = `${this.selectedOrder._id}_${productId}`;
-    this.ensureReview(productId);
-
-    // Đảo lại logic: nếu chưa đánh giá đơn này → bật/tắt form
-    this.reviewFormVisible[reviewKey] = !this.reviewFormVisible[reviewKey];
-  }
-
-  // Chọn sao
-  selectStars(productId: string, rating: number) {
-    this.ensureReview(productId);
-    this.productReviews[productId].rating = rating;
-  }
-
-  // Hover sao
-  hoverStars(productId: string, rating: number) {
-    this.hoveredStars[productId] = rating;
-  }
-
-  // Leave hover
-  leaveStars(productId: string) {
-    this.hoveredStars[productId] = 0;
-  }
-
-  // Kiểm tra active sao cho hiển thị
-  getStarActive(productId: string, PR: any, hovered: any, index: number) {
-    const hover = hovered?.[productId] ?? 0;
-    const rating = PR?.rating ?? 0;
-    return index < (hover || rating);
-  }
-
-  // Gửi review
-  submitReview(productId: string): void {
-    if (!this.selectedOrder?._id) {
-      alert('Không xác định được đơn hàng.');
-      return;
-    }
-
-    const reviewKey = `${this.selectedOrder._id}_${productId}`;
-    if (this.hasReviewed[reviewKey]) {
-      alert('Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi.');
-      return;
-    }
-
-    this.ensureReview(productId);
-    const reviewData = this.productReviews[productId];
-    const rating = Number(reviewData.rating);
-    if (!rating || rating < 1) {
-      alert('Vui lòng chọn số sao trước khi gửi đánh giá!');
-      return;
-    }
-
-    const review: Review = {
-      product_id: productId,
-      order_id: this.selectedOrder._id,
-      rating,
-      comment: reviewData.comment?.trim() || '',
-    };
-
-    this.accountService.submitReview(review).subscribe({
-      next: (res) => {
-        if (res.reviewed === true) {
-          alert('Bạn đã đánh giá sản phẩm này rồi.');
-        } else {
-          alert(res.message || 'Đánh giá đã gửi thành công!');
-        }
-
-        // Ẩn form và đánh dấu đã review cho order hiện tại
-        this.reviewFormVisible[reviewKey] = false;
-        this.hasReviewed[reviewKey] = true;
-        // Reset form
-        this.productReviews[productId] = { rating: 0, comment: '' };
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Lỗi khi gửi đánh giá:', err);
-        alert('Gửi đánh giá thất bại.');
-      },
-    });
+  setOrderFilter(status: string): void {
+    this.orderFilter = status;
+    this.selectedOrder = undefined;
+    this.ordersLimit = 3;
   }
 
   getFilteredOrders(): Order[] {
@@ -481,17 +318,6 @@ goToOrderPage(page: number) {
             'assets/images/default-product.png';
 
           item.displayName = item.product?.name ?? 'Sản phẩm';
-          if (!this.productReviews[item.productDetail._id]) {
-            this.productReviews[item.productDetail._id] = {
-              rating: null,
-              comment: '',
-            };
-          }
-
-          // Khởi tạo reviewFormVisible để form mặc định ẩn
-          if (this.reviewFormVisible[item.productDetail._id] === undefined) {
-            this.reviewFormVisible[item.productDetail._id] = false;
-          }
         });
       },
       error: (err: any) => {
@@ -532,31 +358,17 @@ goToOrderPage(page: number) {
         return status;
     }
   } // VOUCHERS METHODS
-  loadVouchers() {
+  loadVouchers(): void {
     this.accountService.getVouchers().subscribe({
       next: (data) => {
-        this.vouchers = data.map(
-          (v: any): Voucher => ({
-            code: v.code,
-            discountValue: v.value ?? 0,
-            minOrderValue: v.min_order_value ?? 0,
-            discountType: v.type === 'percent' ? 'percentage' : 'fixed',
-            expiryDate: v.end_date
-              ? new Date(v.end_date).toLocaleDateString('en-GB')
-              : '',
-            description: v.description || '',
-            status: 'ACTIVE',
-          })
-        );
-
+        this.vouchers = data;
         this.calculateVoucherStatus();
-        this.calculateTotalPages();
       },
-      error: (err) => console.error(err),
+      error: (err) => console.error('Lỗi khi tải Vouchers:', err),
     });
   }
-  private parseDate(dateStr?: string): Date {
-    if (!dateStr) return new Date(); // fallback
+
+  private parseDate(dateStr: string): Date {
     const [day, month, year] = dateStr.split('/').map(Number);
     return new Date(year, month - 1, day);
   }
@@ -582,52 +394,14 @@ goToOrderPage(page: number) {
   setVoucherFilter(status: string): void {
     this.voucherFilter = status;
     this.showAllVouchers = false;
-    this.voucherCurrentPage = 1;
-    this.calculateTotalPages();
   }
 
   getFilteredVouchers(): Voucher[] {
-    // 1. Lọc theo trạng thái trước
-    const filtered =
-      this.voucherFilter === 'ALL'
-        ? this.vouchers
-        : this.vouchers.filter((v) => v.status === this.voucherFilter);
-    this.calculateTotalPages(filtered.length);
-
-    const startIndex = (this.voucherCurrentPage - 1) * this.voucherPageSize;
-    const endIndex = startIndex + this.voucherPageSize;
-
-    return filtered.slice(startIndex, endIndex);
-  }
-  getVoucherPageNumbers(): number[] {
-    return Array.from({ length: this.voucherTotalPages }, (_, i) => i + 1);
+    return this.vouchers;
   }
 
   toggleVoucherDisplay(): void {
     this.showAllVouchers = !this.showAllVouchers;
-  }
-  /**
-   * @param totalItems
-   */
-  calculateTotalPages(totalItems: number = this.vouchers.length): void {
-    this.voucherTotalPages = Math.ceil(totalItems / this.voucherPageSize);
-    if (
-      this.voucherPageSize > this.voucherTotalPages &&
-      this.voucherTotalPages > 0
-    ) {
-      this.voucherPageSize = this.voucherTotalPages;
-    }
-    if (this.voucherTotalPages === 0) {
-      this.voucherPageSize = 1;
-    }
-  }
-  /**
-    @param page
-   */
-  goToVoucherPage(page: number): void {
-    if (page >= 1 && page <= this.voucherTotalPages) {
-      this.voucherCurrentPage = page;
-    }
   }
   cancelOrder(orderId: string): void {
     if (

@@ -1,0 +1,449 @@
+/* ===================================================================
+   GLOBAL & TABLE - GỌN, HIỆN ĐẠI, CÂN ĐỐI
+=================================================================== */
+.orders-admin {
+  padding: 24px;
+  background: #0f0f0f;
+  color: #e2e8f0;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.sub-title {
+  font-size: 13px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 6px 0 0;
+  font-weight: 600;
+}
+
+/* Search */
+.header-actions .search-box {
+  position: relative;
+  width: 380px;
+  max-width: 100%;
+}
+
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 19px;
+  z-index: 1;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px 20px 14px 52px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  background: #1e1e1e;
+}
+
+/* ===================================================================
+   BẢNG ĐƠN HÀNG
+=================================================================== */
+.table-wrapper {
+  background: #111;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #222;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-top: 10px;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.order-table th {
+  background: #1a1a1a;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 16px 12px;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  white-space: nowrap;
+}
+
+/* Độ rộng cột */
+.order-table th:nth-child(1), .order-table td:nth-child(1) { width: 5%; }
+.order-table th:nth-child(2), .order-table td:nth-child(2) { width: 15%; }
+.order-table th:nth-child(3), .order-table td:nth-child(3) { width: 18%; }
+.order-table th:nth-child(4), .order-table td:nth-child(4) { width: 12%; }
+.order-table th:nth-child(5), .order-table td:nth-child(5) { width: 12%; }
+.order-table th:nth-child(6), .order-table td:nth-child(6) { width: 13%; }
+.order-table th:nth-child(7), .order-table td:nth-child(7) { width: 15%; }
+.order-table th:nth-child(8), .order-table td:nth-child(8) { width: 10%; }
+
+.order-table td {
+  text-align: center;
+  padding: 14px 12px;
+  border-bottom: 1px solid #222;
+  background: #0d0d0d;
+  vertical-align: middle;
+  font-size: 14.5px;
+  transition: background 0.25s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Canh trái số tiền */
+.order-table td .price {
+  text-align: center !important;
+}
+
+.order-table tr:hover td {
+  background: #141414;
+}
+
+.order-table tr:last-child td {
+  border-bottom: none;
+}
+
+td strong { color: #60a5fa; font-weight: 700; font-size: 15px; }
+.price { color: #ff0000; font-weight: 700; font-size: 16px; text-align: center !important; }
+
+/* ===================================================================
+   TRẠNG THÁI THANH TOÁN
+=================================================================== */
+.pay-status {
+  padding: 7px 16px; /* giảm padding ngang */
+  border-radius: 25px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  background: linear-gradient(135deg, #ff0000, #ff0000);
+  color: #fff;
+  min-width: auto; /* bỏ min-width cứng */
+}
+
+.pay-status.paid {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #d1fae5;
+}
+
+/* ===================================================================
+   TRẠNG THÁI ĐƠN HÀNG
+=================================================================== */
+.status-badge {
+  padding: 7px 16px; /* giảm padding ngang */
+  border-radius: 25px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-align: center;
+  display: inline-block;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  color: white;
+  min-width: auto; /* bỏ min-width cứng */
+}
+
+.status-pending { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #f3e8ff; }
+.status-processing { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #dbeafe; }
+.status-shipped { background: linear-gradient(135deg, #0891b2, #0e7490); color: #ecfeff; }
+.status-delivered { background: linear-gradient(135deg, #16a34a, #15803d); color: #f0fdf4; }
+.status-cancelled { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fee2e2; }
+
+.status-PENDING { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #f3e8ff; }
+.status-PROCESSING { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #dbeafe; }
+.status-SHIPPED { background: linear-gradient(135deg, #0891b2, #0e7490); color: #ecfeff; }
+.status-DELIVERED { background: linear-gradient(135deg, #16a34a, #15803d); color: #f0fdf4; }
+.status-CANCELLED { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fee2e2; }
+
+/* Nút Xem chi tiết */
+.detail-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.detail-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* ===================================================================
+   MODAL CHI TIẾT
+=================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #ffffff;
+  color: #1e293b;
+  padding: 36px;
+  border-radius: 24px;
+  width: 95%;
+  max-width: 1120px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+  position: relative;
+  animation: modalFade 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes modalFade {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 30px;
+  color: #64748b;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+.close-btn:hover { background: #f1f5f9; color: #1e293b; }
+
+.modal-content h3 {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.order-date-modal {
+  color: #94a3b8;
+  font-size: 14px;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+/* Grid Layout Modal */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .modal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Box trong modal */
+.modal-box {
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 25px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.modal-box h4 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e40af;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #eff6ff;
+}
+
+/* Sản phẩm */
+.items { display: flex; flex-direction: column; gap: 16px; }
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #eef2ff;
+  flex-shrink: 0;
+}
+.item-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #334155;
+}
+.item-info { font-size: 14px; color: #64748b; }
+
+/* Thông tin người nhận */
+.info-group {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.info-group p { margin: 0; font-size: 15px; line-height: 1.4; }
+.info-label { font-weight: 600; color: #475569; min-width: 100px; }
+.full-address {
+  background: #fff;
+  padding: 15px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #334155;
+  margin-top: 10px;
+}
+
+/* Tổng tiền */
+.total-price-modal {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #cbd5e1;
+  text-align: left; /* canh trái */
+}
+.total-price-modal span {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+.total-price-modal .price {
+  font-size: 28px !important;
+  color: #dc2626;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-align: left !important; /* canh trái */
+}
+
+/* Modal badges */
+.modal-content .pay-status,
+.modal-content .status-badge {
+  min-width: auto;
+  padding: 9px 20px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Cập nhật trạng thái */
+.status-selector label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+}
+.status-selector select {
+  width: auto;              /* không full width */
+  min-width: 160px;         /* vừa đủ hiển thị chữ */
+  max-width: 220px;         /* giới hạn chiều dài */
+  padding: 8px 12px;        /* nhỏ gọn */
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 14px;
+  margin-top: 12px;         /* tăng khoảng cách so với label/element trên */
+  outline: none;
+  transition: 0.25s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 010-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.5em;
+}
+
+.status-selector select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.update-btn {
+  width: auto;           
+  padding: 10px 20px;     
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 20px;   
+  margin-left: 10px;  
+  margin-right: 10px; /* thêm khoảng cách bên phải */
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+}
+
+.update-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}

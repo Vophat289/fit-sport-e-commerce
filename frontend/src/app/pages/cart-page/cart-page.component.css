@@ -326,24 +326,3 @@
         margin: 0 10px 0 0;
     }
 }
-.voucher-message {
-  font-weight: 500;
-  margin-top: 5px;
-  padding: 5px 10px;
-  border-radius: 4px;
-}
-
-.voucher-message.success {
-  color: #047857; /* xanh lá */
-  background-color: #d1fae5; /* nền xanh nhạt */
-}
-
-.voucher-message.warning {
-  color: #b45309; /* vàng cam */
-  background-color: #fef3c7; /* nền vàng nhạt */
-}
-
-.voucher-message.error {
-  color: #b91c1c; /* đỏ */
-  background-color: #fee2e2; /* nền đỏ nhạt */
-}

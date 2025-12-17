@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VariantAdminComponent } from './variant-admin.component';
+import { FavoriteComponent } from './favorite.component';
 
-describe('VariantAdminComponent', () => {
-  let component: VariantAdminComponent;
-  let fixture: ComponentFixture<VariantAdminComponent>;
+describe('FavoriteComponent', () => {
+  let component: FavoriteComponent;
+  let fixture: ComponentFixture<FavoriteComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VariantAdminComponent]
+      imports: [FavoriteComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VariantAdminComponent);
+    fixture = TestBed.createComponent(FavoriteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

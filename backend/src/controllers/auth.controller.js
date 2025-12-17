@@ -11,25 +11,24 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fitsport_2025';
 const emailValidator = new EmailValidator();
 /**
  * Tạo JSON Web Token (JWT) cho người dùng đã xác thực.
- * @param {object} user - User object
- * @param {string} expiresIn - Thời gian hết hạn (vd: '1h', '30d')
- * @returns {string} JWT token
+ * @param {object} user
+ * @returns {string} 
  */
-export const generateToken = (user, expiresIn = '1d') => {
-  const email = user.email || (user.emails && user.emails[0]?.value) || (user._json && user._json.email);
-  const name = user.name?.givenName || user.displayName || user.name || 'Unknown';
-  const userId = user._id || user.id;
+export const generateToken = (user) => {
+    const email = user.email || (user.emails && user.emails[0]?.value) || (user._json && user._json.email);
+    const name = user.name?.givenName || user.displayName || 'Unknown';
+    const userId = user._id || user.id;
 
-  return jwt.sign(
-    {
-      _id: userId,
-      role: user.role ?? 'user',
-      name,
-      email
-    },
-    JWT_SECRET,
-    { expiresIn }
-  );
+    return jwt.sign(
+        { 
+            _id: userId,
+            role: user.role ?? 'user',
+            name,
+            email
+        },
+        JWT_SECRET,
+        { expiresIn: '1d' }
+    );
 };
 
 // lấy danh sách tất cả user
@@ -88,162 +87,162 @@ export const login = async (req, res) => {
 
 // đăng ký
 export const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+    try {
+        const { name, email, password } = req.body;
 
-    // kiểm tra tính hợp lệ của email
-    const { wellFormed, validDomain, validMailbox } = await emailValidator.verify(email);
-    if (!wellFormed) return res.status(400).json({ message: 'Email không đúng định dạng.' });
-    if (!validDomain) return res.status(400).json({ message: 'Tên miền email không tồn tại.' });
-    // if (!validMailbox) return res.status(400).json({ message: 'Hộp thư email không tồn tại.' });
+        // kiểm tra tính hợp lệ của email
+        const { wellFormed, validDomain, validMailbox } = await emailValidator.verify(email);
+        if (!wellFormed) return res.status(400).json({ message: 'Email không đúng định dạng.' });
+        if (!validDomain) return res.status(400).json({ message: 'Tên miền email không tồn tại.' });
+        // if (!validMailbox) return res.status(400).json({ message: 'Hộp thư email không tồn tại.' });
 
-    // kiểm tra user đã tồn tại
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      if (!existingUser.isVerified) {
-        // gửi lại mã PIN nếu chưa xác minh
-        const newPin = existingUser.createVerificationPin();
-        await existingUser.save({ validateBeforeSave: false });
+        // kiểm tra user đã tồn tại
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            if (!existingUser.isVerified) {
+                // gửi lại mã PIN nếu chưa xác minh
+                const newPin = existingUser.createVerificationPin();
+                await existingUser.save({ validateBeforeSave: false });
+
+                await sendEmail({
+                    email: existingUser.email,
+                    subject: 'Mã PIN xác minh mới - Fit Sport',
+                    message: `<h1>Xác minh tài khoản</h1><p>Mã PIN xác minh mới của bạn là:</p><h2 style="color:#007bff;text-align:center;">${newPin}</h2><p>Mã này sẽ hết hạn sau 15 phút.</p>`
+                });
+                return res.status(200).json({ message: 'Mã PIN mới đã được gửi lại qua email.' });
+            }
+            return res.status(400).json({ message: 'Email đã được đăng ký và xác minh.' });
+        }
+
+        // tạo user mới và gửi mã PIN
+        const newUser = new User({ name, email, password });
+        const verificationPin = newUser.createVerificationPin();
+        await newUser.save(); // lưu user (password sẽ được hash trong pre-save hook)
 
         await sendEmail({
-          email: existingUser.email,
-          subject: 'Mã PIN xác minh mới - Fit Sport',
-          message: `<h1>Xác minh tài khoản</h1><p>Mã PIN xác minh mới của bạn là:</p><h2 style="color:#007bff;text-align:center;">${newPin}</h2><p>Mã này sẽ hết hạn sau 15 phút.</p>`
+            email: newUser.email,
+            subject: 'Mã PIN Xác minh Email Fit Sport',
+            message: `<h1>Xác minh tài khoản</h1><p>Mã PIN xác minh email của bạn là:</p><h2 style="color:#007bff;text-align:center;">${verificationPin}</h2><p>Vui lòng nhập mã này trong 15 phút để hoàn tất đăng ký.</p>`
         });
-        return res.status(200).json({ message: 'Mã PIN mới đã được gửi lại qua email.' });
-      }
-      return res.status(400).json({ message: 'Email đã được đăng ký và xác minh.' });
+
+        return res.status(201).json({
+            message: 'Đăng ký thành công! Vui lòng kiểm tra email để nhận Mã PIN xác minh.',
+            email: newUser.email
+        });
+
+    } catch (error) {
+        // xử lý lỗi trùng lặp (nếu 'name' cũng là unique) hoặc lỗi schema
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Tên đăng nhập hoặc email đã tồn tại.' });
+        }
+        console.error("Lỗi đăng ký:", error.message);
+        return res.status(500).json({ message: 'Lỗi server khi đăng ký.' });
     }
-
-    // tạo user mới và gửi mã PIN
-    const newUser = new User({ name, email, password });
-    const verificationPin = newUser.createVerificationPin();
-    await newUser.save(); // lưu user (password sẽ được hash trong pre-save hook)
-
-    await sendEmail({
-      email: newUser.email,
-      subject: 'Mã PIN Xác minh Email Fit Sport',
-      message: `<h1>Xác minh tài khoản</h1><p>Mã PIN xác minh email của bạn là:</p><h2 style="color:#007bff;text-align:center;">${verificationPin}</h2><p>Vui lòng nhập mã này trong 15 phút để hoàn tất đăng ký.</p>`
-    });
-
-    return res.status(201).json({
-      message: 'Đăng ký thành công! Vui lòng kiểm tra email để nhận Mã PIN xác minh.',
-      email: newUser.email
-    });
-
-  } catch (error) {
-    // xử lý lỗi trùng lặp (nếu 'name' cũng là unique) hoặc lỗi schema
-    if (error.code === 11000) {
-      return res.status(400).json({ message: 'Tên đăng nhập hoặc email đã tồn tại.' });
-    }
-    console.error("Lỗi đăng ký:", error.message);
-    return res.status(500).json({ message: 'Lỗi server khi đăng ký.' });
-  }
 };
 
 //xác minh
 export const verifyPin = async (req, res) => {
-  try {
-    const { email, pin } = req.body;
+    try {
+        const { email, pin } = req.body; 
+        
+        const user = await User.findOne({ email });
 
-    const user = await User.findOne({ email });
+        if (!user)
+            return res.status(404).json({ message: 'Không tìm thấy người dùng với email này.' });
 
-    if (!user)
-      return res.status(404).json({ message: 'Không tìm thấy người dùng với email này.' });
+        if (user.verificationPinExpires < Date.now())
+            return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
 
-    if (user.verificationPinExpires < Date.now())
-      return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
+        if (user.verificationPin !== String(pin))
+            return res.status(400).json({ message: 'Mã PIN không chính xác.' });
 
-    if (user.verificationPin !== String(pin))
-      return res.status(400).json({ message: 'Mã PIN không chính xác.' });
+        // cập nhật trạng thái xác minh
+        user.isVerified = true;
+        user.verificationPin = undefined;
+        user.verificationPinExpires = undefined;
+        await user.save();
 
-    // cập nhật trạng thái xác minh
-    user.isVerified = true;
-    user.verificationPin = undefined;
-    user.verificationPinExpires = undefined;
-    await user.save();
-
-    res.status(200).json({ message: 'Xác minh tài khoản thành công. Bạn có thể đăng nhập ngay.' });
-  } catch (error) {
-    console.error('Lỗi verifyPin:', error.message);
-    res.status(500).json({ message: 'Lỗi server khi xác minh mã PIN.' });
-  }
+        res.status(200).json({ message: 'Xác minh tài khoản thành công. Bạn có thể đăng nhập ngay.' });
+    } catch (error) {
+        console.error('Lỗi verifyPin:', error.message);
+        res.status(500).json({ message: 'Lỗi server khi xác minh mã PIN.' });
+    }
 };
 
 // quên mật khẩu 
 export const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng với email này.' });
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng với email này.' });
 
-    // tạo mã PIN 
-    const pin = Math.floor(100000 + Math.random() * 900000).toString();
+        // tạo mã PIN 
+        const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
-    user.resetPin = pin;
-    user.resetPinExpires = Date.now() + 10 * 60 * 1000; // hết hạn sau 10 phút
-    await user.save({ validateBeforeSave: false });
+        user.resetPin = pin;
+        user.resetPinExpires = Date.now() + 10 * 60 * 1000; // hết hạn sau 10 phút
+        await user.save({ validateBeforeSave: false });
 
-    await sendEmail({
-      email: user.email,
-      subject: 'Mã PIN đặt lại mật khẩu - Fit Sport',
-      message: `<h1>Đặt lại mật khẩu</h1><p>Mã PIN để đặt lại mật khẩu của bạn là:</p><h2 style="color:#007bff;text-align:center;">${pin}</h2><p>Mã này sẽ hết hạn sau 10 phút.</p>`
-    });
+        await sendEmail({
+            email: user.email,
+            subject: 'Mã PIN đặt lại mật khẩu - Fit Sport',
+            message: `<h1>Đặt lại mật khẩu</h1><p>Mã PIN để đặt lại mật khẩu của bạn là:</p><h2 style="color:#007bff;text-align:center;">${pin}</h2><p>Mã này sẽ hết hạn sau 10 phút.</p>`
+        });
 
-    res.status(200).json({ message: 'Mã PIN đặt lại mật khẩu đã được gửi qua email.' });
-  } catch (error) {
-    console.error('Lỗi forgotPassword:', error.message);
-    res.status(500).json({ message: 'Lỗi server khi gửi mã PIN.' });
-  }
+        res.status(200).json({ message: 'Mã PIN đặt lại mật khẩu đã được gửi qua email.' });
+    } catch (error) {
+        console.error('Lỗi forgotPassword:', error.message);
+        res.status(500).json({ message: 'Lỗi server khi gửi mã PIN.' });
+    }
 };
 
 // xác minh mã pin đặt lại mật khẩu
 export const verifyResetPin = async (req, res) => {
-  try {
-    const { email, pin } = req.body;
-    const user = await User.findOne({ email });
+    try {
+        const { email, pin } = req.body;
+        const user = await User.findOne({ email });
 
-    if (!user)
-      return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+        if (!user)
+            return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
 
-    if (user.resetPin.toString() !== pin.toString())
-      return res.status(400).json({ message: 'Mã PIN không chính xác.' });
+        if (user.resetPin.toString() !== pin.toString())
+            return res.status(400).json({ message: 'Mã PIN không chính xác.' });
 
-    if (user.resetPinExpires < Date.now())
-      return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
+        if (user.resetPinExpires < Date.now())
+            return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
 
-    res.status(200).json({ message: 'Mã PIN hợp lệ, bạn có thể đặt lại mật khẩu.' });
-  } catch (error) {
-    console.error('Lỗi verifyResetPin:', error.message);
-    res.status(500).json({ message: 'Lỗi server khi xác minh mã PIN.' });
-  }
+        res.status(200).json({ message: 'Mã PIN hợp lệ, bạn có thể đặt lại mật khẩu.' });
+    } catch (error) {
+        console.error('Lỗi verifyResetPin:', error.message);
+        res.status(500).json({ message: 'Lỗi server khi xác minh mã PIN.' });
+    }
 };
 
 // đặt lại mật khẩu
 export const resetPassword = async (req, res) => {
-  try {
-    const { pin, newPassword } = req.body;
+    try {
+        const { pin, newPassword } = req.body;
 
-    // tìm user theo mã PIN
-    const user = await User.findOne({ resetPin: pin });
+        // tìm user theo mã PIN
+        const user = await User.findOne({ resetPin: pin });
 
-    if (!user)
-      return res.status(404).json({ message: 'Không tìm thấy người dùng với mã PIN này.' });
+        if (!user)
+            return res.status(404).json({ message: 'Không tìm thấy người dùng với mã PIN này.' });
 
-    if (user.resetPinExpires < Date.now())
-      return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
+        if (user.resetPinExpires < Date.now())
+            return res.status(400).json({ message: 'Mã PIN đã hết hạn.' });
 
-    // cập nhật mật khẩu mới
-    user.password = newPassword;
-    user.resetPin = undefined;
-    user.resetPinExpires = undefined;
-    await user.save();
+        // cập nhật mật khẩu mới
+        user.password = newPassword; 
+        user.resetPin = undefined;
+        user.resetPinExpires = undefined;
+        await user.save();
 
-    res.status(200).json({ message: 'Đặt lại mật khẩu thành công.' });
-  } catch (error) {
-    console.error('Lỗi resetPassword:', error.message);
-    res.status(500).json({ message: 'Lỗi server khi đặt lại mật khẩu.' });
-  }
+        res.status(200).json({ message: 'Đặt lại mật khẩu thành công.' });
+    } catch (error) {
+        console.error('Lỗi resetPassword:', error.message);
+        res.status(500).json({ message: 'Lỗi server khi đặt lại mật khẩu.' });
+    }
 };
 
 // chặn hoặc bỏ chặn tài khoản user
@@ -303,26 +302,26 @@ export const unblockUser = async (req, res) => {
 
 // đăng xuất 
 export const logout = (req, res) => {
-  if (req.logout) {
-    req.logout(function (err) {
-      if (err) {
-        console.error('Lỗi logout:', err);
-        return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
-      }
-      if (req.session) {
-        req.session.destroy(err => {
-          if (err) {
-            console.error('Lỗi hủy session:', err);
-            return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
-          }
-          res.clearCookie('connect.sid');
-          return res.status(200).json({ message: 'Đăng xuất thành công.' });
+    if (req.logout) {
+        req.logout(function(err) {
+            if (err) {
+                console.error('Lỗi logout:', err);
+                return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
+            }
+            if (req.session) {
+                req.session.destroy(err => {
+                    if (err) {
+                        console.error('Lỗi hủy session:', err);
+                        return res.status(500).json({ message: 'Lỗi server khi đăng xuất.' });
+                    }
+                    res.clearCookie('connect.sid'); 
+                    return res.status(200).json({ message: 'Đăng xuất thành công.' });
+                });
+            } else {
+                return res.status(200).json({ message: 'Đăng xuất thành công.' });
+            }
         });
-      } else {
-        return res.status(200).json({ message: 'Đăng xuất thành công.' });
-      }
-    });
-  } else {
-    return res.status(200).json({ message: 'Đăng xuất thành công. Token cần được xóa khỏi client.' });
-  }
+    } else {
+        return res.status(200).json({ message: 'Đăng xuất thành công. Token cần được xóa khỏi client.' });
+    }
 };

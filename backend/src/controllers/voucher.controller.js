@@ -3,13 +3,12 @@ import {
   validateVoucher, 
   useVoucher as useVoucherService 
 } from "../services/voucher.service.js";
-import Voucher from "../models/voucher.model.js";
 
 // lấy danh sách voucher khả dụng
 export const getAvailable = async (req, res) => {
   try {
     const vouchers = await getAvailableVouchers();
-    res.json(vouchers);
+    res.json({ success: true, vouchers });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -46,53 +45,5 @@ export const useVoucher = async (req, res) => {
     res.json({ success: true, voucher });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
-  }
-};
-export const applyVoucher = async (req, res) => {
-  try {
-    const { code, subtotal } = req.body;
-
-    if (!code) {
-      return res.json({ success: false, type: "error", message: "Vui lòng nhập mã voucher" });
-    }
-
-    const voucher = await Voucher.findOne({ code: code.trim().toUpperCase() });
-
-    if (!voucher) {
-      return res.json({ success: false, type: "invalid", message: "Voucher không tồn tại" });
-    }
-
-    const now = new Date();
-
-    if (now < voucher.start_date || now > voucher.end_date) {
-      return res.json({ success: false, type: "condition", message: "Voucher chưa đến hạn hoặc đã hết hạn" });
-    }
-
-    if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
-      return res.json({ success: false, type: "condition", message: "Voucher đã hết lượt sử dụng" });
-    }
-
-    if (subtotal < voucher.min_order_value) {
-      return res.json({
-        success: false,
-        type: "condition",
-        message: `Đơn hàng tối thiểu là ${voucher.min_order_value} để dùng voucher này`,
-      });
-    }
-
-    // tính giảm giá
-    let discount = 0;
-    if (voucher.type === "percent") discount = Math.round((subtotal * voucher.value) / 100);
-    else if (voucher.type === "fixed") discount = voucher.value;
-
-    res.json({
-      success: true,
-      type: "success",
-      code: voucher.code,
-      discount,
-      voucherType: voucher.type,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, type: "error", message: "Lỗi khi áp dụng voucher", error: error.message });
   }
 };

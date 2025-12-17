@@ -78,24 +78,17 @@
             </div>
           </td>
           <td class="name">{{ product.name }}</td>
-          <td>
-            <ng-container *ngIf="product.displayPrices !== undefined; else noPrice">
-              {{ product.displayPrices | priceRange }}
-            </ng-container>
-
-            <ng-template #noPrice>-</ng-template>
-          </td>
-
+          <td>{{ product.price | number:'1.0-0' }}đ</td>
           <td>{{ getCategoryName(product.category) }}</td>
           <td>
-            <span *ngIf="product.displayColors?.length; else noColors">
-                <span *ngFor="let color of product.displayColors" class="color-box" [style.background-color]="color"></span>
+            <span *ngIf="product.colors?.length; else noColors">
+                <span *ngFor="let color of product.colors" class="color-box" [style.background-color]="color"></span>
             </span>
 
             <ng-template #noColors>-</ng-template>
           </td>
           <td>
-            <span *ngIf="product.displaySizes?.length; else noSizes">{{ product.displaySizes?.join(', ') }}</span>
+            <span *ngIf="product.sizes?.length; else noSizes">{{ product.sizes?.join(', ') }}</span>
             <ng-template #noSizes>-</ng-template>
           </td>
           <td>
@@ -118,13 +111,6 @@
             >
               <i class="bx bx-trash"></i>
             </button>
-              <button
-                class="btn icon info"
-                (click)="goToVariantAdmin(product._id!, product.name)"
-                title="Quản lý biến thể"
-              >
-                <i class="bx bx-cog"></i>
-              </button>
           </td>
         </tr>
       </tbody>
@@ -188,7 +174,7 @@
     </small>
   </label>
 
-  <!-- PRICE
+  <!-- PRICE -->
   <label>
     Giá <span class="required"></span>
     <input type="number" formControlName="price" />
@@ -203,7 +189,7 @@
       class="error">
       Giá phải lớn hơn 0
     </small>
-  </label> -->
+  </label>
 
   <!-- DESCRIPTION -->
   <label>
@@ -229,7 +215,7 @@
   </label>
 
 <!-- COLORS -->
-<!-- <label>
+<label>
   Màu sắc <span class="required"></span>
   <input
     type="text"
@@ -248,10 +234,10 @@
   >
     Màu sắc phải ở dạng: #ffffff, #000000,...
   </small>
-</label> -->
+</label>
 
 <!-- SIZES -->
-<!-- <label>
+<label>
   Kích cỡ <span class="required"></span>
   <input
     type="text"
@@ -270,7 +256,7 @@
   >
     Kích cỡ phải dạng: S, M, L, XL
   </small>
-</label> -->
+</label>
 
 <!-- ẢNH SẢN PHẨM -->
 <label>

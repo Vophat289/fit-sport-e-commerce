@@ -9,7 +9,7 @@ import ProductsVariant from "../models/productsVariant.model.js";
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name slug") .sort({ createdAt: -1 });
+    const products = await Product.find().populate("category", "name slug");
     res.json(products);
   } catch (error) {
     res.status(500).json({
@@ -110,28 +110,36 @@ export const getProductsByCategory = async (req, res) => {
 //thêm sản phẩm
 export const createProduct = async (req, res) => {
   try {
-    console.log("===== REQ.BODY =====");
-    console.log(req.body);
-    console.log("===== REQ.FILES =====");
-    console.log(req.files);
-    const { name, description, category } = req.body;
+    const { name, price, description, category } = req.body;
+    let { colors, sizes } = req.body;
 
     if (!name || name.trim() === "")
       return res.status(400).json({ message: "Vui lòng nhập tên sản phẩm" });
 
+    if (!price)
+      return res.status(400).json({ message: "Vui lòng nhập giá sản phẩm" });
+
     if (!category)
       return res.status(400).json({ message: "Vui lòng chọn danh mục" });
+
+    if (!colors || (Array.isArray(colors) && colors.length === 0)) {
+      return res.status(400).json({ message: "Vui lòng nhập màu sắc sản phẩm" });
+    }
+
+    if (!sizes || (Array.isArray(sizes) && sizes.length === 0)) {
+      return res.status(400).json({ message: "Vui lòng nhập kích cỡ sản phẩm" });
+    }
 
     const imageUrls = [];
     const slug = slugify(name, { lower: true, locale: "vi" });
 
     // Kiểm tra slug đã tồn tại chưa
-    const existingProduct = await Product.findOne({ slug });
-    if (existingProduct) {
+    const exitingProduct = await Product.findOne({ slug });
+    if (exitingProduct) {
       return res.status(400).json({ message: "Sản phẩm đã tồn tại" });
     }
 
-    // Upload ảnh nếu có
+    // Upload ảnh
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -144,13 +152,28 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ message: "Vui lòng tải lên ít nhất 1 hình ảnh" });
     }
 
-    // colors & sizes mặc định rỗng nếu không có
-    let colors = [];
-    let sizes = [];
+    // Xử lý colors
+    if (typeof colors === "string") {
+      try {
+        colors = JSON.parse(colors);
+      } catch {
+        colors = [colors];
+      }
+    }
+
+    // Xử lý sizes
+    if (typeof sizes === "string") {
+      try {
+        sizes = JSON.parse(sizes);
+      } catch {
+        sizes = [sizes];
+      }
+    }
 
     const newProduct = new Product({
       name,
       slug,
+      price,
       description,
       category,
       colors,
@@ -164,7 +187,6 @@ export const createProduct = async (req, res) => {
       product: savedProduct,
     });
   } catch (error) {
-    console.error("CREATE PRODUCT ERROR:", error);
     res.status(500).json({ message: "Lỗi khi thêm sản phẩm", error: error.message });
   }
 };

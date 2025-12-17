@@ -25,10 +25,6 @@
           <span>Phí vận chuyển:</span>
           <span>{{ deliveryFee === 0 ? 'Free ship' : (deliveryFee | currency : 'VND') }}</span>
         </div>
-        <div class="summary-row" *ngIf="voucherDiscount > 0">
-        <span>Voucher giảm giá:</span>
-        <span class="discount-amount">-{{ voucherDiscount | currency : 'VND' }}</span>
-      </div>
         <div class="summary-row total-row">
           <strong>Tổng cộng:</strong>
           <strong>{{ totalAmount | currency : 'VND' }}</strong>
@@ -116,14 +112,13 @@
       
 
       <div class="form-group">
-        <label for="voucher_code">Mã voucher đã chọn</label>
+        <label for="voucher_code">Mã voucher (tùy chọn)</label>
         <input
           type="text"
           id="voucher_code"
           [(ngModel)]="voucher_code"
           name="voucher_code"
-          placeholder="Voucher đã được áp dụng"
-          readonly
+          placeholder="Nhập mã voucher"
         />
       </div>
 
