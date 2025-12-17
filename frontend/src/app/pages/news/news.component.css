@@ -4,13 +4,57 @@
   margin: 36px auto 50px;
 }
 
-/* ===== HERO ===== */
-.news-hero {
+/* ===== LAYOUT 2 CỘT: MAIN + ASIDE ===== */
+.news-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 360px;
   gap: 22px;
   align-items: start;
-  margin-bottom: 22px;
+}
+
+/* MAIN / ASIDE */
+.news-main { min-width: 0; }
+
+.news-aside {
+  position: sticky;
+  top: 90px; /* nếu header bạn cao hơn thì tăng lên */
+  height: fit-content;
+}
+
+.aside-card {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.aside-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 900;
+  color: #111;
+}
+
+.aside-clear {
+  margin-top: 12px;
+  width: 100%;
+  border: none;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.aside-clear:hover {
+  background: #f2f2f2;
+}
+
+/* ===== HERO ===== */
+.news-hero {
+  display: block;            /* hero chỉ còn left */
+  margin-bottom: 10px;
   padding: 18px 18px 8px;
   border-radius: 16px;
   background: #fafafa;
@@ -33,14 +77,7 @@
   max-width: 560px;
 }
 
-/* Thanh tìm tag đối xứng subtitle */
-.hero-right {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  justify-content: flex-start;
-}
-
+/* ===== TAG SEARCH (dùng cho ASIDE) ===== */
 .tag-search {
   display: flex;
   align-items: center;
@@ -81,6 +118,7 @@
 }
 
 .tag-chips {
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -106,7 +144,7 @@
   box-shadow: 0 8px 18px rgba(25,118,210,0.18);
 }
 
-/* ===== GRID đẹp hơn: auto-fit để card đều và responsive mượt ===== */
+/* ===== GRID đẹp hơn: auto-fit ===== */
 .news-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -150,35 +188,48 @@
   transform: scale(1.08);
 }
 
+/* Overlay tối khi hover ảnh */
 .img-box::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  background: rgba(0,0,0,0.35);
   opacity: 0;
-  transition: opacity 0.25s;
+  transition: opacity 0.25s ease;
+  z-index: 1;
 }
 
 .news-card:hover .img-box::after {
   opacity: 1;
 }
 
-.overlay {
+/* ✅ Overlay giữa ảnh + nút "Xem thêm" */
+.img-overlay {
   position: absolute;
   inset: 0;
   display: grid;
-  place-items: end start;
-  padding: 14px;
-  pointer-events: none;
+  place-items: center;
+  z-index: 2;
 }
 
-.read-more-text {
-  background: rgba(0,0,0,0.55);
+.view-more-btn {
+  background: #1976d2;
   color: #fff;
-  padding: 7px 10px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(25,118,210,0.45);
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: all 0.25s ease;
+  pointer-events: auto;
+}
+
+.news-card:hover .view-more-btn {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* Content */
@@ -254,19 +305,6 @@
   border-color: #cfe4ff;
 }
 
-/* Readmore */
-.readmore {
-  color: #1976d2;
-  font-weight: 800;
-  text-decoration: none;
-  font-size: 14px;
-  margin-top: 2px;
-}
-
-.readmore:hover {
-  text-decoration: underline;
-}
-
 /* Empty */
 .empty-state {
   text-align: center;
@@ -285,7 +323,7 @@
   font-weight: 700;
 }
 
-/* Pagination giữ nguyên style bạn đang dùng (có thể giữ lại đoạn của bạn) */
+/* Pagination */
 .pagination-wrapper {
   display: flex;
   justify-content: center;
@@ -335,9 +373,20 @@
   font-weight: 800;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  .news-layout {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
 @media (max-width: 992px) {
-  .news-hero {
+  .news-layout {
     grid-template-columns: 1fr;
+  }
+
+  .news-aside {
+    position: static;
+    top: auto;
   }
 }
