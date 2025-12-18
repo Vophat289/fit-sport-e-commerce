@@ -5,15 +5,23 @@ import { Observable } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class DashboardService{
+export class DashboardService {
     private apiUrl = '/api/admin/dashboard';
 
     constructor(private http: HttpClient){ }
 
     getDashboardData(): Observable<any>{
-        return this.http.get<any>(this.apiUrl)
-    }
+    return this.http.get<any>(this.apiUrl);
+}
     getTopProducts(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/top-products`);
-  }
+}
+    getTopUsers(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/top-users`);
+}
+
+    getDashboardDataByDate(from: string, to: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}?from=${from}&to=${to}`);
+}
+
 }

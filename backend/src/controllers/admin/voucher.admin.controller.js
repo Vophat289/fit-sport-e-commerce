@@ -3,7 +3,7 @@ import Voucher from "../../models/voucher.model.js";
 // GET danh sách voucher (  search + phân trang)
 export const getAllVouchers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = "" } = req.query;
+    const { page = 1, limit = 5, search = "" } = req.query;
 
     const query = {
       code: { $regex: search, $options: "i" }
