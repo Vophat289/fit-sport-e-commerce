@@ -24,14 +24,14 @@ export class ReviewAdminComponent implements OnInit {
   constructor(private reviewService: ReviewService) {}
 
   ngOnInit(): void {
-    this.fetchReviews(); // ✅ GET ALL ngay khi vào trang
+    this.fetchReviews(); //  GET ALL ngay khi vào trang
   }
 
   fetchReviews(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    // ✅ nếu productId/orderId rỗng => service sẽ gọi API không params => GET ALL
+    // nếu productId/orderId rỗng => service sẽ gọi API không params => GET ALL
     this.reviewService.getAdminReviews({
       productId: this.productId,
       orderId: this.orderId,
@@ -55,7 +55,7 @@ export class ReviewAdminComponent implements OnInit {
   onClearFilter(): void {
     this.productId = '';
     this.orderId = '';
-    this.fetchReviews(); // ✅ gọi lại GET ALL
+    this.fetchReviews(); 
   }
 
   trackById(_: number, item: any) {

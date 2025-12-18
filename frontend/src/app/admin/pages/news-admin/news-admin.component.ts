@@ -38,11 +38,11 @@ export class NewsAdminComponent implements OnInit {
 
   isModalOpen: boolean = false;
 
-
   private readonly apiUrl = `${window.location.origin}/api/admin/news`;
+
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef, 
+    private cdr: ChangeDetectorRef,
     private newsService: NewsService
   ) {}
 
@@ -50,18 +50,44 @@ export class NewsAdminComponent implements OnInit {
     this.loadNews();
   }
 
+  // ==================== HELPERS ====================
+  private normalizeTags(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((t) => String(t).trim())
+        .filter((t) => !!t);
+    }
+
+    if (typeof value === 'string') {
+      return value
+        .split(',')
+        .map((t: string) => t.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  }
+
+  /**
+   * Lấy tags từ form (có thể bị TS suy ra never), normalize lại
+   */
+  private getFormTags(): string[] {
+    const tagsValue = (this.form as any).tags as unknown;
+    return this.normalizeTags(tagsValue);
+  }
+
   getThumbnailUrl(thumbnail?: string): string {
     return this.newsService.getThumbnailUrl(thumbnail);
   }
 
-  onImageError(event: any) {
-    if (event?.target) {
-      (event.target as HTMLImageElement).src = 'assets/no-image.png';
-    }
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement | null;
+    if (img) img.src = 'assets/no-image.png';
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0] as File;
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0] || null;
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -77,8 +103,13 @@ export class NewsAdminComponent implements OnInit {
     }
 
     this.selectedFile = file;
+
     const reader = new FileReader();
-    reader.onload = (e: any) => this.previewImageUrl = e.target.result;
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this.previewImageUrl = (e.target?.result as string) || null;
+      // nếu bạn dùng OnPush thì bật dòng dưới
+      // this.cdr.detectChanges();
+    };
     reader.readAsDataURL(file);
   }
 
@@ -88,12 +119,13 @@ export class NewsAdminComponent implements OnInit {
     }
   }
 
+  // ==================== LOAD ====================
   loadNews() {
     this.isLoading = true;
     this.http.get<any>(`${this.apiUrl}?limit=1000`).subscribe({
       next: (res) => {
         const rawList: News[] = Array.isArray(res) ? res : (res?.data || []);
-        this.newsList = rawList.map(item => ({
+        this.newsList = rawList.map((item: any) => ({
           ...item,
           displayThumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
         }));
@@ -122,14 +154,15 @@ export class NewsAdminComponent implements OnInit {
   }
 
   private applyFilter() {
-    if (!this.searchTerm.trim()) {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
       this.displayedNewsList = [...this.newsList];
-    } else {
-      const term = this.searchTerm.toLowerCase().trim();
-      this.displayedNewsList = this.newsList.filter(item =>
-        item.title.toLowerCase().includes(term)
-      );
+      return;
     }
+
+    this.displayedNewsList = this.newsList.filter((item) =>
+      (item.title || '').toLowerCase().includes(term)
+    );
   }
 
   getDisplayedCount(): number {
@@ -146,22 +179,20 @@ export class NewsAdminComponent implements OnInit {
     const formData = new FormData();
     formData.append('title', this.form.title!.trim());
     formData.append('content', this.form.content!.trim());
+
     if (this.form.short_desc?.trim()) formData.append('short_desc', this.form.short_desc.trim());
     if (this.form.author?.trim()) formData.append('author', this.form.author.trim());
 
-    const tagsArray = Array.isArray(this.form.tags)
-      ? this.form.tags
-      : typeof this.form.tags === 'string'
-        ? this.form.tags.split(',').map(t => t.trim()).filter(Boolean)
-        : [];
-
+    const tagsArray = this.getFormTags();
     if (tagsArray.length > 0) formData.append('tags', tagsArray.join(','));
 
     if (this.selectedFile) formData.append('thumbnail', this.selectedFile);
 
     this.isLoading = true;
-    const request$ = this.isEdit && this.form.slug
-      ? this.http.put(`${this.apiUrl}/slug/${this.form.slug}`, formData)
+
+    const slug = (this.form as any).slug as string | undefined;
+    const request$ = this.isEdit && slug
+      ? this.http.put(`${this.apiUrl}/slug/${slug}`, formData)
       : this.http.post(this.apiUrl, formData);
 
     request$.subscribe({
@@ -171,7 +202,8 @@ export class NewsAdminComponent implements OnInit {
         this.closeModal();
         this.loadNews();
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.showMessage('error', 'Có lỗi xảy ra, vui lòng thử lại!');
         this.isLoading = false;
       }
@@ -180,41 +212,37 @@ export class NewsAdminComponent implements OnInit {
 
   // ==================== EDIT ====================
   edit(item: News) {
+    const itemAny = item as any;
+
     this.form = {
-      ...item,
-      tags: Array.isArray(item.tags)
-        ? item.tags
-        : typeof item.tags === 'string'
-          ? item.tags.split(',').map(t => t.trim()).filter(Boolean)
-          : []
+      ...itemAny,
+      tags: this.normalizeTags(itemAny.tags)
     };
+
     this.isEdit = true;
     this.selectedFile = null;
-    this.previewImageUrl = null; // để popup hiển thị “Ảnh hiện tại”
+    this.previewImageUrl = null;
 
     this.openModal();
     // this.cdr.detectChanges();
   }
 
   // ==================== POPUP ====================
-  // Mở popup để thêm bài viết mới
   openCreateModal(): void {
     this.isEdit = false;
     this.resetForm();
     this.isModalOpen = true;
   }
 
-  // Mở popup (dùng khi sửa)
   openModal(): void {
     this.isModalOpen = true;
   }
 
-  // Đóng popup
   closeModal(): void {
     this.isModalOpen = false;
   }
 
-  // ==================== ẢNH ====================
+  // ==================== IMAGE ====================
   removeSelectedImage() {
     this.selectedFile = null;
     this.previewImageUrl = null;
@@ -229,13 +257,11 @@ export class NewsAdminComponent implements OnInit {
     this.isLoading = true;
     this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
       next: () => {
-        this.showMessage(
-          'success',
-          currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết'
-        );
+        this.showMessage('success', currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
         this.loadNews();
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.showMessage('error', 'Không thể thay đổi trạng thái');
         this.isLoading = false;
       }
@@ -253,6 +279,7 @@ export class NewsAdminComponent implements OnInit {
       tags: [],
       isActive: true
     };
+
     this.selectedFile = null;
     this.previewImageUrl = null;
     this.isEdit = false;
@@ -263,6 +290,6 @@ export class NewsAdminComponent implements OnInit {
   // ==================== MESSAGE ====================
   showMessage(type: 'success' | 'error', text: string) {
     this.message = { type, text };
-    setTimeout(() => this.message = null, 4000);
+    setTimeout(() => (this.message = null), 4000);
   }
 }
