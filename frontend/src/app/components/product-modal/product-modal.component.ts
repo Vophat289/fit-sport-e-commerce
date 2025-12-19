@@ -79,11 +79,11 @@ export class ProductModalComponent implements OnChanges {
   loadVariantData(product: Product): void {
     if (!product._id) return;
     // Kiểm tra login
-  if (!this.authService.isLoggedIn()) {
-    alert('Vui lòng đăng nhập để xem sản phẩm.');
-    this.router.navigate(['/login']);
-    return;
-  }
+  // if (!this.authService.isLoggedIn()) {
+  //   alert('Vui lòng đăng nhập để xem sản phẩm.');
+  //   this.router.navigate(['/login']);
+  //   return;
+  // }
 
     this.isVariantsLoading = true;
     this.resetSelection();
