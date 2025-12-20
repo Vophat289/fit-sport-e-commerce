@@ -41,6 +41,11 @@ export interface Order {
 export interface Review {
   _id?: string;
   product_id: string;
+  variant_id: string;
+  variant?: {
+    size?: string;
+    color?: string;
+  };
   order_id: string;
   rating: number;
   comment: string;
@@ -185,7 +190,7 @@ export class AccountService {
   const headers = {
     Authorization: `Bearer ${token}`
   };
-    return this.http.post(`${this.review}/api/reviews`, review);
+    return this.http.post(`${this.review}/api/reviews`, review, { headers });
   }
 
   getReviewsByOrder(orderId: string): Observable<Review[]> {

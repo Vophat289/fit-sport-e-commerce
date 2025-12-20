@@ -1,4 +1,3 @@
-// src/models/review.model.js
 import mongoose from 'mongoose';
 
 const reviewSchema = new mongoose.Schema(
@@ -6,6 +5,11 @@ const reviewSchema = new mongoose.Schema(
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
+      required: true,
+    },
+    variant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ProductsVariant',
       required: true,
     },
     user: {
@@ -16,7 +20,8 @@ const reviewSchema = new mongoose.Schema(
     },
     order: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order',
+      ref: 'Oders',
+      required: true,
     },
     rating: {
       type: Number,
@@ -37,8 +42,8 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 1 user chỉ được review 1 lần / 1 sản phẩm /đơn
-reviewSchema.index({ product: 1, user: 1, order: 1 }, { unique: true });
+// 1 user chỉ được review 1 lần / 1 biến thể / 1 đơn
+reviewSchema.index({ user: 1, order: 1, variant: 1 }, { unique: true });
 
 const Review = mongoose.model('Review', reviewSchema);
 export default Review;

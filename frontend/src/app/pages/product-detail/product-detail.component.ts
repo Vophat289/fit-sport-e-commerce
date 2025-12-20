@@ -34,6 +34,9 @@ export class ProductDetailComponent implements OnInit {
   //review
   reviews: any[] = [];
   loadingReviews: boolean = false;
+  averageRating: number = 0;
+  filteredReviews: any[] = [];
+  selectedStar: number | null = null;
   // Tab quản lý
   activeTab: 'description' | 'reviews' = 'description';
 
@@ -107,10 +110,14 @@ export class ProductDetailComponent implements OnInit {
         next: (res: any) => {
           this.reviews = (res.data || []).map((r: any) => ({
             ...r,
+            sizeName: r.variant?.size_id?.name || null,
+            colorName: r.variant?.color_id?.name || null,
             isClicked: false,
             helpfulCount: r.helpfulCount || 0,
           }));
           
+          this.filteredReviews = [...this.reviews];
+          this.calculateAverageRating();
           this.loadingReviews = false;
         },
         error: (err: any) => {
@@ -119,6 +126,31 @@ export class ProductDetailComponent implements OnInit {
         },
       });
 }
+  filterByStar(star: number | null): void {
+    this.selectedStar = star;
+
+    if (!star) {
+      this.filteredReviews = [...this.reviews]; // tất cả
+    } else {
+      this.filteredReviews = this.reviews.filter(
+        (r) => r.rating === star
+      );
+    }
+  }
+  calculateAverageRating(): void {
+    if (!this.reviews.length) {
+      this.averageRating = 0;
+      return;
+    }
+
+    const totalStars = this.reviews.reduce(
+      (sum, r) => sum + (r.rating || 0),
+      0
+    );
+
+    this.averageRating = +(totalStars / this.reviews.length).toFixed(1);
+  }
+
 markHelpful(reviewId: string): void {
   const review = this.reviews.find((r: any) => r._id === reviewId); 
 

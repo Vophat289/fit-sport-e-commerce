@@ -230,10 +230,37 @@
     Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
   </div>
 
+  <div class="average-rating">
+  <span class="avg-stars">
+    {{ averageRating }}
+    <i class="fa-solid fa-star filled-star"></i>
+  </span>
+  <span class="avg-text">/ 5</span>
+  <span class="total-reviews">    ({{ reviews.length }} đánh giá)</span>
+</div>
+<div class="review-filter">
+  <button
+    class="filter-btn"
+    [class.active]="selectedStar === null"
+    (click)="filterByStar(null)"
+  >
+    Tất cả
+  </button>
+
+  <button
+    *ngFor="let star of [5,4,3,2,1]"
+    class="filter-btn"
+    [class.active]="selectedStar === star"
+    (click)="filterByStar(star)"
+  >
+    {{ star }}
+    <i class="fa-solid fa-star"></i>
+  </button>
+</div>
+
   <div *ngIf="!loadingReviews && reviews.length > 0">
-    <h3 class="reviews-count-title">Tổng cộng {{ reviews.length }} đánh giá</h3>
     
-    <div *ngFor="let r of reviews" class="review-item">
+    <div *ngFor="let r of filteredReviews" class="review-item">
       <div class="review-header">
         <img
           *ngIf="r.user?.avatarUrl"
@@ -262,7 +289,7 @@
       </div>
       
       <p class="review-variant" *ngIf="r.sizeName || r.colorName">
-        **Phân loại:** <span *ngIf="r.sizeName">Size: {{ r.sizeName }}</span>
+        Phân loại: <span *ngIf="r.sizeName">Size: {{ r.sizeName }}</span>
         <span *ngIf="r.colorName"> | Màu: {{ r.colorName }}</span>
       </p>
 
@@ -290,6 +317,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- <div *ngIf="activeTab === 'description' && product">
     <div class="product-description-content">

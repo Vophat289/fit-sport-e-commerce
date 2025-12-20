@@ -265,12 +265,12 @@
                   </div>
                 </div>
               </ng-container>
-            </div>  
+            </div>
             <hr
               class="section-separator"
               *ngIf="getTotalFilteredOrdersCount() > 0"
             />
-             <!-- PHÂN TRANG chỉ hiển thị khi đang ở danh sách -->
+            <!-- PHÂN TRANG chỉ hiển thị khi đang ở danh sách -->
             <div class="pagination-container" *ngIf="orderTotalPages > 1">
               <button
                 *ngFor="let page of getOrderPageNumbers()"
@@ -280,7 +280,6 @@
                 {{ page }}
               </button>
             </div>
-
           </ng-container>
           <ng-container *ngIf="selectedOrder">
             <div class="order-detail-container">
@@ -368,7 +367,9 @@
                     <!-- Nếu đã đánh giá rồi thì chỉ hiển thị thông báo -->
                     <p
                       class="reviewed-text"
-                      *ngIf="hasReviewed[item.productDetail._id]"
+                      *ngIf="
+                        hasReviewed[selectedOrder._id + '_' + item.variant_id]
+                      "
                     >
                       Bạn đã đánh giá sản phẩm này rồi.
                     </p>
@@ -377,15 +378,13 @@
                       class="action-button review-button"
                       *ngIf="
                         selectedOrder.status.toUpperCase() === 'DELIVERED' &&
-                        !hasReviewed[
-                          selectedOrder._id + '_' + item.productDetail._id
-                        ]
+                        !hasReviewed[selectedOrder._id + '_' + item.variant_id]
                       "
-                      (click)="toggleReviewForm(item.productDetail._id)"
+                      (click)="toggleReviewForm(item.variant_id)"
                     >
                       {{
                         reviewFormVisible[
-                          selectedOrder._id + "_" + item.productDetail._id
+                          selectedOrder._id + "_" + item.variant_id
                         ]
                           ? "Đóng đánh giá"
                           : "Đánh giá"
@@ -396,16 +395,18 @@
                       class="review-form"
                       *ngIf="
                         reviewFormVisible[
-                          selectedOrder._id + '_' + item.productDetail._id
+                          selectedOrder._id + '_' + item.variant_id
                         ] &&
-                        !hasReviewed[
-                          selectedOrder._id + '_' + item.productDetail._id
-                        ]
+                        !hasReviewed[selectedOrder._id + '_' + item.variant_id]
                       "
                     >
                       <!-- đảm bảo đối tượng review tồn tại -->
                       <ng-container
-                        *ngIf="productReviews[item.productDetail._id] as PR"
+                        *ngIf="
+                          productReviews[
+                            selectedOrder._id + '_' + item.variant_id
+                          ] as PR
+                        "
                       >
                         <label>Đánh giá số sao:</label>
 
@@ -415,29 +416,41 @@
                             class="bx bxs-star"
                             [class.active]="
                               getStarActive(
-                                item.productDetail._id,
-                                PR,
-                                hoveredStars,
+                                selectedOrder._id + '_' + item.variant_id,
                                 i
                               )
                             "
                             (mouseover)="
-                              hoverStars(item.productDetail._id, i + 1)
+                              hoverStars(
+                                selectedOrder._id + '_' + item.variant_id,
+                                i + 1
+                              )
                             "
-                            (mouseleave)="leaveStars(item.productDetail._id)"
-                            (click)="selectStars(item.productDetail._id, i + 1)"
+                            (mouseleave)="
+                              leaveStars(
+                                selectedOrder._id + '_' + item.variant_id
+                              )
+                            "
+                            (click)="
+                              selectStars(
+                                selectedOrder._id + '_' + item.variant_id,
+                                i + 1
+                              )
+                            "
                           ></i>
                         </div>
 
                         <label>Bình luận:</label>
                         <textarea
                           [(ngModel)]="PR.comment"
+                          name="comment_{{ item.variant_id }}"
                           placeholder="Nhập nội dung đánh giá..."
                         ></textarea>
 
-                        <button
+                       <button
+                          type="button"
                           class="submit-review-btn"
-                          (click)="submitReview(item.productDetail._id)"
+                          (click)="submitReview(item.productDetail._id, item.variant_id)"
                         >
                           Gửi đánh giá
                         </button>

@@ -239,6 +239,9 @@
   color: #3b82f6;
   border-color: #93c5fd;
 }
+.status-processing {
+  background-color: #2563eb;
+}
 
 .status-shipping {
   background: #fff;

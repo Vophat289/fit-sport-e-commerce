@@ -493,6 +493,57 @@
     object-fit: cover;
 }
 
+/* Container chính */
+.review-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 15px 0;
+  align-items: center;
+}
+
+/* Style cơ bản cho nút */
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 20px; /* Bo tròn kiểu viên thuốc rất hiện đại */
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Hiệu ứng khi di chuột qua */
+.filter-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+/* Trạng thái được chọn (Active) */
+.filter-btn.active {
+  background-color: #2563eb; /* Màu xanh dương chuyên nghiệp */
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* Màu riêng cho icon ngôi sao */
+.filter-btn i {
+  color: #ffc107; /* Màu vàng đặc trưng của sao */
+  font-size: 13px;
+}
+
+/* Khi nút active, icon sao có thể chuyển sang trắng cho đồng bộ hoặc giữ nguyên */
+.filter-btn.active i {
+  color: #ffffff;
+}
 /* Badge Đã mua hàng */
 .badge-verified {
     display: inline-block;

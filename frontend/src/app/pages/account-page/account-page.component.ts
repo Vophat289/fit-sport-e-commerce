@@ -70,12 +70,12 @@ export class AccountPageComponent implements OnInit {
 
   reviewFormVisible: { [key: string]: boolean } = {};
   productReviews: {
-    [productId: string]: { rating: number | null; comment: string };
+    [reviewKey: string]: { rating: number | null; comment: string };
   } = {};
   userReviews: any[] = [];
   hasReviewed: { [key: string]: boolean } = {};
   stars = [1, 2, 3, 4, 5];
-  hoveredStars: { [productId: string]: number } = {};
+  hoveredStars: { [reviewKey: string]: number } = {};
 
   constructor(
     private accountService: AccountService,
@@ -297,11 +297,10 @@ export class AccountPageComponent implements OnInit {
     return Array.from({ length: this.orderTotalPages }, (_, i) => i + 1);
   }
 
-goToOrderPage(page: number) {
-  this.orderCurrentPage = page;
-  this.loadFirstItemDetailsForVisibleOrders();
-}
-
+  goToOrderPage(page: number) {
+    this.orderCurrentPage = page;
+    this.loadFirstItemDetailsForVisibleOrders();
+  }
 
   setOrderFilter(status: string): void {
     this.orderFilter = status;
@@ -339,68 +338,77 @@ goToOrderPage(page: number) {
       this.hasReviewed = {};
       (this.userReviews || []).forEach((r: any) => {
         if (r.order && r.product) {
-          this.hasReviewed[`${r.order}_${r.product}`] = true;
+          this.hasReviewed[`${r.order}_${r.variant}`] = true;
         }
       });
     });
   }
 
-  // Đảm bảo object review cho productId tồn tại
-  ensureReview(productId: string) {
-    if (!this.productReviews[productId]) {
-      this.productReviews[productId] = { rating: 0, comment: '' };
+  // Đảm bảo object review cho variantId tồn tại
+  ensureReview(variantId: string) {
+    if (!this.selectedOrder?._id) return;
+
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+    if (!this.productReviews[reviewKey]) {
+      this.productReviews[reviewKey] = { rating: 0, comment: '' };
     }
   }
 
   // Hiển thị form review, chỉ khi sản phẩm chưa được review trong đơn hiện tại
-  toggleReviewForm(productId: string) {
+  toggleReviewForm(variantId: string) {
     if (!this.selectedOrder?._id) return;
 
-    const reviewKey = `${this.selectedOrder._id}_${productId}`;
-    this.ensureReview(productId);
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+    this.ensureReview(variantId);
 
     // Đảo lại logic: nếu chưa đánh giá đơn này → bật/tắt form
-    this.reviewFormVisible[reviewKey] = !this.reviewFormVisible[reviewKey];
+    if (!this.hasReviewed[reviewKey]) {
+      this.reviewFormVisible[reviewKey] = !this.reviewFormVisible[reviewKey];
+    }
   }
 
   // Chọn sao
-  selectStars(productId: string, rating: number) {
-    this.ensureReview(productId);
-    this.productReviews[productId].rating = rating;
+  selectStars(reviewKey: string, rating: number) {
+    if (!this.productReviews[reviewKey]) {
+      this.productReviews[reviewKey] = { rating: 0, comment: '' };
+    }
+    this.productReviews[reviewKey].rating = rating;
   }
-
   // Hover sao
-  hoverStars(productId: string, rating: number) {
-    this.hoveredStars[productId] = rating;
+  hoverStars(reviewKey: string, rating: number) {
+    this.hoveredStars[reviewKey] = rating;
   }
 
   // Leave hover
-  leaveStars(productId: string) {
-    this.hoveredStars[productId] = 0;
+  leaveStars(reviewKey: string) {
+    this.hoveredStars[reviewKey] = 0;
   }
 
   // Kiểm tra active sao cho hiển thị
-  getStarActive(productId: string, PR: any, hovered: any, index: number) {
-    const hover = hovered?.[productId] ?? 0;
-    const rating = PR?.rating ?? 0;
+  getStarActive(reviewKey: string, index: number): boolean {
+    const hover = this.hoveredStars[reviewKey] ?? 0;
+    const rating = this.productReviews[reviewKey]?.rating ?? 0;
     return index < (hover || rating);
   }
 
   // Gửi review
-  submitReview(productId: string): void {
+  submitReview(productId: string, variantId: string): void {
+    console.log('ITEM variantId nhận được:', variantId);
     if (!this.selectedOrder?._id) {
       alert('Không xác định được đơn hàng.');
       return;
     }
 
-    const reviewKey = `${this.selectedOrder._id}_${productId}`;
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+
     if (this.hasReviewed[reviewKey]) {
-      alert('Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi.');
+      alert('Bạn đã đánh giá sản phẩm này rồi.');
       return;
     }
 
-    this.ensureReview(productId);
-    const reviewData = this.productReviews[productId];
+    this.ensureReview(variantId);
+    const reviewData = this.productReviews[reviewKey];
+
     const rating = Number(reviewData.rating);
     if (!rating || rating < 1) {
       alert('Vui lòng chọn số sao trước khi gửi đánh giá!');
@@ -409,26 +417,25 @@ goToOrderPage(page: number) {
 
     const review: Review = {
       product_id: productId,
+      variant_id: variantId,
       order_id: this.selectedOrder._id,
       rating,
       comment: reviewData.comment?.trim() || '',
     };
 
+    console.log('Gửi review:', review);
+
     this.accountService.submitReview(review).subscribe({
       next: (res) => {
-        if (res.reviewed === true) {
-          alert('Bạn đã đánh giá sản phẩm này rồi.');
-        } else {
-          alert(res.message || 'Đánh giá đã gửi thành công!');
-        }
+        alert(res.message || 'Đánh giá đã gửi thành công!');
 
-        // Ẩn form và đánh dấu đã review cho order hiện tại
         this.reviewFormVisible[reviewKey] = false;
         this.hasReviewed[reviewKey] = true;
-        // Reset form
-        this.productReviews[productId] = { rating: 0, comment: '' };
+
+        // ✅ reset đúng key
+        delete this.productReviews[reviewKey];
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err) => {
         console.error('Lỗi khi gửi đánh giá:', err);
         alert('Gửi đánh giá thất bại.');
       },
@@ -466,13 +473,14 @@ goToOrderPage(page: number) {
 
           // Chỉ giữ variant với size, color, image
           item.variant = {
+            _id: item.variant?._id,
             size: item.variant?.size ?? 'N/A',
             color: item.variant?.color ?? 'N/A',
             image: item.variant?.image ?? item.product?.image ?? [],
           };
 
           // Bỏ variant_id
-          delete item.variant_id;
+          // delete item.variant_id;
 
           // Hiển thị ảnh + tên cho giao diện
           item.displayImage =
@@ -481,16 +489,11 @@ goToOrderPage(page: number) {
             'assets/images/default-product.png';
 
           item.displayName = item.product?.name ?? 'Sản phẩm';
-          if (!this.productReviews[item.productDetail._id]) {
-            this.productReviews[item.productDetail._id] = {
-              rating: null,
-              comment: '',
-            };
-          }
 
           // Khởi tạo reviewFormVisible để form mặc định ẩn
-          if (this.reviewFormVisible[item.productDetail._id] === undefined) {
-            this.reviewFormVisible[item.productDetail._id] = false;
+          const reviewKey = `${this.selectedOrder!._id}_${item.variant?._id}`;
+          if (this.reviewFormVisible[reviewKey] === undefined) {
+            this.reviewFormVisible[reviewKey] = false;
           }
         });
       },
@@ -520,6 +523,8 @@ goToOrderPage(page: number) {
         return 'Chưa xác nhận';
       case 'CONFIRMED':
         return 'Đã xác nhận';
+      case 'PROCESSING':
+        return 'Đang xử lý';
       case 'SHIPPING':
         return 'Đang giao hàng';
       case 'SHIPPED':
