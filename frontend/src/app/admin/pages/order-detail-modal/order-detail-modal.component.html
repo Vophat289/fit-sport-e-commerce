@@ -201,54 +201,46 @@
         </div>
       </div>
 
-      <!-- Status Update -->
-      <div class="info-section status-update-section">
-        <h4 class="section-title">
-          <i class="bx bx-edit"></i>
-          Thay đổi trạng thái đơn hàng
-        </h4>
-        <div class="status-update">
-          <select 
-            [(ngModel)]="selectedStatus" 
-            class="status-select"
-            [disabled]="updating">
-            <option *ngFor="let opt of statusOptions" [value]="opt.value">
-              {{ opt.label }}
-            </option>
-          </select>
-          <button 
-            class="btn btn-primary" 
-            (click)="updateStatus()"
-            [disabled]="updating || selectedStatus === order.status">
-            <i class="bx bx-loader-alt bx-spin" *ngIf="updating"></i>
-            <i class="bx bx-check" *ngIf="!updating"></i>
-            <span *ngIf="!updating">Cập nhật trạng thái</span>
-            <span *ngIf="updating">Đang cập nhật...</span>
-          </button>
-        </div>
-      </div>
+   <!-- Status Update -->
+<div class="info-section status-update-section">
+  <h4 class="section-title">
+    <i class="bx bx-edit"></i>
+    Thay đổi trạng thái đơn hàng
+  </h4>
 
-      <!-- Order Dates -->
-      <div class="info-section dates-section">
-        <div class="info-grid">
-          <div class="info-item">
-            <label><i class="bx bx-calendar-plus"></i> Ngày tạo:</label>
-            <span>{{ formatDate(order.createdAt) }}</span>
-          </div>
-          <div class="info-item">
-            <label><i class="bx bx-calendar-check"></i> Cập nhật lần cuối:</label>
-            <span>{{ formatDate(order.updatedAt) }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="status-update">
+    <select
+      [(ngModel)]="selectedStatus"
+      class="status-select"
+      [disabled]="updating">
 
-    <!-- Modal Footer -->
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeModal()">
-        <i class="bx bx-x"></i>
-        Đóng
-      </button>
-    </div>
+      <option
+        *ngFor="let opt of statusOptions"
+        [value]="opt.value"
+        [disabled]="isStatusDisabled(opt.value)">
+        {{ opt.label }}
+      </option>
+
+    </select>
+
+    <button
+      class="btn btn-primary"
+      (click)="updateStatus()"
+      [disabled]="
+        updating ||
+        selectedStatus === order.status ||
+        isStatusDisabled(selectedStatus)
+      ">
+      <i class="bx bx-loader-alt bx-spin" *ngIf="updating"></i>
+      <i class="bx bx-check" *ngIf="!updating"></i>
+      <span *ngIf="!updating">Cập nhật trạng thái</span>
+      <span *ngIf="updating">Đang cập nhật...</span>
+    </button>
   </div>
+
+  <!-- Hint logic cho admin -->
+  <p class="status-hint">
+    <i class="bx bx-info-circle"></i>
+    Trạng thái đơn hàng chỉ được cập nhật theo đúng thứ tự xử lý.
+  </p>
 </div>
