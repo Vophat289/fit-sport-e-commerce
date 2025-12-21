@@ -38,6 +38,20 @@ export interface Order {
   first_item_image_url?: string;
   first_item_name?: string;
 }
+
+export interface Review {
+  _id?: string;
+  product_id: string;
+  variant_id: string;
+  variant?: {
+    size?: string;
+    color?: string;
+  };
+  order_id: string;
+  rating: number;
+  comment: string;
+}
+
 export interface ProductVariant {
   _id: string;
   size: string;
@@ -163,4 +177,30 @@ export class AccountService {
   getVoucherDetail(code: string): Observable<Voucher> {
     return this.http.get<Voucher>(`${this.apiUrl}/vouchers/${code}`);
   }
+  //đánh giá
+  submitReview(review: Review): Observable<any> {
+    const token = localStorage.getItem('token');
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+    return this.http.post(`${this.baseUrl}/api/reviews`, review, { headers });
+  }
+
+  getReviewsByOrder(orderId: string): Observable<Review[]> {
+    // Lấy tất cả review của đơn hàng, để hiển thị lại nếu muốn
+    return this.http.get<Review[]>(`/api/reviews?order_id=${orderId}`);
+  }
+  getUserReviews(): Observable<any> {
+  const token = localStorage.getItem('token');
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+
+  return this.http.get(`${this.baseUrl}/api/reviews/user`, { headers });
+}
+  getProductReviews(productId: string): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/api/reviews/product/${productId}`);
+    }
 }

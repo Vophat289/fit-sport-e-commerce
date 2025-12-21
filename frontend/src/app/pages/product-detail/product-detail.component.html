@@ -214,14 +214,131 @@
     </section>
 
     <!-- Tab thông tin chi tiết (mô tả, đánh giá, v.v.) -->
-    <section class="product-tabs">
-      <div class="tab-header">
-        <button class="tab-btn active">Mô tả sản phẩm</button>
-        <button class="tab-btn">Đánh giá</button>
+<section class="product-tabs">
+  <div class="tab-header">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'description'"
+      (click)="switchTab('description')"
+    >
+      Mô tả sản phẩm
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'reviews'"
+      (click)="switchTab('reviews')"
+    >
+      Đánh giá
+    </button>
+  </div>
+
+  <div class="tab-content">
+    <!-- Mô tả sản phẩm -->
+    <div *ngIf="activeTab === 'description'">
+      
+      <p>{{ product.description }}</p>
+    </div>
+
+    <!-- Đánh giá sản phẩm -->
+<div *ngIf="activeTab === 'reviews'">
+  <div *ngIf="loadingReviews" class="loading-state">Đang tải đánh giá...</div>
+  <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-state">
+    Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
+  </div>
+
+  <div class="average-rating">
+  <span class="avg-stars">
+    {{ averageRating }}
+    <i class="fa-solid fa-star filled-star"></i>
+  </span>
+  <span class="avg-text">/ 5</span>
+  <span class="total-reviews">    ({{ reviews.length }} đánh giá)</span>
+</div>
+<div class="review-filter">
+  <button
+    class="filter-btn"
+    [class.active]="selectedStar === null"
+    (click)="filterByStar(null)"
+  >
+    Tất cả
+  </button>
+
+  <button
+    *ngFor="let star of [5,4,3,2,1]"
+    class="filter-btn"
+    [class.active]="selectedStar === star"
+    (click)="filterByStar(star)"
+  >
+    {{ star }}
+    <i class="fa-solid fa-star"></i>
+  </button>
+</div>
+
+  <div *ngIf="!loadingReviews && reviews.length > 0">
+    
+    <div *ngFor="let r of filteredReviews" class="review-item">
+      <div class="review-header">
+        <img
+          *ngIf="r.user?.avatarUrl"
+          [src]="r.user?.avatarUrl"
+          alt="Avatar"
+          class="review-avatar"
+        />
+        <div class="review-user-info">
+          <p class="review-user">{{ r.user?.name || 'Người dùng Ẩn Danh' }}</p>
+          <span *ngIf="r.isVerifiedBuyer" class="badge-verified">
+            <i class="fa-solid fa-circle-check"></i> Đã mua hàng
+          </span>
+        </div>
       </div>
-      <div class="tab-content">
-        <p>{{ product.description }}</p>
+
+      <!-- Hiển thị rating (số sao) -->
+      <div class="review-rating">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star">
+          <i class="fa-solid fa-star" [class.filled]="star <= r.rating"></i>
+        </span>
       </div>
-    </section>
+      
+      <p class="review-variant" *ngIf="r.sizeName || r.colorName">
+        Phân loại: <span *ngIf="r.sizeName">Size: {{ r.sizeName }}</span>
+        <span *ngIf="r.colorName"> | Màu: {{ r.colorName }}</span>
+      </p>
+
+      <p class="review-comment">{{ r.comment }}</p>
+
+      <div class="review-actions">
+          <button 
+              class="action-button helpful-button" 
+              [class.is-clicked]="r.isClicked" 
+              (click)="markHelpful(r._id)" 
+              title="Đánh dấu là hữu ích"
+          >
+              <i class="fa-thumbs-up" 
+                [class.fa-solid]="r.isClicked" 
+                [class.fa-regular]="!r.isClicked"></i> 
+              Hữu ích ({{ r.helpfulCount || 0 }})
+          </button>
+          
+          <button class="action-button report-button">
+            <i class="fa-solid fa-flag"></i> Báo cáo
+          </button>
+      </div>
+
+      <hr class="review-separator"/>
+    </div>
+  </div>
+</div>
+
+
+<!-- <div *ngIf="activeTab === 'description' && product">
+    <div class="product-description-content">
+        <h3 class="description-title">Mô tả Sản phẩm</h3>
+        <p [innerHTML]="product.description"></p>
+    </div>
+</div> -->
+
+  </div>
+</section>
+
   </div>
 </div>

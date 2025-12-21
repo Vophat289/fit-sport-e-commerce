@@ -43,6 +43,7 @@ export const getOrderDetail = async (req, res) => {
         _id: item._id,
         quantity: item.quantity,
         price: variant?.price || item.price,
+        variant_id: variant?._id,
         variant: {
           size: variant?.size_id?.name || "N/A",
           color: variant?.color_id?.name || "N/A",

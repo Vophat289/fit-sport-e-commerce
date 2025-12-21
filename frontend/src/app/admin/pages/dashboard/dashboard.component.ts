@@ -1,5 +1,6 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../../services/dashboard.service';
 import { Subscription } from 'rxjs';
@@ -21,7 +22,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, L
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -41,10 +42,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     orders: '',
     revenue: ''
   };
+  
+  fromDate = '';
+  toDate = '';
 
   chartLabels: string[] = [];
   chartDataNumbers: number[] = [];
   topProducts: Array<any> = [];
+  topUsers: Array<any> = [];
 
   private subscription?: Subscription;
   private chartInstance?: Chart;
@@ -57,6 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadDashboard();
     this.loadTopProducts();
+    this.loadTopUsers();
   }
 
   loadTopProducts() {
@@ -74,6 +80,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   });
 }
+
+loadTopUsers() {
+  this.dashboardService.getTopUsers().subscribe({
+    next: (res) => {
+      if (res?.success && Array.isArray(res.data)) {
+        this.topUsers = res.data;
+      } else {
+        this.topUsers = [];
+      }
+    },
+    error: (err) => {
+      console.error("Lỗi loadTopUsers:", err);
+      this.topUsers = [];
+    }
+  });
+}
+
 
   ngOnDestroy(): void {
     if (this.subscription) this.subscription.unsubscribe();
@@ -184,6 +207,28 @@ this.chartInstance = new Chart(canvas, {
   }
 });
   }
+
+  applyDateFilter() {
+  if (!this.fromDate || !this.toDate) return;
+
+  this.dashboardService
+    .getDashboardDataByDate(this.fromDate, this.toDate)
+    .subscribe({
+      next: (res) => {
+        const d = res.data;
+        this.chartLabels = d.chartData.map((m: any) => m.month);
+        this.chartDataNumbers = d.chartData.map((m: any) => m.revenue);
+        setTimeout(() => this.renderChart(), 0);
+      },
+    });
+}
+
+resetDateFilter() {
+  this.fromDate = '';
+  this.toDate = '';
+  this.loadDashboard();
+}
+
 
   navigateTo(path: string) {
     this.router.navigate([path]);

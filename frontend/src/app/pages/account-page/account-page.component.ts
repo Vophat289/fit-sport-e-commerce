@@ -14,6 +14,7 @@ import {
   Voucher,
   SimpleProductDetail,
   ProductVariant,
+  Review,
 } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -56,10 +57,25 @@ export class AccountPageComponent implements OnInit {
   orderFilter: 'ALL' | string = 'ALL';
   selectedOrderItems: any[] = [];
   productImageCache: { [productId: string]: SimpleProductDetail } = {};
+  orderCurrentPage: number = 1;
+  orderPageSize: number = 5;
+  orderTotalPages: number = 1;
 
   vouchers: Voucher[] = [];
   voucherFilter: 'ALL' | string = 'ALL';
   showAllVouchers: boolean = false;
+  voucherCurrentPage: number = 1;
+  voucherPageSize: number = 6;
+  voucherTotalPages: number = 1;
+
+  reviewFormVisible: { [key: string]: boolean } = {};
+  productReviews: {
+    [reviewKey: string]: { rating: number | null; comment: string };
+  } = {};
+  userReviews: any[] = [];
+  hasReviewed: { [key: string]: boolean } = {};
+  stars = [1, 2, 3, 4, 5];
+  hoveredStars: { [reviewKey: string]: number } = {};
 
   constructor(
     private accountService: AccountService,
@@ -246,6 +262,36 @@ export class AccountPageComponent implements OnInit {
       error: (err) => console.error('Lỗi khi tải Orders:', err),
     });
   }
+  // ------------------------ ORDERS PAGINATION ------------------------
+  getFilteredOrdersPaginated(): Order[] {
+    const filtered =
+      this.orderFilter === 'ALL'
+        ? this.orders
+        : this.orders.filter((o) => o.status === this.orderFilter);
+
+    this.orderTotalPages = Math.ceil(filtered.length / this.orderPageSize);
+
+    const startIndex = (this.orderCurrentPage - 1) * this.orderPageSize;
+    const endIndex = startIndex + this.orderPageSize;
+
+    return filtered.slice(startIndex, endIndex);
+  }
+
+  getOrderPageNumbers(): number[] {
+    return Array.from({ length: this.orderTotalPages }, (_, i) => i + 1);
+  }
+
+  goToOrderPage(page: number) {
+    this.orderCurrentPage = page;
+    this.loadFirstItemDetailsForVisibleOrders();
+  }
+
+  setOrderFilter(status: string): void {
+    this.orderFilter = status;
+    this.selectedOrder = undefined;
+    this.orderCurrentPage = 1; // reset về trang 1 khi đổi filter
+  }
+
   loadFirstItemDetailsForVisibleOrders(): void {
     this.getFilteredOrders().forEach((order: any) => {
       if (order.first_item_image_url) return;
@@ -266,10 +312,118 @@ export class AccountPageComponent implements OnInit {
     });
   }
 
-  setOrderFilter(status: string): void {
-    this.orderFilter = status;
-    this.selectedOrder = undefined;
-    this.ordersLimit = 3;
+  //Review
+  // Load tất cả review của user và tạo map hasReviewed dựa trên order + product
+  loadUserReviews() {
+    this.accountService.getUserReviews().subscribe((res: any) => {
+      this.userReviews = res.data || res;
+
+      // Khởi tạo hasReviewed theo order + product
+      this.hasReviewed = {};
+      (this.userReviews || []).forEach((r: any) => {
+        if (r.order && r.product) {
+          this.hasReviewed[`${r.order}_${r.variant}`] = true;
+        }
+      });
+    });
+  }
+
+  // Đảm bảo object review cho variantId tồn tại
+  ensureReview(variantId: string) {
+    if (!this.selectedOrder?._id) return;
+
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+    if (!this.productReviews[reviewKey]) {
+      this.productReviews[reviewKey] = { rating: 0, comment: '' };
+    }
+  }
+
+  // Hiển thị form review, chỉ khi sản phẩm chưa được review trong đơn hiện tại
+  toggleReviewForm(variantId: string) {
+    if (!this.selectedOrder?._id) return;
+
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+    this.ensureReview(variantId);
+
+    // Đảo lại logic: nếu chưa đánh giá đơn này → bật/tắt form
+    if (!this.hasReviewed[reviewKey]) {
+      this.reviewFormVisible[reviewKey] = !this.reviewFormVisible[reviewKey];
+    }
+  }
+
+  // Chọn sao
+  selectStars(reviewKey: string, rating: number) {
+    if (!this.productReviews[reviewKey]) {
+      this.productReviews[reviewKey] = { rating: 0, comment: '' };
+    }
+    this.productReviews[reviewKey].rating = rating;
+  }
+  // Hover sao
+  hoverStars(reviewKey: string, rating: number) {
+    this.hoveredStars[reviewKey] = rating;
+  }
+
+  // Leave hover
+  leaveStars(reviewKey: string) {
+    this.hoveredStars[reviewKey] = 0;
+  }
+
+  // Kiểm tra active sao cho hiển thị
+  getStarActive(reviewKey: string, index: number): boolean {
+    const hover = this.hoveredStars[reviewKey] ?? 0;
+    const rating = this.productReviews[reviewKey]?.rating ?? 0;
+    return index < (hover || rating);
+  }
+
+  // Gửi review
+  submitReview(productId: string, variantId: string): void {
+    console.log('ITEM variantId nhận được:', variantId);
+    if (!this.selectedOrder?._id) {
+      alert('Không xác định được đơn hàng.');
+      return;
+    }
+
+    const reviewKey = `${this.selectedOrder._id}_${variantId}`;
+
+    if (this.hasReviewed[reviewKey]) {
+      alert('Bạn đã đánh giá sản phẩm này rồi.');
+      return;
+    }
+
+    this.ensureReview(variantId);
+    const reviewData = this.productReviews[reviewKey];
+
+    const rating = Number(reviewData.rating);
+    if (!rating || rating < 1) {
+      alert('Vui lòng chọn số sao trước khi gửi đánh giá!');
+      return;
+    }
+
+    const review: Review = {
+      product_id: productId,
+      variant_id: variantId,
+      order_id: this.selectedOrder._id,
+      rating,
+      comment: reviewData.comment?.trim() || '',
+    };
+
+    console.log('Gửi review:', review);
+
+    this.accountService.submitReview(review).subscribe({
+      next: (res: any) => {
+        alert(res.message || 'Đánh giá đã gửi thành công!');
+
+        this.reviewFormVisible[reviewKey] = false;
+        this.hasReviewed[reviewKey] = true;
+
+        // ✅ reset đúng key
+        delete this.productReviews[reviewKey];
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Lỗi khi gửi đánh giá:', err);
+        alert('Gửi đánh giá thất bại.');
+      },
+    });
   }
 
   getFilteredOrders(): Order[] {
@@ -303,13 +457,14 @@ export class AccountPageComponent implements OnInit {
 
           // Chỉ giữ variant với size, color, image
           item.variant = {
+            _id: item.variant?._id,
             size: item.variant?.size ?? 'N/A',
             color: item.variant?.color ?? 'N/A',
             image: item.variant?.image ?? item.product?.image ?? [],
           };
 
           // Bỏ variant_id
-          delete item.variant_id;
+          // delete item.variant_id;
 
           // Hiển thị ảnh + tên cho giao diện
           item.displayImage =
@@ -318,6 +473,12 @@ export class AccountPageComponent implements OnInit {
             'assets/images/default-product.png';
 
           item.displayName = item.product?.name ?? 'Sản phẩm';
+
+          // Khởi tạo reviewFormVisible để form mặc định ẩn
+          const reviewKey = `${this.selectedOrder!._id}_${item.variant?._id}`;
+          if (this.reviewFormVisible[reviewKey] === undefined) {
+            this.reviewFormVisible[reviewKey] = false;
+          }
         });
       },
       error: (err: any) => {
@@ -346,6 +507,8 @@ export class AccountPageComponent implements OnInit {
         return 'Chưa xác nhận';
       case 'CONFIRMED':
         return 'Đã xác nhận';
+      case 'PROCESSING':
+        return 'Đang xử lý';
       case 'SHIPPING':
         return 'Đang giao hàng';
       case 'SHIPPED':

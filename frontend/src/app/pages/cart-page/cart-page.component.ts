@@ -39,10 +39,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    // if (!this.authService.isLoggedIn()) {
+    //   this.router.navigate(['/login']);
+    //   return;
+    // }
     this.loadCart();
   }
 
@@ -240,6 +240,18 @@ export class CartPageComponent implements OnInit, OnDestroy {
     }
     // Lưu selected items vào localStorage để checkout có thể lấy
     localStorage.setItem('selectedCartItems', JSON.stringify(selected));
+      // Lưu thông tin voucher
+    localStorage.setItem('appliedVoucher', JSON.stringify({
+      code: this.voucherCode,
+      discount: this.voucherDiscount
+    }));
+      // Lưu tổng cộng (tạm tính + phí vận chuyển - voucher)
+    localStorage.setItem('checkoutTotal', JSON.stringify(this.totalAmount));
+    if (!this.authService.isLoggedIn()) {
+    localStorage.setItem('afterLoginRedirect', '/checkout');
+    this.router.navigate(['/login']);
+    return;
+  }
     this.router.navigate(['/checkout']);
   }
   deleteSelectedItems(): void {

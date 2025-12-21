@@ -68,7 +68,14 @@ export class LoginComponent implements OnInit {
       next: (res) => {
         this.toastr.success('Đăng nhập thành công');
         this.isLoading = false;
+        const redirect = localStorage.getItem('afterLoginRedirect');
+
+      if (redirect) {
+        localStorage.removeItem('afterLoginRedirect');
+        this.router.navigate([redirect]);
+      } else {
         this.router.navigate(['/home']);
+      }
       },
       error: (err) => {
         this.isLoading = false;

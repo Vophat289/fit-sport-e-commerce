@@ -476,3 +476,173 @@
   50%  { transform: scale(1.4); }
   100% { transform: scale(1.1); }
 }
+
+.review-user {
+    font-weight: 600; 
+    color: #333;
+    margin: 0;
+    font-size: 16px;
+}
+
+.review-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Container chính */
+.review-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 15px 0;
+  align-items: center;
+}
+
+/* Style cơ bản cho nút */
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 20px; /* Bo tròn kiểu viên thuốc rất hiện đại */
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #333333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Hiệu ứng khi di chuột qua */
+.filter-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+/* Trạng thái được chọn (Active) */
+.filter-btn.active {
+  background-color: #2563eb; /* Màu xanh dương chuyên nghiệp */
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* Màu riêng cho icon ngôi sao */
+.filter-btn i {
+  color: #ffc107; /* Màu vàng đặc trưng của sao */
+  font-size: 13px;
+}
+
+/* Khi nút active, icon sao có thể chuyển sang trắng cho đồng bộ hoặc giữ nguyên */
+.filter-btn.active i {
+  color: #ffffff;
+}
+/* Badge Đã mua hàng */
+.badge-verified {
+    display: inline-block;
+    font-size: 12px;
+    color: #28a745; /* Màu xanh lá cây */
+    background-color: #e6f7ea;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 2px;
+}
+.badge-verified i {
+    margin-right: 4px;
+}
+
+
+.review-rating-info {
+    display: flex;
+    justify-content: space-between; /* Đẩy ngày đánh giá sang phải */
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.review-rating {
+    margin: 0;
+    font-size: 16px;
+}
+
+.filled-star {
+    color: #ffc107 !important; 
+}
+
+.empty-star {
+    color: #ccc !important;
+}
+
+.review-date {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+}
+
+.review-variant {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.review-variant span {
+    font-weight: bold; /* Làm nổi bật size/color */
+}
+
+.review-comment {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+/* Vùng Tương tác */
+.review-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px 0;
+    transition: color 0.2s;
+}
+
+.action-button:hover {
+    color: #0056b3;
+}
+
+.action-button i {
+    margin-right: 5px;
+}
+
+.report-button {
+    color: #6c757d;
+}
+.report-button:hover {
+    color: #495057;
+}/* Trạng thái mặc định (chưa click) */
+.action-button.helpful-button {
+    color: #007bff; /* Màu xanh mặc định */
+}
+
+/* Trạng thái đã click (Đã like) */
+.action-button.helpful-button.is-clicked {
+    color: #28a745; /* Màu xanh lá cây nổi bật */
+    font-weight: 600;
+}
+
+/* Đảm bảo icon cũng đổi màu theo */
+.action-button.helpful-button.is-clicked .fa-solid {
+    color: #28a745;
+}
