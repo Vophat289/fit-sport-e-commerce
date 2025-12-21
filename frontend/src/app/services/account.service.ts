@@ -86,7 +86,6 @@ export interface SimpleProductDetail {
 export class AccountService {
   private baseUrl = '';
   private apiUrl = `${this.baseUrl}/api/account`;
-  private review = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
   // PROFILE
@@ -190,7 +189,7 @@ export class AccountService {
   const headers = {
     Authorization: `Bearer ${token}`
   };
-    return this.http.post(`${this.review}/api/reviews`, review, { headers });
+    return this.http.post(`/api/reviews`, review, { headers });
   }
 
   getReviewsByOrder(orderId: string): Observable<Review[]> {
@@ -204,9 +203,9 @@ export class AccountService {
     Authorization: `Bearer ${token}`
   };
 
-  return this.http.get(`${this.review}/api/reviews/user`, { headers });
+  return this.http.get(`/api/reviews/user`, { headers });
 }
   getProductReviews(productId: string): Observable<any> {
-      return this.http.get<any>(`${this.review}/api/reviews/product/${productId}`);
+      return this.http.get<any>(`/api/reviews/product/${productId}`);
     }
 }
