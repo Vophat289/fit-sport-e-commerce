@@ -1,8 +1,8 @@
 // src/app/pages/news-detail/news-detail.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { Subscription, switchMap } from 'rxjs';
 import { NewsService, News } from '../../services/news.service';
 
 @Component({
@@ -12,10 +12,12 @@ import { NewsService, News } from '../../services/news.service';
   templateUrl: './news-detail.component.html',
   styleUrls: ['./news-detail.component.css']
 })
-export class NewsDetailComponent implements OnInit {
+export class NewsDetailComponent implements OnInit, OnDestroy {
 
   loading: boolean = true;
   article: News | null = null;
+
+  private sub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,12 +25,18 @@ export class NewsDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    if (slug) {
-      this.newsService.getNewsBySlug(slug).subscribe({
+    this.sub = this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const slug = (params.get('slug') || '').trim();
+          this.loading = true;
+          this.article = null;
+          return this.newsService.getNewsBySlug(slug);
+        })
+      )
+      .subscribe({
         next: (res) => {
-          // Nếu API trả về object data hoặc trực tiếp
-          this.article = (res as any).data ?? res;
+          this.article = (res as any).data ?? (res as any);
           this.loading = false;
         },
         error: () => {
@@ -36,13 +44,12 @@ export class NewsDetailComponent implements OnInit {
           this.article = null;
         }
       });
-    } else {
-      this.loading = false;
-      this.article = null;
-    }
   }
 
-  // Lấy URL ảnh chuẩn từ NewsService
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+
   getThumbnailUrl(thumbnail?: string): string {
     return this.newsService.getThumbnailUrl(thumbnail || this.article?.thumbnail);
   }
@@ -53,7 +60,6 @@ export class NewsDetailComponent implements OnInit {
     img.onerror = null;
   }
 
-  // Chia sẻ bài viết
   share() {
     if (!this.article) return;
     const url = window.location.href;

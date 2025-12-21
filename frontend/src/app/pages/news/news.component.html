@@ -2,138 +2,145 @@
 <div class="news-container">
   <div class="news-layout">
 
-    <!-- ========== MAIN ========== -->
-    <main class="news-main">
+    <!-- ===== LEFT: LIST + FILTER ===== -->
+    <div class="news-left">
 
-      <!-- Hero -->
-      <div class="news-hero">
-        <div class="hero-left">
-          <h1 class="page-title">Bài viết mới nhất</h1>
-          <p class="page-subtitle">
-            Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!
-          </p>
-        </div>
-      </div>
+      <!-- ========== MAIN LIST ========== -->
+      <main class="news-main">
 
-      <!-- Grid bài viết -->
-      <div class="news-grid" *ngIf="paginatedNews.length > 0">
-        <article class="news-card" *ngFor="let item of paginatedNews">
-
-          <a [routerLink]="['/news', item.slug]" class="thumb-link">
-            <div class="img-box">
-              <img
-                [src]="item.thumbnail"
-                [alt]="item.title"
-                loading="lazy"
-                (error)="handleImageError($event)"
-              />
-
-              <!-- ✅ overlay nút giữa ảnh -->
-              <div class="img-overlay">
-                <a
-                  class="view-more-btn"
-                  [routerLink]="['/news', item.slug]"
-                  title="Xem chi tiết bài viết"
-                >
-                  Xem thêm
-                </a>
-              </div>
-            </div>
-          </a>
-
-          <div class="content-box">
-            <h2 class="news-title">
-              <a [routerLink]="['/news', item.slug]" [title]="item.title">
-                {{ item.title }}
-              </a>
-            </h2>
-
-            <p class="news-desc" *ngIf="item.short_desc">
-              {{ item.short_desc }}
+        <!-- Hero -->
+        <div class="news-hero">
+          <div class="hero-left">
+            <h1 class="page-title">Bài viết mới nhất</h1>
+            <p class="page-subtitle">
+              Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!
             </p>
-
-            <div class="news-meta">
-              <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
-
-              <div class="tags" *ngIf="item.tags && item.tags.length > 0">
-                <button
-                  class="tag-pill"
-                  type="button"
-                  *ngFor="let tg of item.tags | slice:0:2"
-                  (click)="selectTag(tg)">
-                  #{{ tg }}
-                </button>
-              </div>
-            </div>
           </div>
-
-        </article>
-      </div>
-
-      <!-- Empty khi filter không ra -->
-      <div class="empty-state" *ngIf="news.length > 0 && paginatedNews.length === 0">
-        <p>Không tìm thấy bài viết phù hợp với tag này.</p>
-        <button class="empty-btn" (click)="clearTagFilter()">Xóa bộ lọc</button>
-      </div>
-
-      <!-- Phân trang -->
-      <div class="pagination-wrapper" *ngIf="totalPages > 1">
-        <button
-          class="pagination-btn prev"
-          (click)="changePage(currentPage - 1)"
-          [disabled]="currentPage === 1">
-          ← Trước
-        </button>
-
-        <span class="pagination-info">
-          Trang <strong>{{ currentPage }}</strong> / {{ totalPages }}
-        </span>
-
-        <button
-          class="pagination-btn next"
-          (click)="changePage(currentPage + 1)"
-          [disabled]="currentPage === totalPages">
-          Sau →
-        </button>
-      </div>
-
-      <div class="empty-state" *ngIf="news.length === 0">
-        <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
-      </div>
-
-    </main>
-
-    <!-- ========== ASIDE ========== -->
-    <aside class="news-aside">
-      <div class="aside-card">
-        <h3 class="aside-title">Lọc theo tag</h3>
-
-        <div class="tag-search">
-          <span class="hash">#</span>
-          <input
-            type="text"
-            [(ngModel)]="tagQuery"
-            (input)="onTagInput()"
-            placeholder="Tìm theo tag... (vd: #yoga, #dinhduong)"
-            aria-label="Tìm theo tag"
-          />
-          <button class="btn-clear" *ngIf="tagQuery" (click)="clearTagFilter()" title="Xóa lọc">✕</button>
         </div>
 
-        <div class="tag-chips" *ngIf="getAvailableTags().length">
+        <!-- Grid bài viết -->
+        <div class="news-grid" *ngIf="paginatedNews.length > 0">
+          <article class="news-card" *ngFor="let item of paginatedNews">
+
+            <!-- 🔴 routerLink RELATIVE -->
+            <a [routerLink]="[item.slug]" class="thumb-link">
+              <div class="img-box">
+                <img
+                  [src]="item.thumbnail"
+                  [alt]="item.title"
+                  loading="lazy"
+                  (error)="handleImageError($event)"
+                />
+
+                <!-- overlay nút giữa ảnh -->
+                <div class="img-overlay">
+                  <span class="view-more-btn">Xem thêm</span>
+                </div>
+              </div>
+            </a>
+
+            <div class="content-box">
+              <h2 class="news-title">
+                <a [routerLink]="[item.slug]" [title]="item.title">
+                  {{ item.title }}
+                </a>
+              </h2>
+
+              <p class="news-desc" *ngIf="item.short_desc">
+                {{ item.short_desc }}
+              </p>
+
+              <div class="news-meta">
+                <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
+
+                <div class="tags" *ngIf="item.tags && item.tags.length > 0">
+                  <button
+                    class="tag-pill"
+                    type="button"
+                    *ngFor="let tg of item.tags | slice:0:2"
+                    (click)="selectTag(tg)">
+                    #{{ tg }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+
+        <!-- Empty khi filter không ra -->
+        <div class="empty-state" *ngIf="news.length > 0 && paginatedNews.length === 0">
+          <p>Không tìm thấy bài viết phù hợp với tag này.</p>
+          <button class="empty-btn" (click)="clearTagFilter()">Xóa bộ lọc</button>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper" *ngIf="totalPages > 1">
           <button
-            class="chip"
-            *ngFor="let t of getAvailableTags()"
-            [class.active]="normalizeTag(t) === normalizeTag(selectedTag || tagQuery)"
-            (click)="selectTag(t)"
-            type="button">
-            #{{ t }}
+            class="pagination-btn prev"
+            (click)="changePage(currentPage - 1)"
+            [disabled]="currentPage === 1">
+            ← Trước
+          </button>
+
+          <span class="pagination-info">
+            Trang <strong>{{ currentPage }}</strong> / {{ totalPages }}
+          </span>
+
+          <button
+            class="pagination-btn next"
+            (click)="changePage(currentPage + 1)"
+            [disabled]="currentPage === totalPages">
+            Sau →
           </button>
         </div>
 
-        <button class="aside-clear" *ngIf="tagQuery || selectedTag" (click)="clearTagFilter()">
-          Bỏ lọc
-        </button>
+        <div class="empty-state" *ngIf="news.length === 0">
+          <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
+        </div>
+
+      </main>
+
+      <!-- ========== FILTER TAG ========== -->
+      <aside class="news-aside">
+        <div class="aside-card">
+          <h3 class="aside-title">Lọc theo tag</h3>
+
+          <div class="tag-search">
+            <span class="hash">#</span>
+            <input
+              type="text"
+              [(ngModel)]="tagQuery"
+              (input)="onTagInput()"
+              placeholder="Tìm theo tag... (vd: #yoga, #dinhduong)"
+            />
+            <button class="btn-clear" *ngIf="tagQuery" (click)="clearTagFilter()">✕</button>
+          </div>
+
+          <div class="tag-chips" *ngIf="getAvailableTags().length">
+            <button
+              class="chip"
+              *ngFor="let t of getAvailableTags()"
+              [class.active]="normalizeTag(t) === normalizeTag(selectedTag || tagQuery)"
+              (click)="selectTag(t)">
+              #{{ t }}
+            </button>
+          </div>
+
+          <button class="aside-clear" *ngIf="tagQuery || selectedTag" (click)="clearTagFilter()">
+            Bỏ lọc
+          </button>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- ===== RIGHT: DETAIL ===== -->
+    <aside class="news-detail-pane">
+      <router-outlet></router-outlet>
+
+      <div class="detail-empty" *ngIf="!hasSelectedArticle">
+        <p>👈 Chọn một bài viết để xem chi tiết</p>
       </div>
     </aside>
 

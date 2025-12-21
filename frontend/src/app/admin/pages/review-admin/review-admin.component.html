@@ -17,59 +17,67 @@
     </div>
   </div>
 
-  <!-- Filter -->
-  <!-- <div class="toolbar">
-    <div class="filter-card">
-      <div class="filter-left">
-        <div class="field">
-          <label class="label">Product ID</label>
-          <div class="control">
-            <i class="bx bx-package"></i>
-            <input
-              type="text"
-              placeholder="Nhập productId…"
-              [(ngModel)]="productId"
-              (keydown.enter)="onApplyFilter()"
-            />
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Order ID</label>
-          <div class="control">
-            <i class="bx bx-receipt"></i>
-            <input
-              type="text"
-              placeholder="Nhập orderId…"
-              [(ngModel)]="orderId"
-              (keydown.enter)="onApplyFilter()"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-right">
-        <button class="btn btn-primary" type="button" (click)="onApplyFilter()">
-          <i class="bx bx-filter"></i>
-          Lọc
-        </button>
-
-        <button class="btn btn-secondary" type="button" (click)="onClearFilter()">
-          <i class="bx bx-reset"></i>
-          Xoá
-        </button>
-      </div>
-    </div>
-  </div> -->
-
   <!-- Table Card -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Danh sách đánh giá</span>
-      <span class="card-count">{{ reviews.length }} đánh giá</span>
+      <div class="header-left">
+        <span class="card-title">Danh sách đánh giá</span>
+        <span class="card-count">
+          {{ reviews.length }} đánh giá
+          <span *ngIf="reviews.length" class="range">
+            ({{ showingFrom }}-{{ showingTo }})
+          </span>
+        </span>
+      </div>
+
+      <div class="header-right">
+        <!-- ✅ filter sao -->
+        <div class="rating-filter" role="group" aria-label="Lọc theo số sao">
+          <button
+            type="button"
+            class="rf-chip"
+            [class.active]="!ratingFilter"
+            (click)="setRatingFilter(null)"
+          >
+            Tất cả
+          </button>
+
+          <button
+            type="button"
+            class="rf-chip"
+            *ngFor="let s of ratingOptions"
+            [class.active]="ratingFilter === s"
+            (click)="setRatingFilter(s)"
+          >
+            {{ s }} <span class="star">★</span>
+          </button>
+        </div>
+
+        <!-- ✅ page size -->
+        <div class="page-size">
+          <label>Hiển thị</label>
+          <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option [ngValue]="5">5</option>
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="20">20</option>
+            <option [ngValue]="50">50</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          class="btn-mini"
+          *ngIf="ratingFilter || productId || orderId"
+          (click)="onClearFilter()"
+          title="Xoá bộ lọc"
+        >
+          <i class="bx bx-reset"></i>
+          Xoá lọc
+        </button>
+      </div>
     </div>
 
-    <div class="table-wrapper" *ngIf="reviews.length; else emptyState">
+    <div class="table-wrapper" *ngIf="paginatedReviews.length; else emptyState">
       <table class="review-table">
         <thead>
           <tr>
@@ -83,20 +91,20 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let r of reviews; let i = index; trackBy: trackById">
+          <tr *ngFor="let r of paginatedReviews; let i = index; trackBy: trackById">
             <!-- Index -->
             <td class="center col-index">
-              <span class="idx">{{ i + 1 }}</span>
+              <span class="idx">{{ (currentPage - 1) * pageSize + i + 1 }}</span>
             </td>
 
-            <!-- Product (NO IMAGE, NO ID) -->
+            <!-- Product -->
             <td class="col-product">
               <div class="simple-cell">
                 <div class="title">{{ getProductName(r) }}</div>
               </div>
             </td>
 
-            <!-- User (NO ID, keep avatar for đẹp) -->
+            <!-- User -->
             <td class="col-user">
               <div class="simple-user">
                 <div class="avatar">{{ getUserName(r).charAt(0) }}</div>
@@ -140,12 +148,27 @@
       </table>
     </div>
 
+    <!-- ✅ Pagination controls -->
+    <div class="pagination-wrapper" *ngIf="totalPages > 1">
+      <button class="pagination-btn" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+        ← Trước
+      </button>
+
+      <span class="pagination-info">
+        Trang <strong>{{ currentPage }}</strong> / {{ totalPages }}
+      </span>
+
+      <button class="pagination-btn" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        Sau →
+      </button>
+    </div>
+
     <!-- Empty -->
     <ng-template #emptyState>
       <div class="empty-state">
         <i class="bx bx-message-rounded-dots"></i>
         <p>Không có đánh giá nào</p>
-        <span>Hãy thử lọc theo Product ID / Order ID hoặc bấm “Xoá”.</span>
+        <span>Hãy thử đổi bộ lọc sao hoặc xoá lọc để xem tất cả.</span>
       </div>
     </ng-template>
   </div>
