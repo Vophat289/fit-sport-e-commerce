@@ -7,7 +7,7 @@ import ProductsVariant from "../models/productsVariant.model.js";
  * ================================
  * GET: Danh sách đơn hàng của user
  * - COD: luôn hiện
- * - VNPAY: CHỈ hiện khi payment_status = PAID
+ * - VNPAY: chỉ hiện khi PAID
  * ================================
  */
 export const getOrdersByUser = async (req, res) => {
@@ -18,13 +18,12 @@ export const getOrdersByUser = async (req, res) => {
       user_id: userId,
       $or: [
         { payment_method: "COD" },
-        { payment_method: "VNPAY", payment_status: "PAID" }
-      ]
+        { payment_method: "VNPAY", payment_status: "PAID" },
+      ],
     }).sort({ createdAt: -1 });
 
     res.json(orders);
   } catch (error) {
-    console.error("❌ getOrdersByUser:", error);
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
@@ -32,21 +31,31 @@ export const getOrdersByUser = async (req, res) => {
 /**
  * ================================
  * GET: Chi tiết đơn hàng
- * - Check quyền user
+ * - Check chủ đơn
+ * - Chặn VNPAY chưa PAID
  * ================================
  */
 export const getOrderDetail = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const userId = req.user._id || req.user.id;
 
     const order = await Oders.findOne({
       _id: orderId,
-      user_id: userId
+      user_id: req.user._id,
     });
 
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    // Chặn xem đơn VNPAY chưa thanh toán
+    if (
+      order.payment_method === "VNPAY" &&
+      order.payment_status !== "PAID"
+    ) {
+      return res.status(403).json({
+        message: "Đơn hàng chưa thanh toán",
+      });
     }
 
     const details = await OdersDetails.find({ order_id: orderId }).populate({
@@ -83,7 +92,10 @@ export const getOrderDetail = async (req, res) => {
       };
     });
 
-    res.json({ order, items: formattedItems });
+    res.json({
+      order,
+      items: formattedItems,
+    });
   } catch (error) {
     console.error("❌ Lỗi getOrderDetail:", error);
     res.status(500).json({ message: "Lỗi server", error });
@@ -93,38 +105,41 @@ export const getOrderDetail = async (req, res) => {
 /**
  * ================================
  * PUT: Hủy đơn hàng
- * - COD: cho hủy nếu chưa giao
- * - VNPAY: KHÔNG cho hủy nếu đã PAID (chưa hoàn tiền)
+ * - Check chủ đơn
+ * - Không cho hủy VNPAY đã PAID
+ * - Hoàn kho
  * ================================
  */
 export const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const userId = req.user._id || req.user.id;
 
     const order = await Oders.findOne({
       _id: orderId,
-      user_id: userId
+      user_id: req.user._id,
     });
 
     if (!order) {
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
     }
 
+    // Không cho hủy đơn đã giao hoặc đã hủy
     if (["DELIVERED", "CANCELLED"].includes(order.status)) {
       return res.status(400).json({ message: "Không thể hủy đơn hàng này" });
     }
 
-    // ❌ Không cho hủy đơn VNPAY đã thanh toán
-    if (order.payment_method === "VNPAY" && order.payment_status === "PAID") {
+    // Không cho hủy đơn VNPAY đã thanh toán
+    if (
+      order.payment_method === "VNPAY" &&
+      order.payment_status === "PAID"
+    ) {
       return res.status(400).json({
-        message: "Đơn hàng VNPAY đã thanh toán, vui lòng liên hệ CSKH để hoàn tiền"
+        message: "Đơn hàng đã thanh toán không thể hủy",
       });
     }
 
     const details = await OdersDetails.find({ order_id: orderId });
 
-    // Hoàn kho
     await Promise.all(
       details.map(async (item) => {
         if (item.variant_id) {
@@ -140,7 +155,7 @@ export const cancelOrder = async (req, res) => {
 
     res.json({ message: "Hủy đơn hàng thành công", order });
   } catch (error) {
-    console.error("❌ cancelOrder:", error);
+    console.error(error);
     res.status(500).json({ message: "Lỗi server khi hủy đơn hàng" });
   }
 };
