@@ -9,15 +9,72 @@ import ProductsVariant from "../models/productsVariant.model.js";
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name slug") .sort({ createdAt: -1 });
+    const products = await Product.aggregate([
+      // join category
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category"
+        }
+      },
+      {
+        $unwind: {
+          path: "$category",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+
+      // join variants
+      {
+        $lookup: {
+          from: "productsvariants",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "variants"
+        }
+      },
+
+      // tính giá thấp nhất & cao nhất
+      {
+        $addFields: {
+          minPrice: { $min: "$variants.price" },
+          maxPrice: { $max: "$variants.price" }
+        }
+      },
+
+      // field trả về
+      {
+        $project: {
+          name: 1,
+          slug: 1,
+          image: 1,
+          viewCount: 1,
+          createdAt: 1,
+          minPrice: 1,
+          maxPrice: 1,
+          category: {
+            _id: 1,
+            name: 1,
+            slug: 1
+          }
+        }
+      },
+
+      { $sort: { createdAt: -1 } }
+    ]);
+
     res.json(products);
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi lấy danh sách sản phẩm",
-      error: error.message,
+      error: error.message
     });
   }
 };
+
+
 
 //lấy sản phẩm theo slug
 export const getProductBySlug = async (req, res) => {
