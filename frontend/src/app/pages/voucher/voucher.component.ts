@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router'; 
@@ -24,7 +24,7 @@ interface Voucher {
   templateUrl: './voucher.component.html',
   styleUrls: ['./voucher.component.css']
 })
-export class VoucherComponent implements OnInit {
+export class VoucherComponent implements OnInit, OnDestroy {
 
   vouchers: Voucher[] = [];
   filteredVouchers: Voucher[] = [];
@@ -40,6 +40,9 @@ export class VoucherComponent implements OnInit {
   pageSize = 3;
   hasMore = true;
 
+  countdownTimers: { [key: string]: string } = {};
+  private timerInterval: any;
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
@@ -51,6 +54,13 @@ export class VoucherComponent implements OnInit {
     console.log('VoucherComponent initialized - New Version Loaded');
     this.checkLogin();
     this.fetchVouchers(1);
+    this.startCountdown();
+  }
+
+  ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   }
 
 
@@ -117,12 +127,44 @@ fetchVouchers(page: number = 1) {
         break;
 
       default:
-        // Default: Show all (Backend already sorts by end_date desc)
+        // Default: Show all (Backend sorts by Active first, then Newest)
         this.filteredVouchers = this.vouchers;
     }
   }
 
-  // ... existing methods
+  // Countdown logic
+  startCountdown() {
+    this.updateTimers();
+    this.timerInterval = setInterval(() => {
+      this.updateTimers();
+    }, 1000);
+  }
+
+  updateTimers() {
+    const now = new Date().getTime();
+    this.vouchers.forEach(v => {
+      const start = new Date(v.start_date).getTime();
+      if (start > now) {
+        const diff = start - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        let timerStr = "";
+        if (days > 0) timerStr += `${days} ngày `;
+        timerStr += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        this.countdownTimers[v.code] = timerStr;
+      } else {
+        delete this.countdownTimers[v.code];
+      }
+    });
+  }
+
+  // Check if voucher is coming soon
+  isComingSoon(v: Voucher): boolean {
+    return new Date(v.start_date).getTime() > new Date().getTime();
+  }
 
   // Check if voucher is expired
   isExpired(v: Voucher): boolean {
@@ -150,6 +192,11 @@ fetchVouchers(page: number = 1) {
     if (!this.isLoggedIn) {
       alert('Vui lòng đăng nhập để thu thập voucher!');
       this.router.navigate(['/login']); 
+      return;
+    }
+
+    if (this.isComingSoon(v)) {
+      alert('Voucher này chưa đến thời gian thu thập!');
       return;
     }
 
@@ -196,16 +243,11 @@ fetchVouchers(page: number = 1) {
         next: () => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          // Optional: Clear collected vouchers on logout if desired, 
-          // but usually these persist per user. For simple demo, we keep them or clear them.
-          // localStorage.removeItem('collected_vouchers'); 
-
           this.isLoggedIn = false;
           this.currentUser = null;
           this.vouchers = [];
           this.filteredVouchers = [];
           this.hasMore = false;
-
           this.router.navigate(['/voucher']);
         }
       });

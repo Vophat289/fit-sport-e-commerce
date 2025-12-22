@@ -97,7 +97,7 @@ export const applyVoucher = async (req, res) => {
   }
 };
 
-// Thu thập voucher
+// Thu thập voucher (Lưu vào DB)
 export const collectVoucher = async (req, res) => {
   try {
     const { code } = req.body;
@@ -106,26 +106,36 @@ export const collectVoucher = async (req, res) => {
     const voucher = await Voucher.findOne({ code: code.trim().toUpperCase() });
 
     if (!voucher) {
-      return res.status(404).json({ success: false, message: "Voucher không tồn tại" });
+      return res.status(404).json({ message: "Voucher không tồn tại" });
     }
 
-    // Kiểm tra xem user đã thu thập chưa
-    if (voucher.collectedBy.includes(userId)) {
-      return res.status(400).json({ success: false, message: "Bạn đã thu thập voucher này rồi" });
+    const now = new Date();
+    if (now < voucher.start_date) {
+      return res.status(400).json({ message: "Voucher chưa đến thời gian thu thập" });
     }
 
-    // Kiểm tra giới hạn sử dụng
-    if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
-      return res.status(400).json({ success: false, message: "Voucher đã hết lượt sử dụng" });
+    if (now > voucher.end_date) {
+      return res.status(400).json({ message: "Voucher đã hết hạn" });
     }
 
-    // Cập nhật voucher
+    // Kiểm tra xem đã thu thập chưa
+    if (voucher.collectedBy && voucher.collectedBy.includes(userId)) {
+      return res.status(400).json({ message: "Bạn đã thu thập voucher này rồi" });
+    }
+
+    // Kiểm tra số lượng
+    if (voucher.usage_limit > 0 && voucher.used_count >= voucher.usage_limit) {
+      return res.status(400).json({ message: "Voucher đã hết lượt sử dụng" });
+    }
+
+    // Cập nhật
     voucher.collectedBy.push(userId);
     voucher.used_count += 1;
     await voucher.save();
 
     res.json({ success: true, message: "Thu thập voucher thành công", voucher });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi khi thu thập voucher", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };

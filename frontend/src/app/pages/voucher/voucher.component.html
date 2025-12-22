@@ -68,19 +68,24 @@
             <span class="progress-text">Còn lại: {{ getRemaining(v) }}</span>
           </div>
 
-          <div class="voucher-expiry">
+          <div class="voucher-expiry" *ngIf="!isComingSoon(v)">
             HSD: {{ v.end_date | date:'dd/MM/yyyy' }}
+          </div>
+          <div class="voucher-countdown" *ngIf="isComingSoon(v)">
+            <i class="fa fa-hourglass-start"></i> Bắt đầu sau: <span>{{ countdownTimers[v.code] }}</span>
           </div>
         </div>
 
         <!-- Right: Action -->
         <div class="voucher-right-part">
-          <button class="action-btn" [class.collected]="isCollected(v)"
-            [disabled]="isExpired(v) || isCollected(v) || isOutOfStock(v)" (click)="collectVoucher(v)">
-            {{ isExpired(v) ? 'Hết hạn' : (isCollected(v) ? 'Đã thu thập' : (isOutOfStock(v) ? 'Đã hết voucher' :
-            'Thu thập')) }}
+          <button class="action-btn" [class.collected]="isCollected(v)" [class.coming-soon]="isComingSoon(v)"
+            [disabled]="isExpired(v) || isCollected(v) || isOutOfStock(v) || isComingSoon(v)"
+            (click)="collectVoucher(v)">
+            {{ isComingSoon(v) ? 'Sắp diễn ra' : (isExpired(v) ? 'Hết hạn' : (isCollected(v) ? 'Đã thu thập' :
+            (isOutOfStock(v) ? 'Đã hết voucher' : 'Thu thập'))) }}
           </button>
-          <button class="detail-link" (click)="copyCode(v.code)" *ngIf="!isExpired(v)">Sao chép mã</button>
+          <button class="detail-link" (click)="copyCode(v.code)" *ngIf="!isExpired(v) && !isComingSoon(v)">Sao chép
+            mã</button>
         </div>
 
       </div>
