@@ -16,7 +16,7 @@
         <!-- Overlay khi hover -->
         <div class="product-overlay">
           <button class="btn-detail" (click)="viewProductDetail(product)">Xem chi tiết</button>
-          <button class="btn-buy">Mua ngay</button>
+          <!-- <button class="btn-buy">Mua ngay</button> -->
         </div>
       </div>
 
@@ -29,7 +29,12 @@
         <h3 class="product-name">{{ product.name }}</h3>
 
         <!-- GIÁ SẢN PHẨM -->
-        <p class="product-price">{{ product.price | number }} ₫</p>
+        <p class="product-price">
+          <ng-container *ngIf="product.minPrice !== product.maxPrice">
+            {{ product.minPrice | number }} ₫ 
+            <!-- – {{ product.maxPrice | number }} ₫ -->
+          </ng-container>
+        </p>
         <p class="product-views">
           <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
         </p>

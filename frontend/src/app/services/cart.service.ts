@@ -67,6 +67,22 @@ export class CartService {
     const count = cart.items.reduce((sum, item) => sum + (item.quantityToAdd || 0), 0);
     this.cartCountSubject.next(count);
   }
+  //mua ngay
+  private buyNowKey = 'BUY_NOW_ITEM';
+
+  setBuyNowItem(item: any) {
+    sessionStorage.setItem(this.buyNowKey, JSON.stringify(item));
+  }
+
+  getBuyNowItem() {
+    const data = sessionStorage.getItem(this.buyNowKey);
+    return data ? JSON.parse(data) : null;
+  }
+
+  clearBuyNowItem() {
+    sessionStorage.removeItem(this.buyNowKey);
+  }
+
 
   getCartDetails(): Observable<CartDetails> {
     return new Observable<CartDetails>((subscriber) => {
