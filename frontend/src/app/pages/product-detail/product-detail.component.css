@@ -648,3 +648,57 @@
 .action-button.helpful-button.is-clicked .fa-solid {
     color: #28a745;
 }
+
+/* ============================
+   Container Tồn kho + Favorite
+   ============================ */
+.stock-favorite-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* khoảng cách giữa chữ và nút tim */
+  font-size: 14px;
+  color: #555;
+}
+
+/* Tồn kho */
+.stock-favorite-container .stock-count {
+  font-weight: 600;
+}
+
+/* Nút trái tim */
+.favorite-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.favorite-btn i {
+  font-size: 16px;
+  color: #888; /* màu mặc định */
+  transition: all 0.25s ease;
+}
+
+/* Hover nút trái tim */
+.favorite-btn:hover {
+  background: #fff5f5;
+}
+
+.favorite-btn:hover i {
+  color: #ff475e;
+  transform: scale(1.2);
+}
+
+/* Khi đã yêu thích */
+.favorite-btn.active i {
+  color: #e74c3c;
+  transform: scale(1.1);
+  animation: beat 0.4s ease;
+}

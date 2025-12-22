@@ -20,20 +20,32 @@
         </div>
       </div>
 
+
+
+
+
       <!-- THÔNG TIN SẢN PHẨM -->
       <div class="product-info">
-        <!-- LƯỢT XEM -->
-
-
-        <!-- TÊN SẢN PHẨM -->
         <h3 class="product-name">{{ product.name }}</h3>
-
-        <!-- GIÁ SẢN PHẨM -->
         <p class="product-price">{{ product.price | number }} ₫</p>
-        <p class="product-views">
-          <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
-        </p>
+
+        <!-- Container lượt xem + trái tim -->
+        <div class="product-meta">
+          <span class="product-views">
+            <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
+          </span>
+
+          <button class="favorite-btn" 
+        [class.active]="isFavorite(product)" 
+        (click)="toggleFavorite(product, $event)">
+  <i class="fa fa-heart"></i>
+</button>
+        </div>
       </div>
+
+
+
+
 
       <!-- ✅ NÚT THÊM VÀO GIỎ -->
       <div class="product-action">

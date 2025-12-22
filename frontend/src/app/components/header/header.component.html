@@ -1,79 +1,93 @@
+<!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-left">
     <a href="#">VỀ Fit Sport</a>
-    <a href="#"> Voucher ngập tràn ngày 31/10 ! </a>
+    <a href="#">Voucher ngập tràn ngày 31/10 !</a>
   </div>
 </div>
 
+<!-- HEADER -->
 <div class="header">
+  <!-- LOGO -->
   <div class="logo">
     <img src="assets/images/logo_main_black.png" alt="Fitsport Logo" />
   </div>
 
+  <!-- MENU -->
   <ul class="menu">
     <li><a class="menu-link" href="/home">TRANG CHỦ</a></li>
     <li><a class="menu-link" href="/gioi-thieu">GIỚI THIỆU</a></li>
     <li><a class="menu-link" href="/products">SẢN PHẨM</a></li>
-        <li><a class="menu-link" href="/voucher">ƯU ĐÃI</a></li>
+    <li><a class="menu-link" href="/voucher">ƯU ĐÃI</a></li>
     <li><a class="menu-link" href="/news">BÀI VIẾT</a></li>
     <li><a class="menu-link" routerLink="/contact">LIÊN HỆ</a></li>
   </ul>
 
+  <!-- ACTIONS -->
   <div class="actions">
+    <!-- SEARCH -->
     <div class="search">
-      <input 
-        type="text" 
-        placeholder="Tìm kiếm sản phẩm..." 
+      <input
+        type="text"
+        placeholder="Tìm kiếm sản phẩm..."
         [(ngModel)]="searchQuery"
         (input)="onSearchInput($event)"
         (keyup.enter)="onSearchSubmit()"
         (focus)="showResults = true"
-        (blur)="hideResults()">
+        (blur)="hideResults()"
+      />
       <button (click)="onSearchSubmit()">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" stroke="black" stroke-width="1.5" fill="none"/><path d="M21 21l-4.35-4.35" stroke="black" stroke-width="1.5" fill="none"/></svg>
+        <svg viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="6" stroke="black" stroke-width="1.5" fill="none"/>
+          <path d="M21 21l-4.35-4.35" stroke="black" stroke-width="1.5" fill="none"/>
+        </svg>
       </button>
-      
-      <!-- Dropdown kết quả tìm kiếm -->
+
+      <!-- SEARCH RESULTS -->
       <div class="search-results" *ngIf="showResults && (searchResults.length > 0 || loading)">
         <div *ngIf="loading" class="search-loading">
           <p>Đang tìm kiếm...</p>
         </div>
-        
+
         <div *ngIf="!loading && searchResults.length > 0" class="results-list">
-          <div 
-            *ngFor="let product of searchResults" 
+          <div
+            *ngFor="let product of searchResults"
             class="result-item"
-            (click)="goToProduct(product.slug!)">
-            <img 
-              [src]="product.image && product.image[0] ? product.image[0] : 'assets/images/placeholder.jpg'" 
+            (click)="goToProduct(product.slug!)"
+          >
+            <img
+              [src]="product.image && product.image[0] ? product.image[0] : 'assets/images/placeholder.jpg'"
               [alt]="product.name"
-              class="result-image">
+              class="result-image"
+            />
             <div class="result-info">
               <h4>{{ product.name }}</h4>
               <p class="result-price">{{ product.price | number }} ₫</p>
             </div>
           </div>
-          
+
           <div class="result-footer" *ngIf="searchResults.length >= 5">
             <button (click)="onSearchSubmit()">
-              <i class="fa-solid fa-arrow-right" style="margin-right: 6px;"></i>
+              <i class="fa-solid fa-arrow-right"></i>
               Xem tất cả kết quả
             </button>
           </div>
         </div>
-        
+
         <div *ngIf="!loading && searchResults.length === 0 && searchQuery" class="no-results">
-          <i class="fa-solid fa-magnifying-glass" style="font-size: 32px; color: #ccc; margin-bottom: 12px; display: block;"></i>
+          <i class="fa-solid fa-magnifying-glass"></i>
           <p>Không tìm thấy sản phẩm nào</p>
-          <p style="font-size: 12px; color: #999; margin-top: 4px;">Thử tìm kiếm với từ khóa khác</p>
+          <p>Thử tìm kiếm với từ khóa khác</p>
         </div>
       </div>
     </div>
 
+    <!-- ICONS -->
     <div class="header-actions">
+      <!-- USER -->
       <ng-container *ngIf="userName; else showLogin">
-        <a class="user-greeting" [routerLink]="['/account']"
-          >Xin chào, {{ userName }}
+        <a class="user-greeting" [routerLink]="['/account']">
+          Xin chào, {{ userName }}
         </a>
         <button class="icon-btn" (click)="logout()" title="Đăng xuất">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -85,7 +99,15 @@
           <i class="fa-regular fa-user"></i>
         </button>
       </ng-template>
-      <div class="cart-icon" (click)="goToCart()" style="cursor: pointer">
+
+      <!-- FAVORITE -->
+      <button class="icon-btn favorite-btn" (click)="goToFavorites()" title="Yêu thích">
+        <i class="fa-regular fa-heart"></i>
+        <span class="cart-count">{{ favoriteCount }}</span>
+      </button>
+
+      <!-- CART -->
+      <div class="cart-icon" (click)="goToCart()">
         <i class="fa-solid fa-bag-shopping"></i>
         <span class="cart-count">{{ cartCount }}</span>
       </div>

@@ -12,7 +12,7 @@ import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import orderRoutes from "./routes/order.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
-
+import favoriteRoutes from './routes/favorite.routes.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -66,7 +66,7 @@ app.use("/api/auth", authRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads/news", express.static("uploads/news"));
-
+app.use('/api/favorites', favoriteRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/account", accountRoutes);

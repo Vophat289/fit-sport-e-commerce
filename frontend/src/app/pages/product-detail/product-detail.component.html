@@ -60,13 +60,28 @@
       <!-- Cột phải: Thông tin sản phẩm -->
       <div class="product-info">
         <!-- Tên sản phẩm -->
-        <h1 class="product-title">{{ product.name }}</h1>
-        <p class="text-sm text-gray-600">
-          Tồn kho:
-          <span class="font-semibold">
-            {{ currentVariantDetails?.quantity || 0 }}
-          </span>
-        </p>
+<h1 class="product-title">{{ product.name }}</h1>
+
+<!-- Tồn kho + nút yêu thích -->
+<div class="stock-favorite-container" style="display: flex; align-items: center; gap: 8px;">
+  <span class="stock-text text-sm text-gray-600">
+    Tồn kho:
+    <span class="font-semibold">
+      {{ currentVariantDetails?.quantity || 0 }}
+    </span>
+  </span>
+
+  <!-- Nút yêu thích kế bên -->
+  <button 
+    class="favorite-btn" 
+    (click)="toggleFavorite(); $event.stopPropagation()"
+    [class.active]="isProductFavorite"
+    [title]="isProductFavorite ? 'Đã yêu thích' : 'Yêu thích'"
+>
+    <i class="fa-solid fa-heart"></i>
+</button>
+</div>
+
 
         <!-- Giá -->
         <div class="product-price-section">
