@@ -14,7 +14,7 @@ export const getAllVouchers = async (req, res) => {
     const vouchers = await Voucher.find(query)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .sort({ created_at: -1 });
+      .sort({ end_date: -1 });
 
     res.json({
       total,

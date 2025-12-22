@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; 
-import { Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router'; 
 import { AuthService } from '../../services/auth.service';
-import { News } from '../../services/news.service';
-import { NewsService } from '../../services/news.service';
+import { NewsService, News } from '../../services/news.service';
 
 interface Voucher {
   code: string;
@@ -48,6 +46,7 @@ export class VoucherComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('VoucherComponent initialized - New Version Loaded');
     this.checkLogin();
     this.fetchVouchers(1);
   }
@@ -101,13 +100,64 @@ fetchVouchers(page: number = 1) {
         });
         break;
 
-      case "expired":
-        this.filteredVouchers = this.vouchers.filter(v => new Date(v.end_date).getTime() < now);
-        break;
-
       default:
+        // Default: Show all (Backend already sorts by end_date desc)
         this.filteredVouchers = this.vouchers;
     }
+  }
+
+  // ... existing methods
+
+  // Check if voucher is expired
+  isExpired(v: Voucher): boolean {
+    return new Date(v.end_date).getTime() < new Date().getTime();
+  }
+
+  // Check if voucher is out of stock
+  isOutOfStock(v: Voucher): boolean {
+    return this.getRemaining(v) <= 0;
+  }
+
+  // Get remaining quantity (simulated)
+  getRemaining(v: Voucher): number {
+    // Note: In a real app, 'used_count' comes from backend. 
+    // Here we simulate local decrement if user collected it, 
+    // but we should not double count if backend already updated used_count.
+    // For this demo, we assume backend data + local collection.
+    const collected = this.isCollected(v.code) ? 1 : 0;
+    return Math.max(0, v.usage_limit - v.used_count - collected);
+  }
+
+  // Check if user has collected this voucher
+  isCollected(code: string): boolean {
+    if (!this.isLoggedIn) return false;
+    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
+    return collected.includes(code);
+  }
+
+  // Collect voucher
+  collectVoucher(v: Voucher) {
+    if (!this.isLoggedIn) {
+      alert('Vui lòng đăng nhập để thu thập voucher!');
+      this.router.navigate(['/login']); 
+      return;
+    }
+
+    if (this.isCollected(v.code)) {
+      alert('Bạn đã thu thập voucher này rồi!');
+      return;
+    }
+
+    if (this.isOutOfStock(v)) {
+      alert('Voucher đã hết lượt sử dụng!');
+      return;
+    }
+
+    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
+    collected.push(v.code);
+    localStorage.setItem('collected_vouchers', JSON.stringify(collected));
+    
+    alert('Thu thập voucher thành công!');
   }
 
   copyCode(code: string) {
@@ -126,6 +176,9 @@ fetchVouchers(page: number = 1) {
         next: () => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          // Optional: Clear collected vouchers on logout if desired, 
+          // but usually these persist per user. For simple demo, we keep them or clear them.
+          // localStorage.removeItem('collected_vouchers'); 
 
           this.isLoggedIn = false;
           this.vouchers = [];

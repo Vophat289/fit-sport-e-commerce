@@ -1,36 +1,96 @@
 <div class="voucher-page">
 
-  <div class="voucher-left">
-
-    <div class="filter-tabs">
-      <button (click)="applyFilter('all')" [class.active]="activeFilter === 'all'">Tất cả</button>
-      <button (click)="applyFilter('valid')" [class.active]="activeFilter === 'valid'">Còn hạn</button>
-      <button (click)="applyFilter('expiring')" [class.active]="activeFilter === 'expiring'">Sắp hết hạn</button>
-      <button (click)="applyFilter('expired')" [class.active]="activeFilter === 'expired'">Hết hạn</button>
+  <!-- SIDEBAR: Filters -->
+  <aside class="voucher-sidebar">
+    <h2 class="sidebar-title">Bộ lọc Voucher</h2>
+    <div class="filter-group">
+      <button (click)="applyFilter('all')" [class.active]="activeFilter === 'all'" class="filter-btn">
+        <i class="fa fa-th-large"></i> Tất cả
+      </button>
+      <button (click)="applyFilter('valid')" [class.active]="activeFilter === 'valid'" class="filter-btn">
+        <i class="fa fa-check-circle"></i> Còn hạn
+      </button>
+      <button (click)="applyFilter('expiring')" [class.active]="activeFilter === 'expiring'" class="filter-btn">
+        <i class="fa fa-clock-o"></i> Sắp hết hạn
+      </button>
     </div>
 
-    <div class="voucher-list">
-      <div class="voucher-card" *ngFor="let v of filteredVouchers">
-        
-        <div class="voucher-info">
-          <h3>{{ v.code }}</h3>
-          <p *ngIf="v.type === 'percent'">Giảm {{ v.value }}%</p>
-          <p *ngIf="v.type === 'fixed'">Giảm {{ v.value | currency:'VND' }}</p>
-          <p>Đơn tối thiểu: {{ v.min_order_value | currency:'VND' }}</p>
+    <!-- GIFT BOX -->
+    <div class="gift-box-container">
+      <div class="gift-box">🎁</div>
+    </div>
+  </aside>
 
-          <span class="date">
-            HSD: {{ v.end_date | date:'dd/MM/yyyy' }}
-          </span>
+  <!-- FIREWORKS -->
+  <div class="firework-container left">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+  </div>
+  <div class="firework-container right">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
+  </div>
+
+  <!-- MAIN CONTENT: Voucher List -->
+  <main class="voucher-main">
+    <div class="voucher-header">
+      <h1>Kho Voucher Cực Lớn</h1>
+      <p>Săn ngay voucher giảm giá cực sốc cho đơn hàng của bạn!</p>
+    </div>
+
+    <div class="voucher-grid">
+      <div class="voucher-card" *ngFor="let v of filteredVouchers" [class.expired]="isExpired(v)"
+        [class.out-of-stock]="isOutOfStock(v)">
+
+        <!-- Left: Icon/Logo -->
+        <div class="voucher-left-part">
+          <div class="brand-logo">
+            <span class="logo-text">SALE</span>
+          </div>
         </div>
 
-        <button class="copy-btn" (click)="copyCode(v.code)">Sao chép</button>
+        <!-- Middle: Info -->
+        <div class="voucher-middle-part">
+          <div class="voucher-header-info">
+            <span class="voucher-code">{{ v.code }}</span>
+            <span class="voucher-tag" *ngIf="v.type === 'percent'">Giảm {{ v.value }}%</span>
+            <span class="voucher-tag" *ngIf="v.type === 'fixed'">Giảm {{ v.value | currency:'VND' }}</span>
+          </div>
+
+          <p class="voucher-desc">Đơn tối thiểu: {{ v.min_order_value | currency:'VND' }}</p>
+
+          <div class="voucher-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="(getRemaining(v) / v.usage_limit) * 100"></div>
+            </div>
+            <span class="progress-text">Còn lại: {{ getRemaining(v) }}</span>
+          </div>
+
+          <div class="voucher-expiry">
+            HSD: {{ v.end_date | date:'dd/MM/yyyy' }}
+          </div>
+        </div>
+
+        <!-- Right: Action -->
+        <div class="voucher-right-part">
+          <button class="action-btn" [class.collected]="isCollected(v.code)"
+            [disabled]="isExpired(v) || isCollected(v.code) || isOutOfStock(v)" (click)="collectVoucher(v)">
+            {{ isExpired(v) ? 'Hết hạn' : (isCollected(v.code) ? 'Đã thu thập' : (isOutOfStock(v) ? 'Đã hết voucher' :
+            'Thu thập')) }}
+          </button>
+          <button class="detail-link" (click)="copyCode(v.code)" *ngIf="!isExpired(v)">Sao chép mã</button>
+        </div>
+
       </div>
     </div>
 
     <div class="load-more" *ngIf="hasMore">
-      <button (click)="loadMore()" [disabled]="loading">
-        {{ loading ? 'Đang tải...' : 'Xem thêm' }}
+      <button (click)="loadMore()" [disabled]="loading" class="load-more-btn">
+        {{ loading ? 'Đang tải...' : 'Xem thêm Voucher' }}
       </button>
     </div>
-  </div>
+  </main>
+
 </div>
