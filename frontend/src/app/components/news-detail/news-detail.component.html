@@ -34,35 +34,23 @@
 
     <!-- Ảnh đại diện -->
     <figure class="news-figure">
-      <img 
-        [src]="getThumbnailUrl()" 
-        [alt]="article.title" 
-        class="news-img"
-        (error)="handleImageError($event)"
-      >
+      <img [src]="getThumbnailUrl()" [alt]="article.title" class="news-img" (error)="handleImageError($event)">
     </figure>
 
     <!-- Nội dung -->
     <div class="news-body" [innerHTML]="article.content"></div>
 
     <!-- Tags -->
-    <!-- <div class="related-tags" *ngIf="tags.length">
+    <!-- Tags -->
+    <div class="related-tags" *ngIf="tags.length">
       <strong>Tags:</strong>
-      <a
-        *ngFor="let tag of tags"
-        [routerLink]="['/news']"
-        [queryParams]="{ tag: tag }"
-        class="tag-pill"
-      >
+      <a *ngFor="let tag of tags" [routerLink]="['/news']" [queryParams]="{ tag: tag }" class="tag-pill">
         #{{ tag }}
       </a>
-    </div> -->
-
-    <!-- Nút hành động -->
-    <div class="actions">
-      <button class="btn btn-share" (click)="share()">Chia sẻ bài viết</button>
-      <a routerLink="/" class="btn btn-back">Quay về Trang chủ</a>
     </div>
+
+    <!-- Nút hành động (Removed as requested) -->
+    <!-- <div class="actions">...</div> -->
 
   </div>
 </div>

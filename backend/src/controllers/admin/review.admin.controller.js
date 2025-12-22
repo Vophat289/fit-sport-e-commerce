@@ -3,25 +3,20 @@ import Review from '../../models/review.model.js';
 
 export const getAllReviews = async (req, res) => {
   try {
-    const { productId, orderId, status } = req.query;
+    const { productId, orderId, status, rating } = req.query;
 
     const filter = {};
 
-    // chưa sử dụng
-    // if (productId && productId !== 'null' && productId !== 'undefined') {
-    //   if (!mongoose.Types.ObjectId.isValid(productId)) {
-    //     return res.status(400).json({ success: false, message: 'productId không hợp lệ' });
-    //   }
-    //   filter.product = productId;
-    // }
+    //  LỌC THEO SAO (rating)
+    if (rating !== undefined && rating !== null && rating !== '') {
+      const r = Number(rating);
+      if (!Number.isInteger(r) || r < 1 || r > 5) {
+        return res.status(400).json({ success: false, message: 'rating không hợp lệ (1-5)' });
+      }
+      filter.rating = r;
+    }
 
-    // if (orderId && orderId !== 'null' && orderId !== 'undefined') {
-    //   if (!mongoose.Types.ObjectId.isValid(orderId)) {
-    //     return res.status(400).json({ success: false, message: 'orderId không hợp lệ' });
-    //   }
-    //   filter.order = orderId;
-    // }
-
+    //  LỌC THEO STATUS 
     if (status && status !== 'all') {
       const allowed = ['pending', 'approved', 'rejected'];
       if (!allowed.includes(status)) {

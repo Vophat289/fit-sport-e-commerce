@@ -42,8 +42,7 @@ export const routes: Routes = [
       { path: 'account', component: AccountPageComponent }, 
       { path: 'contact', component: ContactComponent }, 
       { path: 'voucher', component: VoucherComponent }, 
-      { path: 'news', component: NewsComponent },
-      { path: 'news/:slug', component: NewsDetailComponent },
+      { path: 'news',component: NewsComponent,children: [{ path: ':slug', component: NewsDetailComponent },]},
 
       // Các route đăng nhập/đăng ký cũng nên được đặt trong Client Layout nếu muốn hiển thị header/footer
       { path: 'login', component: LoginComponent },
