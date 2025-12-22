@@ -14,6 +14,7 @@ interface Voucher {
   end_date: string;
   usage_limit: number;
   used_count: number;
+  collectedBy: string[];
 }
 
 @Component({
@@ -33,6 +34,7 @@ export class VoucherComponent implements OnInit {
   loading = true;
   activeFilter: string = "all";  
   isLoggedIn = false;
+  currentUser: any = null;
 
   currentPage = 1;
   pageSize = 3;
@@ -55,6 +57,16 @@ export class VoucherComponent implements OnInit {
   checkLogin() {
     const token = localStorage.getItem("token");
     this.isLoggedIn = !!token;
+    if (this.isLoggedIn) {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          this.currentUser = JSON.parse(userStr);
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
+        }
+      }
+    }
   }
 
 fetchVouchers(page: number = 1) {
@@ -62,10 +74,14 @@ fetchVouchers(page: number = 1) {
   this.http.get<any>(`/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
     .subscribe({
       next: (res) => {
+        const newVouchersFromApi = res.vouchers || [];
         if (page === 1) {
-          this.vouchers = res.vouchers || [];
+          this.vouchers = newVouchersFromApi;
         } else {
-          this.vouchers.push(...(res.vouchers || []));
+          const uniqueNewVouchers = newVouchersFromApi.filter(
+            (nv: Voucher) => !this.vouchers.some(ov => ov.code === nv.code)
+          );
+          this.vouchers.push(...uniqueNewVouchers);
         }
 
         this.applyFilter(this.activeFilter);
@@ -118,24 +134,18 @@ fetchVouchers(page: number = 1) {
     return this.getRemaining(v) <= 0;
   }
 
-  // Get remaining quantity (simulated)
+  // Get remaining quantity (Now from DB)
   getRemaining(v: Voucher): number {
-    // Note: In a real app, 'used_count' comes from backend. 
-    // Here we simulate local decrement if user collected it, 
-    // but we should not double count if backend already updated used_count.
-    // For this demo, we assume backend data + local collection.
-    const collected = this.isCollected(v.code) ? 1 : 0;
-    return Math.max(0, v.usage_limit - v.used_count - collected);
+    return Math.max(0, v.usage_limit - v.used_count);
   }
 
-  // Check if user has collected this voucher
-  isCollected(code: string): boolean {
-    if (!this.isLoggedIn) return false;
-    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
-    return collected.includes(code);
+  // Check if user has collected this voucher (Now from DB)
+  isCollected(v: Voucher): boolean {
+    if (!this.isLoggedIn || !this.currentUser) return false;
+    return v.collectedBy && v.collectedBy.includes(this.currentUser._id);
   }
 
-  // Collect voucher
+  // Collect voucher (Now calls API)
   collectVoucher(v: Voucher) {
     if (!this.isLoggedIn) {
       alert('Vui lòng đăng nhập để thu thập voucher!');
@@ -143,7 +153,7 @@ fetchVouchers(page: number = 1) {
       return;
     }
 
-    if (this.isCollected(v.code)) {
+    if (this.isCollected(v)) {
       alert('Bạn đã thu thập voucher này rồi!');
       return;
     }
@@ -153,11 +163,21 @@ fetchVouchers(page: number = 1) {
       return;
     }
 
-    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
-    collected.push(v.code);
-    localStorage.setItem('collected_vouchers', JSON.stringify(collected));
-    
-    alert('Thu thập voucher thành công!');
+    const token = localStorage.getItem("token");
+    this.http.post<any>('/api/voucher/collect', { code: v.code }, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).subscribe({
+      next: (res) => {
+        alert('Thu thập voucher thành công!');
+        // Update local state
+        if (!v.collectedBy) v.collectedBy = [];
+        v.collectedBy.push(this.currentUser._id);
+        v.used_count += 1;
+      },
+      error: (err) => {
+        alert(err.error.message || 'Lỗi khi thu thập voucher');
+      }
+    });
   }
 
   copyCode(code: string) {
@@ -181,6 +201,7 @@ fetchVouchers(page: number = 1) {
           // localStorage.removeItem('collected_vouchers'); 
 
           this.isLoggedIn = false;
+          this.currentUser = null;
           this.vouchers = [];
           this.filteredVouchers = [];
           this.hasMore = false;

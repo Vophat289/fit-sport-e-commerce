@@ -11,6 +11,7 @@ const voucherSchema = new mongoose.Schema({
 
     usage_limit: { type: Number, default: 0 }, 
     used_count: { type: Number, default: 0 },
+    collectedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }

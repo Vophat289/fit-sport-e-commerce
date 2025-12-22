@@ -75,9 +75,9 @@
 
         <!-- Right: Action -->
         <div class="voucher-right-part">
-          <button class="action-btn" [class.collected]="isCollected(v.code)"
-            [disabled]="isExpired(v) || isCollected(v.code) || isOutOfStock(v)" (click)="collectVoucher(v)">
-            {{ isExpired(v) ? 'Hết hạn' : (isCollected(v.code) ? 'Đã thu thập' : (isOutOfStock(v) ? 'Đã hết voucher' :
+          <button class="action-btn" [class.collected]="isCollected(v)"
+            [disabled]="isExpired(v) || isCollected(v) || isOutOfStock(v)" (click)="collectVoucher(v)">
+            {{ isExpired(v) ? 'Hết hạn' : (isCollected(v) ? 'Đã thu thập' : (isOutOfStock(v) ? 'Đã hết voucher' :
             'Thu thập')) }}
           </button>
           <button class="detail-link" (click)="copyCode(v.code)" *ngIf="!isExpired(v)">Sao chép mã</button>
