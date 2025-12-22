@@ -126,16 +126,21 @@
                                     Xem chi tiết
                                 </a>
                             </button>
-                            <button class="btn-buy">
+                            <!-- <button class="btn-buy">
                                 <i class="fa-solid fa-cart-shopping"></i>
                                 Mua ngay
-                            </button>
+                            </button> -->
                         </div>
                     </div>
 
                     <div class="product-info">
                         <h3 class="product-name">{{ product.name }}</h3>
-                        <p class="product-price">{{ product.price | number }} ₫</p>
+                        <p class="product-price">
+                            <ng-container *ngIf="product.minPrice !== product.maxPrice">
+                                {{ product.minPrice | number }} ₫ 
+                                <!-- – {{ product.maxPrice | number }} ₫ -->
+                            </ng-container>
+                            </p>
                         <p class="product-views">
                             <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
                         </p>
