@@ -6,13 +6,25 @@ import User from "../../models/user.model.js";
 /* ================= GET ALL ORDERS ================= */
 export const getAllOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status = "", payment_status = "", payment_method = "", search = "" } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      status = "",
+      payment_status = "",
+      payment_method = "",
+      search = ""
+    } = req.query;
 
     const query = { status: { $ne: "CART" } };
 
     if (status) query.status = status;
-    if (payment_status) query.payment_status = payment_status;
     if (payment_method) query.payment_method = payment_method;
+
+    // chuẩn hóa payment_status
+    if (payment_status) {
+      query.payment_status =
+        payment_status === "SUCCESS" ? "PAID" : payment_status;
+    }
 
     if (search) {
       query.$or = [
@@ -54,9 +66,20 @@ export const getAllOrders = async (req, res) => {
       updatedAt: order.updatedAt
     }));
 
-    res.json({ success: true, total, page: +page, limit: +limit, totalPages: Math.ceil(total / limit), orders: formattedOrders });
+    res.json({
+      success: true,
+      total,
+      page: +page,
+      limit: +limit,
+      totalPages: Math.ceil(total / limit),
+      orders: formattedOrders
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message
+    });
   }
 };
 
@@ -68,7 +91,11 @@ export const getOrderDetail = async (req, res) => {
       .populate({ path: "voucher_id", select: "code value type" })
       .lean();
 
-    if (!order) return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng" });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy đơn hàng" });
+    }
 
     const details = await OdersDetails.find({ order_id: order._id })
       .populate({
@@ -122,32 +149,52 @@ export const getOrderDetail = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message
+    });
   }
 };
 
-/* ================= UPDATE ORDER STATUS (ĐÃ SỬA LOGIC) ================= */
+/* ================= UPDATE ORDER STATUS ================= */
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const order = await Oders.findById(req.params.id);
 
-    if (!order) return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng" });
-
-    const validStatuses = ['PENDING','CONFIRMED','PROCESSING','SHIPPING','DELIVERED','CANCELLED'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: "Trạng thái không hợp lệ" });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy đơn hàng" });
     }
 
-    if (['DELIVERED','CANCELLED'].includes(order.status)) {
-      return res.status(400).json({ success: false, message: "Không thể thay đổi trạng thái này" });
+    const validStatuses = [
+      "PENDING",
+      "CONFIRMED",
+      "PROCESSING",
+      "SHIPPING",
+      "DELIVERED",
+      "CANCELLED"
+    ];
+
+    if (!validStatuses.includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Trạng thái không hợp lệ" });
+    }
+
+    if (["DELIVERED", "CANCELLED"].includes(order.status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Không thể thay đổi trạng thái này" });
     }
 
     const flow = {
-      PENDING: ['CONFIRMED','CANCELLED'],
-      CONFIRMED: ['PROCESSING','CANCELLED'],
-      PROCESSING: ['SHIPPING','CANCELLED'],
-      SHIPPING: ['DELIVERED']
+      PENDING: ["CONFIRMED", "CANCELLED"],
+      CONFIRMED: ["PROCESSING", "CANCELLED"],
+      PROCESSING: ["SHIPPING", "CANCELLED"],
+      SHIPPING: ["DELIVERED"]
     };
 
     if (!flow[order.status]?.includes(status)) {
@@ -157,15 +204,21 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    if (status === 'CANCELLED') {
+    // hoàn kho khi hủy
+    if (status === "CANCELLED") {
       const details = await OdersDetails.find({ order_id: order._id });
-      await Promise.all(details.map(d =>
-        ProductsVariant.findByIdAndUpdate(d.variant_id, { $inc: { quantity: d.quantity } })
-      ));
+      await Promise.all(
+        details.map(d =>
+          ProductsVariant.findByIdAndUpdate(d.variant_id, {
+            $inc: { quantity: d.quantity }
+          })
+        )
+      );
     }
 
-    if (status === 'DELIVERED' && order.payment_method === 'COD') {
-      order.payment_status = 'SUCCESS';
+    // COD: chỉ khi giao xong mới coi là đã thanh toán
+    if (status === "DELIVERED" && order.payment_method === "COD") {
+      order.payment_status = "PAID";
     }
 
     order.status = status;
@@ -182,23 +235,37 @@ export const updateOrderStatus = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message
+    });
   }
 };
 
 /* ================= GET ORDER STATS ================= */
 export const getOrderStats = async (req, res) => {
   try {
-    const orders = await Oders.find({ status: { $ne: "CART" }, payment_status: "SUCCESS" }).lean();
+    const orders = await Oders.find({
+      status: { $ne: "CART" },
+      payment_status: "PAID"
+    }).lean();
 
     res.json({
       success: true,
       stats: {
         total_orders: orders.length,
-        total_revenue: orders.reduce((s, o) => s + o.total_price + o.delivery_fee, 0)
+        total_revenue: orders.reduce(
+          (s, o) => s + o.total_price + o.delivery_fee,
+          0
+        )
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message
+    });
   }
 };

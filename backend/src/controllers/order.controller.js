@@ -3,27 +3,52 @@ import Oders from "../models/oders.model.js";
 import OdersDetails from "../models/odersDetails.model.js";
 import ProductsVariant from "../models/productsVariant.model.js";
 
+/**
+ * ================================
+ * GET: Danh sách đơn hàng của user
+ * - COD: luôn hiện
+ * - VNPAY: CHỈ hiện khi payment_status = PAID
+ * ================================
+ */
 export const getOrdersByUser = async (req, res) => {
   try {
     const userId = req.user._id || req.user.id;
 
-    const orders = await Oders.find({ user_id: userId }).sort({
-      createdAt: -1,
-    });
+    const orders = await Oders.find({
+      user_id: userId,
+      $or: [
+        { payment_method: "COD" },
+        { payment_method: "VNPAY", payment_status: "PAID" }
+      ]
+    }).sort({ createdAt: -1 });
 
     res.json(orders);
   } catch (error) {
+    console.error("❌ getOrdersByUser:", error);
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
+
+/**
+ * ================================
+ * GET: Chi tiết đơn hàng
+ * - Check quyền user
+ * ================================
+ */
 export const getOrderDetail = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Oders.findById(orderId);
-    if (!order)
-      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    const userId = req.user._id || req.user.id;
 
-    // Lấy chi tiết đơn hàng, populate variant, size, color, product
+    const order = await Oders.findOne({
+      _id: orderId,
+      user_id: userId
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
     const details = await OdersDetails.find({ order_id: orderId }).populate({
       path: "variant_id",
       select: "product_id size_id color_id image_url price",
@@ -34,7 +59,6 @@ export const getOrderDetail = async (req, res) => {
       ],
     });
 
-    // Format để frontend dễ dùng, fallback nếu size/color null
     const formattedItems = details.map((item) => {
       const variant = item.variant_id;
       const product = variant?.product_id;
@@ -59,48 +83,64 @@ export const getOrderDetail = async (req, res) => {
       };
     });
 
-    res.json({
-      order,
-      items: formattedItems,
-    });
+    res.json({ order, items: formattedItems });
   } catch (error) {
     console.error("❌ Lỗi getOrderDetail:", error);
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
 
+/**
+ * ================================
+ * PUT: Hủy đơn hàng
+ * - COD: cho hủy nếu chưa giao
+ * - VNPAY: KHÔNG cho hủy nếu đã PAID (chưa hoàn tiền)
+ * ================================
+ */
 export const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Oders.findById(orderId);
-    if (!order)
+    const userId = req.user._id || req.user.id;
+
+    const order = await Oders.findOne({
+      _id: orderId,
+      user_id: userId
+    });
+
+    if (!order) {
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    }
 
     if (["DELIVERED", "CANCELLED"].includes(order.status)) {
       return res.status(400).json({ message: "Không thể hủy đơn hàng này" });
     }
 
-    // Lấy chi tiết đơn
+    // ❌ Không cho hủy đơn VNPAY đã thanh toán
+    if (order.payment_method === "VNPAY" && order.payment_status === "PAID") {
+      return res.status(400).json({
+        message: "Đơn hàng VNPAY đã thanh toán, vui lòng liên hệ CSKH để hoàn tiền"
+      });
+    }
+
     const details = await OdersDetails.find({ order_id: orderId });
 
-    // Hoàn trả số lượng sản phẩm
+    // Hoàn kho
     await Promise.all(
       details.map(async (item) => {
         if (item.variant_id) {
           await ProductsVariant.findByIdAndUpdate(item.variant_id, {
-            $inc: { quantity: item.quantity }, // tăng số lượng tồn kho
+            $inc: { quantity: item.quantity },
           });
         }
       })
     );
 
-    // Cập nhật trạng thái đơn
     order.status = "CANCELLED";
     await order.save();
 
     res.json({ message: "Hủy đơn hàng thành công", order });
   } catch (error) {
-    console.error(error);
+    console.error("❌ cancelOrder:", error);
     res.status(500).json({ message: "Lỗi server khi hủy đơn hàng" });
   }
 };
