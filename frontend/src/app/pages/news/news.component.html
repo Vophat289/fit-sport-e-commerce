@@ -1,148 +1,139 @@
 <!-- news.component.html -->
 <div class="news-container">
-  <div class="news-layout">
 
-    <!-- ===== LEFT: LIST + FILTER ===== -->
-    <div class="news-left">
+  <!-- ================= LANDING PAGE ================= -->
+  <div class="news-landing" *ngIf="!hasSelectedArticle">
 
-      <!-- ========== MAIN LIST ========== -->
-      <main class="news-main">
 
-        <!-- Hero -->
-        <div class="news-hero">
-          <div class="hero-left">
-            <h1 class="page-title">Bài viết mới nhất</h1>
-            <p class="page-subtitle">
-              Cập nhật kiến thức tập luyện, dinh dưỡng và xu hướng thể thao nóng hổi!
-            </p>
-          </div>
+
+    <!-- TOP SECTION: Grid Layout -->
+    <section class="top-section">
+
+      <!-- LEFT COLUMN (Hero + Sub-featured) -->
+      <div class="top-left-col">
+
+        <!-- Hero Post -->
+        <div class="featured-wrapper" *ngIf="featuredNews">
+          <a [routerLink]="[featuredNews.slug]" class="featured-card">
+            <div class="img-box">
+              <img [src]="featuredNews.thumbnail" [alt]="featuredNews.title" (error)="handleImageError($event)">
+              <div class="overlay-gradient"></div>
+            </div>
+            <div class="featured-content">
+              <span class="category-badge">TRENDING NOW</span>
+              <h2 class="featured-title">{{ featuredNews.title }}</h2>
+              <p class="featured-desc" *ngIf="featuredNews.short_desc">{{ featuredNews.short_desc | slice:0:100 }}...
+              </p>
+            </div>
+          </a>
         </div>
 
-        <!-- Grid bài viết -->
-        <div class="news-grid" *ngIf="paginatedNews.length > 0">
-          <article class="news-card" *ngFor="let item of paginatedNews">
-
-            <!-- 🔴 routerLink RELATIVE -->
-            <a [routerLink]="[item.slug]" class="thumb-link">
-              <div class="img-box">
-                <img
-                  [src]="item.thumbnail"
-                  [alt]="item.title"
-                  loading="lazy"
-                  (error)="handleImageError($event)"
-                />
-
-                <!-- overlay nút giữa ảnh -->
-                <div class="img-overlay">
-                  <span class="view-more-btn">Xem thêm</span>
-                </div>
+        <!-- Sub-featured Row (3 items) -->
+        <div class="sub-featured-grid">
+          <div class="sub-item" *ngFor="let item of subFeaturedNews">
+            <a [routerLink]="[item.slug]" class="sub-link">
+              <div class="sub-img">
+                <img [src]="item.thumbnail" [alt]="item.title" (error)="handleImageError($event)">
+              </div>
+              <div class="sub-info">
+                <span class="category-label-small">HOT</span>
+                <h3 class="sub-title">{{ item.title }}</h3>
               </div>
             </a>
+          </div>
+        </div>
 
-            <div class="content-box">
-              <h2 class="news-title">
-                <a [routerLink]="[item.slug]" [title]="item.title">
-                  {{ item.title }}
-                </a>
-              </h2>
+      </div>
 
-              <p class="news-desc" *ngIf="item.short_desc">
-                {{ item.short_desc }}
-              </p>
+      <!-- RIGHT COLUMN (Side List) -->
+      <div class="top-right-col">
+        <div class="side-list-wrapper">
+          <div class="side-item" *ngFor="let item of sideNews">
+            <a [routerLink]="[item.slug]" class="side-link">
+              <div class="side-img">
+                <img [src]="item.thumbnail" [alt]="item.title" (error)="handleImageError($event)">
+              </div>
+              <div class="side-info">
+                <span class="category-label">NEWS</span>
+                <h3 class="side-title">{{ item.title }}</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
 
-              <div class="news-meta">
+    </section>
+
+    <!-- BOTTOM SECTION: Weekly Top News -->
+    <section class="weekly-section">
+      <div class="section-header">
+        <h2 class="section-title">Tin tức nổi bật tuần</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="news-grid">
+        <article class="news-card" *ngFor="let item of paginatedNews">
+          <a [routerLink]="[item.slug]" class="card-link">
+            <div class="card-img">
+              <img [src]="item.thumbnail" [alt]="item.title" loading="lazy" (error)="handleImageError($event)">
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">{{ item.title }}</h3>
+              <div class="card-meta">
                 <span class="date">{{ item.createdAt | date:'dd/MM/yyyy' }}</span>
-
-                <div class="tags" *ngIf="item.tags && item.tags.length > 0">
-                  <button
-                    class="tag-pill"
-                    type="button"
-                    *ngFor="let tg of item.tags | slice:0:2"
-                    (click)="selectTag(tg)">
-                    #{{ tg }}
-                  </button>
-                </div>
               </div>
             </div>
-
-          </article>
-        </div>
-
-        <!-- Empty khi filter không ra -->
-        <div class="empty-state" *ngIf="news.length > 0 && paginatedNews.length === 0">
-          <p>Không tìm thấy bài viết phù hợp với tag này.</p>
-          <button class="empty-btn" (click)="clearTagFilter()">Xóa bộ lọc</button>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination-wrapper" *ngIf="totalPages > 1">
-          <button
-            class="pagination-btn prev"
-            (click)="changePage(currentPage - 1)"
-            [disabled]="currentPage === 1">
-            ← Trước
-          </button>
-
-          <span class="pagination-info">
-            Trang <strong>{{ currentPage }}</strong> / {{ totalPages }}
-          </span>
-
-          <button
-            class="pagination-btn next"
-            (click)="changePage(currentPage + 1)"
-            [disabled]="currentPage === totalPages">
-            Sau →
-          </button>
-        </div>
-
-        <div class="empty-state" *ngIf="news.length === 0">
-          <p>Chưa có tin tức nào. Hãy quay lại sau nhé!</p>
-        </div>
-
-      </main>
-
-      <!-- ========== FILTER TAG ========== -->
-      <aside class="news-aside">
-        <div class="aside-card">
-          <h3 class="aside-title">Lọc theo tag</h3>
-
-          <div class="tag-search">
-            <span class="hash">#</span>
-            <input
-              type="text"
-              [(ngModel)]="tagQuery"
-              (input)="onTagInput()"
-              placeholder="Tìm theo tag... (vd: #yoga, #dinhduong)"
-            />
-            <button class="btn-clear" *ngIf="tagQuery" (click)="clearTagFilter()">✕</button>
-          </div>
-
-          <div class="tag-chips" *ngIf="getAvailableTags().length">
-            <button
-              class="chip"
-              *ngFor="let t of getAvailableTags()"
-              [class.active]="normalizeTag(t) === normalizeTag(selectedTag || tagQuery)"
-              (click)="selectTag(t)">
-              #{{ t }}
-            </button>
-          </div>
-
-          <button class="aside-clear" *ngIf="tagQuery || selectedTag" (click)="clearTagFilter()">
-            Bỏ lọc
-          </button>
-        </div>
-      </aside>
-
-    </div>
-
-    <!-- ===== RIGHT: DETAIL ===== -->
-    <aside class="news-detail-pane">
-      <router-outlet></router-outlet>
-
-      <div class="detail-empty" *ngIf="!hasSelectedArticle">
-        <p>👈 Chọn một bài viết để xem chi tiết</p>
+          </a>
+        </article>
       </div>
-    </aside>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper" *ngIf="totalPages > 1">
+        <button class="pagination-btn" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+          <i class="fa fa-angle-left"></i> Prev
+        </button>
+        <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
+        <button class="pagination-btn" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          Next <i class="fa fa-angle-right"></i>
+        </button>
+      </div>
+    </section>
 
   </div>
+
+  <!-- ================= DETAIL PAGE ================= -->
+  <!-- ================= DETAIL PAGE ================= -->
+  <div class="news-detail-view" *ngIf="hasSelectedArticle">
+
+    <div class="back-nav">
+      <a routerLink="/news" class="back-link">← Quay lại Tin tức</a>
+    </div>
+
+    <div class="detail-layout">
+      <!-- LEFT: Article Content -->
+      <div class="detail-content">
+        <router-outlet></router-outlet>
+      </div>
+
+      <!-- RIGHT: Side List (Reused) -->
+      <div class="detail-sidebar">
+        <h3 class="sidebar-title">Có thể bạn quan tâm</h3>
+        <div class="side-list-wrapper">
+          <div class="side-item" *ngFor="let item of sideNews">
+            <a [routerLink]="['/news', item.slug]" class="side-link">
+              <div class="side-img">
+                <img [src]="item.thumbnail" [alt]="item.title" (error)="handleImageError($event)">
+              </div>
+              <div class="side-info">
+                <span class="category-label">NEWS</span>
+                <h3 class="side-title">{{ item.title }}</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>

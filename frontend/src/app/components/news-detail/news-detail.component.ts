@@ -50,6 +50,10 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
+  get tags(): string[] {
+    return this.article?.tags || [];
+  }
+
   getThumbnailUrl(thumbnail?: string): string {
     return this.newsService.getThumbnailUrl(thumbnail || this.article?.thumbnail);
   }

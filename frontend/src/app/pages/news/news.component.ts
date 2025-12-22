@@ -1,7 +1,8 @@
+
 // src/app/pages/news/news.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NewsService, News } from '../../services/news.service';
 import { Subscription } from 'rxjs';
@@ -15,12 +16,15 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./news.component.css']
 })
 export class NewsComponent implements OnInit, OnDestroy {
+  featuredNews: News | null = null;
+  subFeaturedNews: News[] = [];
+  sideNews: News[] = [];
 
   news: News[] = [];
   paginatedNews: News[] = [];
 
   currentPage = 1;
-  itemsPerPage = 4;
+  itemsPerPage = 12; // Increased for better grid
   totalPages = 1;
   totalItems = 0;
 
@@ -36,14 +40,31 @@ export class NewsComponent implements OnInit, OnDestroy {
 
   constructor(
     private newsService: NewsService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.loadFeaturedNews();
     this.loadNews(this.currentPage);
 
     this.newsUpdateSubscription = this.newsService.newsUpdated$
-      .subscribe(() => this.loadNews(this.currentPage));
+      .subscribe(() => {
+        this.loadFeaturedNews();
+        this.loadNews(this.currentPage);
+      });
+
+    // Handle query params for tag filtering
+    this.route.queryParams.subscribe(params => {
+      const tag = params['tag'];
+      if (tag) {
+        this.selectedTag = tag;
+        this.applyTagFilter();
+      } else {
+        this.selectedTag = '';
+        this.applyTagFilter();
+      }
+    });
 
     // theo dõi URL để biết có đang xem detail hay không
     this.routerSub = this.router.events
@@ -58,6 +79,36 @@ export class NewsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.newsUpdateSubscription?.unsubscribe();
     this.routerSub?.unsubscribe();
+  }
+
+  // ================= LOAD FEATURED =================
+  loadFeaturedNews(): void {
+    this.newsService.getLatestNews(9).subscribe({
+      next: (res: any) => {
+        console.log('Latest News Raw Data:', res);
+        
+        // Handle response whether it's an array or an object with a data property
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        
+        const mapped = list.map((item: any) => ({
+          ...item,
+          slug: item.slug?.trim() || this.generateSlug(item.title || 'untitled'),
+          thumbnail: this.newsService.getThumbnailUrl(item.thumbnail)
+        }));
+        console.log('Mapped Latest News:', mapped);
+        
+        if (mapped.length > 0) {
+          this.featuredNews = mapped[0];
+          // 3 items for the row below featured
+          this.subFeaturedNews = mapped.slice(1, 4);
+          // Remaining items for the side list
+          this.sideNews = mapped.slice(4);
+        } else {
+          console.warn('No latest news found!');
+        }
+      },
+      error: (err) => console.error('Failed to load latest news', err)
+    });
   }
 
   // ================= LOAD NEWS =================
