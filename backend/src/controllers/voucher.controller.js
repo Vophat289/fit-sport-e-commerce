@@ -96,3 +96,46 @@ export const applyVoucher = async (req, res) => {
     res.status(500).json({ success: false, type: "error", message: "Lỗi khi áp dụng voucher", error: error.message });
   }
 };
+
+// Thu thập voucher (Lưu vào DB)
+export const collectVoucher = async (req, res) => {
+  try {
+    const { code } = req.body;
+    const userId = req.user._id;
+
+    const voucher = await Voucher.findOne({ code: code.trim().toUpperCase() });
+
+    if (!voucher) {
+      return res.status(404).json({ message: "Voucher không tồn tại" });
+    }
+
+    const now = new Date();
+    if (now < voucher.start_date) {
+      return res.status(400).json({ message: "Voucher chưa đến thời gian thu thập" });
+    }
+
+    if (now > voucher.end_date) {
+      return res.status(400).json({ message: "Voucher đã hết hạn" });
+    }
+
+    // Kiểm tra xem đã thu thập chưa
+    if (voucher.collectedBy && voucher.collectedBy.includes(userId)) {
+      return res.status(400).json({ message: "Bạn đã thu thập voucher này rồi" });
+    }
+
+    // Kiểm tra số lượng
+    if (voucher.usage_limit > 0 && voucher.used_count >= voucher.usage_limit) {
+      return res.status(400).json({ message: "Voucher đã hết lượt sử dụng" });
+    }
+
+    // Cập nhật
+    voucher.collectedBy.push(userId);
+    voucher.used_count += 1;
+    await voucher.save();
+
+    res.json({ success: true, message: "Thu thập voucher thành công", voucher });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

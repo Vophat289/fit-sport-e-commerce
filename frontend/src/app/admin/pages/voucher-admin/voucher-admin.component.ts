@@ -28,7 +28,7 @@
     constructor(private voucherService: VoucherService, private fb: FormBuilder) {
       this.form = this.fb.group({
         code: ['', Validators.required],
-        value: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
+        value: [1, [Validators.required, Validators.min(1)]],
         type: ['percent', Validators.required],
         min_order_value: [0, Validators.min(0)],
         start_date: ['', Validators.required],

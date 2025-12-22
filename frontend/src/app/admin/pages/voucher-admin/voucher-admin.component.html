@@ -18,11 +18,7 @@
     </div>
   </div>
 
-  <div
-    class="alert"
-    *ngIf="errorMsg"
-    class="error"
-  >
+  <div class="alert" *ngIf="errorMsg" class="error">
     <span>{{ errorMsg }}</span>
   </div>
 
@@ -41,6 +37,7 @@
           <th>Loại</th>
           <th>Số lượng</th>
           <th>Đã dùng</th>
+          <th>Đơn tối thiểu</th>
           <th>HSD</th>
           <th>Thao tác</th>
         </tr>
@@ -48,7 +45,7 @@
 
       <tbody>
         <tr *ngIf="vouchers.length === 0">
-          <td colspan="8" class="empty">
+          <td colspan="9" class="empty">
             <i class="bx bx-gift"></i>
             <p>Chưa có voucher nào</p>
           </td>
@@ -66,6 +63,7 @@
 
           <td>{{ v.usage_limit }}</td>
           <td>{{ v.used_count }}</td>
+          <td>{{ v.min_order_value | number:'1.0-0' }} đ</td>
 
           <td>{{ v.end_date | date: 'dd/MM/yyyy' }}</td>
 
@@ -81,102 +79,101 @@
         </tr>
       </tbody>
     </table>
-    
+
     <div class="pagination" *ngIf="total > pageSize">
-      <button
-      class="page-btn"
-      [disabled]="page === 1"
-      (click)="changePage(page - 1)">‹ Trước
-    </button>
-    
-    <button
-    *ngFor="let page of [].constructor(totalPages); let i = index"
-    class="page-btn"
-    [class.active]="page === i + 1"
-    (click)="changePage(i + 1)">
-    {{ i + 1 }}
-  </button>
-  
-  <button
-    class="page-btn"
-    [disabled]="page === totalPages"
-    (click)="changePage(page + 1)">Tiếp ›
-  </button>
-</div>
+      <button class="page-btn" [disabled]="page === 1" (click)="changePage(page - 1)">‹ Trước
+      </button>
+
+      <button *ngFor="let page of [].constructor(totalPages); let i = index" class="page-btn"
+        [class.active]="page === i + 1" (click)="changePage(i + 1)">
+        {{ i + 1 }}
+      </button>
+
+      <button class="page-btn" [disabled]="page === totalPages" (click)="changePage(page + 1)">Tiếp ›
+      </button>
+    </div>
 
 
-  <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div>
-          <p class="sub-title">{{ editingVoucherCode ? 'Chỉnh sửa' : 'Tạo mới' }}</p>
-          <h3>{{ editingVoucherCode ? 'Cập nhật voucher' : 'Thêm voucher mới' }}</h3>
+    <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <p class="sub-title">{{ editingVoucherCode ? 'Chỉnh sửa' : 'Tạo mới' }}</p>
+            <h3>{{ editingVoucherCode ? 'Cập nhật voucher' : 'Thêm voucher mới' }}</h3>
+          </div>
+          <button class="btn icon" (click)="cancelForm()">
+            <i class="bx bx-x"></i>
+          </button>
         </div>
-        <button class="btn icon" (click)="cancelForm()">
-          <i class="bx bx-x"></i>
-        </button>
+
+        <form class="modal-body" [formGroup]="form" (ngSubmit)="submitForm()">
+
+          <label>
+            Mã Voucher <span class="required"></span>
+            <input type="text" formControlName="code" />
+            <small class="error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
+              <span *ngIf="form.get('code')?.errors?.['required']">Mã voucher là bắt buộc</span>
+            </small>
+          </label>
+
+          <label>
+            Giảm giá (%) hoặc số tiền <span class="required"> </span>
+            <input type="number" formControlName="value" />
+            <small class="error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">
+              <span *ngIf="form.get('value')?.errors?.['min']">Giá trị phải lớn hơn 0</span>
+            </small>
+          </label>
+
+          <label>
+            Loại giảm giá
+            <select formControlName="type">
+              <option value="percent">Giảm theo %</option>
+              <option value="fixed">Giảm giá cố định</option>
+            </select>
+          </label>
+
+          <label>
+            Số lượng
+            <input type="number" formControlName="usage_limit" />
+            <small class="error" *ngIf="form.get('usage_limit')?.invalid && form.get('usage_limit')?.touched">
+              <span *ngIf="form.get('usage_limit')?.errors?.['min']">Số lượng phải lớn hơn 0</span>
+            </small>
+          </label>
+
+          <label>
+            Đơn tối thiểu (đ)
+            <input type="number" formControlName="min_order_value" />
+            <small class="error" *ngIf="form.get('min_order_value')?.invalid && form.get('min_order_value')?.touched">
+              <span *ngIf="form.get('min_order_value')?.errors?.['min']">Giá trị phải lớn hơn hoặc bằng 0</span>
+            </small>
+          </label>
+
+          <label>
+            Ngày bắt đầu <span class="required"></span>
+            <input type="date" formControlName="start_date" />
+            <small class="error" *ngIf="form.get('start_date')?.invalid && form.get('start_date')?.touched">
+              <span *ngIf="form.get('start_date')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
+            </small>
+          </label>
+
+          <label>
+            Hạn sử dụng <span class="required"></span>
+            <input type="date" formControlName="end_date" />
+            <small class="error" *ngIf="form.get('end_date')?.invalid && form.get('end_date')?.touched">
+              <span *ngIf="form.get('end_date')?.errors?.['required']">Hạn sử dụng là bắt buộc</span>
+            </small>
+          </label>
+
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" (click)="cancelForm()">Hủy</button>
+            <button class="btn btn-primary" [disabled]="loading || form.invalid">
+              <i class="bx bx-loader-alt bx-spin" *ngIf="loading"></i>
+              {{ editingVoucherCode ? 'Cập nhật' : 'Thêm mới' }}
+            </button>
+          </div>
+
+        </form>
+
       </div>
-
-<form class="modal-body" [formGroup]="form" (ngSubmit)="submitForm()">
-
-  <label>
-    Mã Voucher <span class="required"></span>
-    <input type="text" formControlName="code" />
-    <small class="error" *ngIf="form.get('code')?.invalid && form.get('code')?.touched">
-      <span *ngIf="form.get('code')?.errors?.['required']">Mã voucher là bắt buộc</span>
-    </small>
-  </label>
-
-  <label>
-    Giảm giá (%) hoặc số tiền <span class="required"> </span>
-    <input type="number" formControlName="value" />
-    <small class="error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">
-      <span *ngIf="form.get('value')?.errors?.['min']">Giá trị phải lớn hơn 0</span>
-    </small>
-  </label>
-
-  <label>
-    Loại giảm giá
-    <select formControlName="type">
-      <option value="percent">Giảm theo %</option>
-      <option value="fixed">Giảm giá cố định</option>
-    </select>
-  </label>
-
-  <label>
-    Số lượng
-    <input type="number" formControlName="usage_limit" />
-    <small class="error" *ngIf="form.get('usage_limit')?.invalid && form.get('usage_limit')?.touched">
-      <span *ngIf="form.get('usage_limit')?.errors?.['min']">Số lượng phải lớn hơn 0</span>
-    </small>
-  </label>
-
-  <label>
-    Ngày bắt đầu <span class="required"></span>
-    <input type="date" formControlName="start_date" />
-    <small class="error" *ngIf="form.get('start_date')?.invalid && form.get('start_date')?.touched">
-      <span *ngIf="form.get('start_date')?.errors?.['required']">Ngày bắt đầu là bắt buộc</span>
-    </small>
-  </label>
-
-  <label>
-    Hạn sử dụng <span class="required"></span>
-    <input type="date" formControlName="end_date" />
-    <small class="error" *ngIf="form.get('end_date')?.invalid && form.get('end_date')?.touched">
-      <span *ngIf="form.get('end_date')?.errors?.['required']">Hạn sử dụng là bắt buộc</span>
-    </small>
-  </label>
-
-  <div class="modal-actions">
-    <button type="button" class="btn ghost" (click)="cancelForm()">Hủy</button>
-    <button class="btn btn-primary" [disabled]="loading || form.invalid">
-      <i class="bx bx-loader-alt bx-spin" *ngIf="loading"></i>
-      {{ editingVoucherCode ? 'Cập nhật' : 'Thêm mới' }}
-    </button>
-  </div>
-
-</form>
-
     </div>
   </div>
-</div>

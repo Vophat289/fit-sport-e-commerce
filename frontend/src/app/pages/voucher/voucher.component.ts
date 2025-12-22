@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router'; 
@@ -14,6 +14,7 @@ interface Voucher {
   end_date: string;
   usage_limit: number;
   used_count: number;
+  collectedBy: string[];
 }
 
 @Component({
@@ -23,7 +24,7 @@ interface Voucher {
   templateUrl: './voucher.component.html',
   styleUrls: ['./voucher.component.css']
 })
-export class VoucherComponent implements OnInit {
+export class VoucherComponent implements OnInit, OnDestroy {
 
   vouchers: Voucher[] = [];
   filteredVouchers: Voucher[] = [];
@@ -33,10 +34,14 @@ export class VoucherComponent implements OnInit {
   loading = true;
   activeFilter: string = "all";  
   isLoggedIn = false;
+  currentUser: any = null;
 
   currentPage = 1;
   pageSize = 3;
   hasMore = true;
+
+  countdownTimers: { [key: string]: string } = {};
+  private timerInterval: any;
 
   constructor(
     private http: HttpClient,
@@ -49,12 +54,29 @@ export class VoucherComponent implements OnInit {
     console.log('VoucherComponent initialized - New Version Loaded');
     this.checkLogin();
     this.fetchVouchers(1);
+    this.startCountdown();
+  }
+
+  ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   }
 
 
   checkLogin() {
     const token = localStorage.getItem("token");
     this.isLoggedIn = !!token;
+    if (this.isLoggedIn) {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          this.currentUser = JSON.parse(userStr);
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
+        }
+      }
+    }
   }
 
 fetchVouchers(page: number = 1) {
@@ -62,10 +84,14 @@ fetchVouchers(page: number = 1) {
   this.http.get<any>(`/api/admin/vouchers?page=${page}&limit=${this.pageSize}`)
     .subscribe({
       next: (res) => {
+        const newVouchersFromApi = res.vouchers || [];
         if (page === 1) {
-          this.vouchers = res.vouchers || [];
+          this.vouchers = newVouchersFromApi;
         } else {
-          this.vouchers.push(...(res.vouchers || []));
+          const uniqueNewVouchers = newVouchersFromApi.filter(
+            (nv: Voucher) => !this.vouchers.some(ov => ov.code === nv.code)
+          );
+          this.vouchers.push(...uniqueNewVouchers);
         }
 
         this.applyFilter(this.activeFilter);
@@ -101,12 +127,44 @@ fetchVouchers(page: number = 1) {
         break;
 
       default:
-        // Default: Show all (Backend already sorts by end_date desc)
+        // Default: Show all (Backend sorts by Active first, then Newest)
         this.filteredVouchers = this.vouchers;
     }
   }
 
-  // ... existing methods
+  // Countdown logic
+  startCountdown() {
+    this.updateTimers();
+    this.timerInterval = setInterval(() => {
+      this.updateTimers();
+    }, 1000);
+  }
+
+  updateTimers() {
+    const now = new Date().getTime();
+    this.vouchers.forEach(v => {
+      const start = new Date(v.start_date).getTime();
+      if (start > now) {
+        const diff = start - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        let timerStr = "";
+        if (days > 0) timerStr += `${days} ngày `;
+        timerStr += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        this.countdownTimers[v.code] = timerStr;
+      } else {
+        delete this.countdownTimers[v.code];
+      }
+    });
+  }
+
+  // Check if voucher is coming soon
+  isComingSoon(v: Voucher): boolean {
+    return new Date(v.start_date).getTime() > new Date().getTime();
+  }
 
   // Check if voucher is expired
   isExpired(v: Voucher): boolean {
@@ -118,24 +176,18 @@ fetchVouchers(page: number = 1) {
     return this.getRemaining(v) <= 0;
   }
 
-  // Get remaining quantity (simulated)
+  // Get remaining quantity (Now from DB)
   getRemaining(v: Voucher): number {
-    // Note: In a real app, 'used_count' comes from backend. 
-    // Here we simulate local decrement if user collected it, 
-    // but we should not double count if backend already updated used_count.
-    // For this demo, we assume backend data + local collection.
-    const collected = this.isCollected(v.code) ? 1 : 0;
-    return Math.max(0, v.usage_limit - v.used_count - collected);
+    return Math.max(0, v.usage_limit - v.used_count);
   }
 
-  // Check if user has collected this voucher
-  isCollected(code: string): boolean {
-    if (!this.isLoggedIn) return false;
-    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
-    return collected.includes(code);
+  // Check if user has collected this voucher (Now from DB)
+  isCollected(v: Voucher): boolean {
+    if (!this.isLoggedIn || !this.currentUser) return false;
+    return v.collectedBy && v.collectedBy.includes(this.currentUser._id);
   }
 
-  // Collect voucher
+  // Collect voucher (Now calls API)
   collectVoucher(v: Voucher) {
     if (!this.isLoggedIn) {
       alert('Vui lòng đăng nhập để thu thập voucher!');
@@ -143,7 +195,12 @@ fetchVouchers(page: number = 1) {
       return;
     }
 
-    if (this.isCollected(v.code)) {
+    if (this.isComingSoon(v)) {
+      alert('Voucher này chưa đến thời gian thu thập!');
+      return;
+    }
+
+    if (this.isCollected(v)) {
       alert('Bạn đã thu thập voucher này rồi!');
       return;
     }
@@ -153,11 +210,21 @@ fetchVouchers(page: number = 1) {
       return;
     }
 
-    const collected = JSON.parse(localStorage.getItem('collected_vouchers') || '[]');
-    collected.push(v.code);
-    localStorage.setItem('collected_vouchers', JSON.stringify(collected));
-    
-    alert('Thu thập voucher thành công!');
+    const token = localStorage.getItem("token");
+    this.http.post<any>('/api/voucher/collect', { code: v.code }, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).subscribe({
+      next: (res) => {
+        alert('Thu thập voucher thành công!');
+        // Update local state
+        if (!v.collectedBy) v.collectedBy = [];
+        v.collectedBy.push(this.currentUser._id);
+        v.used_count += 1;
+      },
+      error: (err) => {
+        alert(err.error.message || 'Lỗi khi thu thập voucher');
+      }
+    });
   }
 
   copyCode(code: string) {
@@ -176,15 +243,11 @@ fetchVouchers(page: number = 1) {
         next: () => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          // Optional: Clear collected vouchers on logout if desired, 
-          // but usually these persist per user. For simple demo, we keep them or clear them.
-          // localStorage.removeItem('collected_vouchers'); 
-
           this.isLoggedIn = false;
+          this.currentUser = null;
           this.vouchers = [];
           this.filteredVouchers = [];
           this.hasMore = false;
-
           this.router.navigate(['/voucher']);
         }
       });

@@ -10,11 +10,24 @@ export const getAllVouchers = async (req, res) => {
     };
 
     const total = await Voucher.countDocuments(query);
+    const now = new Date();
 
-    const vouchers = await Voucher.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit))
-      .sort({ end_date: -1 });
+    const vouchers = await Voucher.aggregate([
+      { $match: query },
+      {
+        $addFields: {
+          isExpired: { $lt: ["$end_date", now] }
+        }
+      },
+      {
+        $sort: {
+          isExpired: 1, // Valid (false/0) first, Expired (true/1) last
+          created_at: -1
+        }
+      },
+      { $skip: (Number(page) - 1) * Number(limit) },
+      { $limit: Number(limit) }
+    ]);
 
     res.json({
       total,
@@ -60,9 +73,11 @@ export const createVoucher = async (req, res) => {
     } = req.body;
 
     // Validate cơ bản
-    if (!code || !value || !type || !start_date || !end_date) {
+    if (!code || value === undefined || !type || !start_date || !end_date) {
       return res.status(400).json({ error: "Thiếu dữ liệu bắt buộc" });
     }
+
+    code = code.trim().toUpperCase();
 
     if (new Date(start_date) >= new Date(end_date)) {
       return res.status(400).json({ error: "start_date phải nhỏ hơn end_date" });
@@ -77,15 +92,16 @@ export const createVoucher = async (req, res) => {
       code,
       value,
       type,
-      min_order_value,
+      min_order_value: min_order_value || 0,
       start_date,
       end_date,
-      usage_limit
+      usage_limit: usage_limit || 0
     });
 
     res.status(201).json(voucher);
 
   } catch (error) {
+    console.error("Create Voucher Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -94,10 +110,15 @@ export const createVoucher = async (req, res) => {
 // PUT cập nhật voucher
 export const updateVoucher = async (req, res) => {
   try {
+    const { code: paramCode } = req.params;
     const updateData = {
       ...req.body,
       updated_at: Date.now()
     };
+
+    if (updateData.code) {
+      updateData.code = updateData.code.trim().toUpperCase();
+    }
 
     if (updateData.start_date && updateData.end_date) {
       if (new Date(updateData.start_date) >= new Date(updateData.end_date)) {
@@ -106,7 +127,7 @@ export const updateVoucher = async (req, res) => {
     }
 
     const voucher = await Voucher.findOneAndUpdate(
-      { code: req.params.code },
+      { code: paramCode.toUpperCase() },
       updateData,
       { new: true }
     );
@@ -126,7 +147,7 @@ export const updateVoucher = async (req, res) => {
 // DELETE voucher
 export const deleteVoucher = async (req, res) => {
   try {
-    const voucher = await Voucher.findOneAndDelete(req.params.code);
+    const voucher = await Voucher.findOneAndDelete({ code: req.params.code });
 
     if (!voucher) {
       return res.status(404).json({ error: "Voucher không tồn tại" });

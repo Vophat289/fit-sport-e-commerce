@@ -420,6 +420,32 @@
   box-shadow: none;
 }
 
+.action-btn.coming-soon {
+  background: #faad14;
+  /* Orange/Yellow */
+  color: white;
+  box-shadow: 0 4px 10px rgba(250, 173, 20, 0.3);
+}
+
+.voucher-countdown {
+  font-size: 0.9rem;
+  color: #faad14;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(250, 173, 20, 0.1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.voucher-countdown span {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+}
+
 .detail-link {
   background: none;
   border: none;
