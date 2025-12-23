@@ -18,6 +18,7 @@ import {
 } from '../../services/account.service';
 import { UserVoucherService } from '@app/services/user-voucher.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-account-page',
@@ -84,7 +85,8 @@ export class AccountPageComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private userVoucherService: UserVoucherService
+    private userVoucherService: UserVoucherService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -398,14 +400,14 @@ export class AccountPageComponent implements OnInit {
   submitReview(productId: string, variantId: string): void {
     console.log('ITEM variantId nhận được:', variantId);
     if (!this.selectedOrder?._id) {
-      alert('Không xác định được đơn hàng.');
+      this.notification.error('Không xác định được đơn hàng.');
       return;
     }
 
     const reviewKey = `${this.selectedOrder._id}_${variantId}`;
 
     if (this.hasReviewed[reviewKey]) {
-      alert('Bạn đã đánh giá sản phẩm này rồi.');
+      this.notification.warning('Bạn đã đánh giá sản phẩm này rồi.');
       return;
     }
 
@@ -414,7 +416,7 @@ export class AccountPageComponent implements OnInit {
 
     const rating = Number(reviewData.rating);
     if (!rating || rating < 1) {
-      alert('Vui lòng chọn số sao trước khi gửi đánh giá!');
+      this.notification.warning('Vui lòng chọn số sao trước khi gửi đánh giá!');
       return;
     }
 
@@ -430,19 +432,53 @@ export class AccountPageComponent implements OnInit {
 
     this.accountService.submitReview(review).subscribe({
       next: (res) => {
-        alert(res.message || 'Đánh giá đã gửi thành công!');
+        this.notification.success(res.message || 'Đánh giá đã gửi thành công!');
 
         this.reviewFormVisible[reviewKey] = false;
         this.hasReviewed[reviewKey] = true;
 
         // ✅ reset đúng key
         delete this.productReviews[reviewKey];
+        
+        // Reload user reviews để cập nhật UI
+        this.loadUserReviews();
       },
       error: (err) => {
         console.error('Lỗi khi gửi đánh giá:', err);
-        alert('Gửi đánh giá thất bại.');
+        
+        // Hiển thị message lỗi cụ thể từ backend
+        let errorMessage = 'Gửi đánh giá thất bại.';
+        
+        if (err.error && err.error.message) {
+          errorMessage = err.error.message;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        
+        this.notification.error(errorMessage);
       },
     });
+  }
+
+  viewProductDetail(product: SimpleProductDetail): void {
+    console.log('viewProductDetail called with:', product);
+    
+    if (!product) {
+      console.error('Product is null or undefined');
+      this.notification.error('Không tìm thấy thông tin sản phẩm');
+      return;
+    }
+
+    if (product.slug) {
+      console.log('Navigating to product with slug:', product.slug);
+      this.router.navigate(['/products', product.slug]);
+    } else if (product._id) {
+      console.log('Navigating to product with _id:', product._id);
+      this.router.navigate(['/products', product._id]);
+    } else {
+      console.error('Product has no slug or _id:', product);
+      this.notification.error('Sản phẩm không có thông tin để xem chi tiết');
+    }
   }
 
   getFilteredOrders(): Order[] {
@@ -505,11 +541,6 @@ export class AccountPageComponent implements OnInit {
         alert('Không thể tải chi tiết đơn hàng!');
       },
     });
-  }
-  requestRefund(orderId: string): void {
-    alert(
-      `Chức năng: Yêu cầu Trả hàng/Hoàn tiền cho đơn hàng #${orderId} đang được phát triển.`
-    );
   }
   reorder(orderId: string): void {
     alert(`Chức năng: Mua lại Đơn hàng #${orderId} đang được phát triển.`);

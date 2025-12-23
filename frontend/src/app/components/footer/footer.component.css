@@ -13,9 +13,9 @@ footer.footer {
 
 /* ======== Footer ======== */
 .footer {
-  background-color: #dddddd;
+  background-color: #000000;
   font-family: "Roboto", sans-serif;
-  color: #222;
+  color: #ffffff;
   width: 100%;
   box-sizing: border-box;
 }
@@ -41,18 +41,19 @@ footer.footer {
 }
 
 .footer-logo {
-  width: 180px;
+  width: 280px;
   margin-bottom: 15px;
 }
 
 .footer-follow-title {
   font-weight: bold;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .footer-social a {
   display: inline-block;
-  color: #000;
+  color: #ffffff;
   margin-right: 15px;
   font-size: 22px;
   transition: transform 0.3s, color 0.3s;
@@ -81,6 +82,7 @@ footer.footer {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .footer-col ul {
@@ -91,7 +93,7 @@ footer.footer {
 
 .footer-col li {
   margin-bottom: 6px;
-  color: #444;
+  color: #cccccc;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -100,9 +102,9 @@ footer.footer {
   color: #0077b6;
 }
 
-/* ======== Phần “Về chúng tôi” ======== */
+/* ======== Phần "Về chúng tôi" ======== */
 .footer-about {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #333333;
   padding-top: 30px;
 }
 
@@ -110,18 +112,19 @@ footer.footer {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .footer-about p {
-  color: #444;
+  color: #cccccc;
   text-align: justify;
   margin-bottom: 15px;
 }
 
 /* ======== Dòng cuối ======== */
 .footer-bottom {
-  background-color: #0077b6;
-  color: white;
+  background-color: #1a1a1a;
+  color: #ffffff;
   text-align: center;
   padding: 15px 0;
   font-size: 15px;

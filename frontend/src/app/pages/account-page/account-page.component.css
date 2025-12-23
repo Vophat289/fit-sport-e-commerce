@@ -480,6 +480,12 @@
   background: #ffffff;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.item-detail-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .item-image-detail {
@@ -1136,8 +1142,13 @@
     transition: 0.2s ease;
 }
 
+.item-detail-card {
+  transition: all 0.3s ease;
+}
+
 .item-detail-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Hình ảnh sản phẩm trong chi tiết */
@@ -1244,16 +1255,6 @@
     font-size: 14px;
     width: 250px; /* Chiều rộng cố định cho nút */
     text-align: center;
-}
-
-/* Style cho nút Trả hàng/Hoàn tiền */
-.refund-button {
-    background-color: #f59e0b; /* Màu cam */
-    color: white;
-    border: 1px solid #f59e0b;
-}
-.refund-button:hover {
-    background-color: #d97706;
 }
 
 /* Style cho nút Mua lại */

@@ -338,6 +338,8 @@
                 <div
                   class="item-detail-card"
                   *ngFor="let item of selectedOrderItems"
+                  (click)="viewProductDetail(item.productDetail)"
+                  style="cursor: pointer;"
                 >
                   <img
                     [src]="
@@ -384,7 +386,7 @@
                         selectedOrder.status.toUpperCase() === 'DELIVERED' &&
                         !hasReviewed[selectedOrder._id + '_' + item.variant_id]
                       "
-                      (click)="toggleReviewForm(item.variant_id)"
+                      (click)="toggleReviewForm(item.variant_id); $event.stopPropagation()"
                     >
                       {{
                         reviewFormVisible[
@@ -403,6 +405,7 @@
                         ] &&
                         !hasReviewed[selectedOrder._id + '_' + item.variant_id]
                       "
+                      (click)="$event.stopPropagation()"
                     >
                       <!-- đảm bảo đối tượng review tồn tại -->
                       <ng-container
@@ -439,7 +442,8 @@
                               selectStars(
                                 selectedOrder._id + '_' + item.variant_id,
                                 i + 1
-                              )
+                              );
+                              $event.stopPropagation()
                             "
                           ></i>
                         </div>
@@ -455,7 +459,8 @@
                           type="button"
                           class="submit-review-btn"
                               (click)="
-                                submitReview(item.productDetail._id, item.variant_id)
+                                submitReview(item.productDetail._id, item.variant_id);
+                                $event.stopPropagation()
                               "
                         >
                           Gửi đánh giá
@@ -470,16 +475,7 @@
                 <div class="order-detail-right">
               <div class="payment-summary">
                 <div class="payment-actions">
-                  <button
-                    class="action-button refund-button"
-                    *ngIf="
-                      selectedOrder.status.toUpperCase() === 'DELIVERED' ||
-                      selectedOrder.status.toUpperCase() === 'SHIPPED'
-                    "
-                    (click)="requestRefund(selectedOrder._id!)"
-                  >
-                    Yêu cầu Trả hàng/Hoàn tiền
-                  </button>
+                  <!-- Button "Yêu cầu Trả hàng/Hoàn tiền" đã được xóa -->
                 </div>
 
                 <div class="payment-calculation">

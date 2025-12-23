@@ -6,17 +6,19 @@
   <!-- Danh sách sản phẩm -->
   <div class="product-list" *ngIf="!loading && products.length > 0">
 
-    <div class="product-card" *ngFor="let product of products">
+    <div class="product-card" *ngFor="let product of products" (click)="viewProductDetail(product)">
 
       <!-- ẢNH SẢN PHẨM -->
-      <div class="product-image">
-        <img [src]="product.image && product.image.length > 0 ? product.image[0] : 'assets/images/placeholder.jpg'"
-          [alt]="product.name" class="product-img" />
-
-        <!-- Overlay khi hover -->
-        <div class="product-overlay">
-          <button class="btn-detail" (click)="viewProductDetail(product)">Xem chi tiết</button>
-        </div>
+      <div class="product-image" 
+           (mouseenter)="startImageSlide(product)" 
+           (mouseleave)="stopImageSlide(product)"
+           (click)="$event.stopPropagation()">
+        <img *ngFor="let img of getProductImages(product); let i = index"
+             [src]="img"
+             [alt]="product.name" 
+             class="product-img"
+             [class.active]="i === getCurrentImageIndex(product)"
+             [style.z-index]="i === getCurrentImageIndex(product) ? 1 : 0" />
       </div>
 
 
@@ -45,7 +47,7 @@
 
 
       <!-- ✅ NÚT THÊM VÀO GIỎ -->
-      <div class="product-action">
+      <div class="product-action" (click)="$event.stopPropagation()">
         <button class="btn-cart" (click)="openVariantModal(product)">
           Thêm vào giỏ hàng
         </button>

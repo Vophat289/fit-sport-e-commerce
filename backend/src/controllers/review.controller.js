@@ -9,7 +9,7 @@ export const getProductReviews = async (req, res) => {
     const { productId } = req.params;
 
     const reviews = await Review.find({ product: productId })
-      .populate("user", "name") // lấy tên user
+      .populate("user", "name avatarUrl") // lấy tên user và avatar
       .populate({
         path: "variant",
         select: "size_id color_id price",

@@ -62,7 +62,7 @@ export const getOrderDetail = async (req, res) => {
       path: "variant_id",
       select: "product_id size_id color_id image_url price",
       populate: [
-        { path: "product_id", select: "name image" },
+        { path: "product_id", select: "name slug image" },
         { path: "size_id", model: "Size", select: "name" },
         { path: "color_id", model: "Color", select: "name hex_code" },
       ],
@@ -85,6 +85,7 @@ export const getOrderDetail = async (req, res) => {
         product: {
           _id: product?._id,
           name: product?.name || "Sản phẩm",
+          slug: product?.slug || null,
           image: product?.image || [],
         },
         displayName: product?.name || "Sản phẩm",

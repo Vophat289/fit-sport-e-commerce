@@ -1,71 +1,185 @@
 /* --- Toàn bộ khu vực danh mục --- */
 .category-section {
-padding: 0 0 60px 0; 
+  padding: 60px 0;
   background: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 /* Tiêu đề */
 .category-section .title {
-   font-size: 26px;
+  font-size: 26px;
   font-weight: 700;
   color: #222;
   margin-bottom: 35px;
   text-align: left;
   width: 100%;
-  max-width: 1440px; /* ✅ rộng hơn */
-  padding-left: 20px;
+  max-width: 1440px;
+  padding-left: 40px;
   box-sizing: border-box;
+}
+
+/* Wrapper chứa list và nút điều hướng */
+.category-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
 }
 
 /* --- Danh sách danh mục --- */
 .category-list {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 2rem;
-  row-gap: 2rem;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin; /* Firefox - hiển thị scrollbar mỏng */
+  scrollbar-color: #888 #f1f1f1; /* Firefox */
+  -ms-overflow-style: auto; /* IE and Edge - hiển thị scrollbar */
+  flex: 1;
+  padding: 10px 0;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  scroll-snap-type: x mandatory;
 }
+
+.category-list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.category-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.category-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.category-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.category-list:active {
+  cursor: grabbing;
+}
+
 
 /* --- Thẻ danh mục --- */
 .category-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
+  width: calc(20% - 16px);
+  min-width: calc(20% - 16px);
+  max-width: calc(20% - 16px);
+  height: 380px;
+  border-radius: 8px;
+  overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+  scroll-snap-align: start;
 }
 
 .category-card:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* --- Ảnh danh mục --- */
-.category-card img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #ddd; /* màu nền tạm nếu chưa có ảnh */
-  object-fit: cover;
-  margin-bottom: 0.5rem;
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
+/* Overlay tối */
+.category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 1;
 }
 
-.category-card:hover img {
-  border-color: #000;
+/* Nội dung text */
+.category-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 20px 24px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* --- Tên danh mục --- */
-.category-card h3 {
-  font-size: 0.9rem;
-  color: #222;
-  font-weight: 500;
+.category-content h3 {
+  font-family: 'Oswald', 'Montserrat', Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.category-content i {
+  font-size: 24px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-content i {
+  transform: scale(1.15);
+}
+
+/* Nút điều hướng */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.nav-arrow:hover {
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-arrow i {
+  font-size: 28px;
+  color: #333;
+}
+
+.nav-arrow-left {
+  left: 0;
+}
+
+.nav-arrow-right {
+  right: 0;
 }
 
 /* --- Khi chưa có dữ liệu --- */
@@ -73,20 +187,98 @@ padding: 0 0 60px 0;
   color: #999;
   font-size: 0.95rem;
   margin-top: 2rem;
+  text-align: center;
+}
+
+/* --- Responsive cho tablet --- */
+@media (max-width: 992px) {
+  .category-section .title {
+    padding-left: 20px;
+  }
+
+  .category-wrapper {
+    padding: 0 60px;
+  }
+
+  .category-card {
+    width: calc(33.333% - 14px);
+    min-width: calc(33.333% - 14px);
+    max-width: calc(33.333% - 14px);
+    height: 350px;
+  }
+
+  .category-content h3 {
+    font-size: 20px;
+  }
+
+  .category-content i {
+    font-size: 22px;
+  }
 }
 
 /* --- Responsive cho mobile --- */
 @media (max-width: 768px) {
+  .category-section {
+    padding: 40px 0;
+  }
+
+  .category-section .title {
+    font-size: 22px;
+    padding-left: 20px;
+    margin-bottom: 25px;
+  }
+
+  .category-wrapper {
+    padding: 0 50px;
+  }
+
+  .category-card {
+    width: calc(50% - 10px);
+    min-width: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+    height: 300px;
+  }
+
+  .category-content {
+    padding: 18px;
+  }
+
+  .category-content h3 {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .category-content i {
+    font-size: 20px;
+  }
+
+  .nav-arrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-arrow i {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-card {
+    width: calc(50% - 8px);
+    min-width: calc(50% - 8px);
+    max-width: calc(50% - 8px);
+    height: 300px;
+  }
+
+  .category-content h3 {
+    font-size: 16px;
+  }
+
+  .category-wrapper {
+    padding: 0 40px;
+  }
+
   .category-list {
-    gap: 1rem;
-  }
-
-  .category-card img {
-    width: 60px;
-    height: 60px;
-  }
-
-  .category-card h3 {
-    font-size: 0.8rem;
+    gap: 16px;
   }
 }

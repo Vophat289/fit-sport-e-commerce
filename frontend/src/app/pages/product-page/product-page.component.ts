@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product } from '@app/services/product.service';
 import { CategoryService, Category } from '@app/services/category.service';
@@ -18,7 +18,7 @@ import {
   templateUrl: './product-page.component.html',
   styleUrls: ['./product-page.component.css'],
 })
-export class ProductPageComponent implements OnInit {
+export class ProductPageComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   categories: Category[] = [];
   selectedCategory: string | null = null;
@@ -40,6 +40,10 @@ export class ProductPageComponent implements OnInit {
   // Dùng cho modal
   isModalOpen: boolean = false;
   selectedProduct: Product | null = null;
+
+  // ===== IMAGE SLIDE =====
+  currentImageIndex: { [productId: string]: number } = {};
+  imageSlideIntervals: { [productId: string]: any } = {};
 
   private pendingCategorySlug: string | null = null;
 
@@ -68,6 +72,10 @@ export class ProductPageComponent implements OnInit {
 
   isFavorite(product: Product): boolean {
     return this.favoriteService.isFavorite(product._id);
+  }
+
+  viewProductDetail(product: Product): void {
+    this.router.navigate(['/products', product.slug || product._id]);
   }
   // ============================================================
 
@@ -286,7 +294,7 @@ export class ProductPageComponent implements OnInit {
           'Hủy'
         ).then((confirmed) => {
           if (!confirmed) return;
-          cartPayload.quantityToAdd = canAdd;
+        cartPayload.quantityToAdd = canAdd;
           this.addToCartFinal(cartPayload);
         });
         return;
@@ -297,18 +305,83 @@ export class ProductPageComponent implements OnInit {
   }
 
   private addToCartFinal(cartPayload: any): void {
-    this.cartService.addToCart(cartPayload).subscribe({
-      next: () => {
+      this.cartService.addToCart(cartPayload).subscribe({
+        next: () => {
         this.notification.success(
           `Đã thêm ${cartPayload.quantityToAdd} ${this.selectedProduct!.name} vào giỏ hàng!`,
           'Thêm vào giỏ hàng'
-        );
-        this.closeModal();
-      },
-      error: (err) => {
-        console.error('Thêm vào giỏ hàng thất bại:', err);
+          );
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Thêm vào giỏ hàng thất bại:', err);
         this.notification.error('Thêm vào giỏ hàng thất bại.');
-      },
+        },
+      });
+  }
+
+  // ===== IMAGE SLIDE =====
+  getProductImages(product: Product): string[] {
+    const images = product.image && Array.isArray(product.image) ? product.image : [];
+    if (images.length === 0) return ['assets/images/placeholder.jpg'];
+    return images;
+  }
+
+  getCurrentImageIndex(product: Product): number {
+    const productId = product._id || '';
+    return this.currentImageIndex[productId] || 0;
+  }
+
+  getCurrentImage(product: Product): string {
+    const images = this.getProductImages(product);
+    const index = this.getCurrentImageIndex(product);
+    return images[index] || images[0];
+  }
+
+  startImageSlide(product: Product): void {
+    const productId = product._id || '';
+    const images = product.image && Array.isArray(product.image) ? product.image : [];
+    
+    if (images.length <= 1) return; // Không cần slide nếu chỉ có 1 ảnh
+
+    // Clear interval cũ nếu có
+    if (this.imageSlideIntervals[productId]) {
+      clearInterval(this.imageSlideIntervals[productId]);
+    }
+
+    // Reset về ảnh đầu tiên
+    this.currentImageIndex[productId] = 0;
+    this.cdr.detectChanges();
+
+    // Bắt đầu slide
+    this.imageSlideIntervals[productId] = setInterval(() => {
+      const currentIndex = this.currentImageIndex[productId] || 0;
+      const nextIndex = (currentIndex + 1) % images.length;
+      this.currentImageIndex[productId] = nextIndex;
+      this.cdr.detectChanges();
+    }, 2000); // Đổi ảnh mỗi 2 giây
+  }
+
+  stopImageSlide(product: Product): void {
+    const productId = product._id || '';
+    
+    if (this.imageSlideIntervals[productId]) {
+      clearInterval(this.imageSlideIntervals[productId]);
+      delete this.imageSlideIntervals[productId];
+    }
+
+    // Reset về ảnh đầu tiên
+    this.currentImageIndex[productId] = 0;
+    this.cdr.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup tất cả intervals khi component bị destroy
+    Object.keys(this.imageSlideIntervals).forEach(productId => {
+      if (this.imageSlideIntervals[productId]) {
+        clearInterval(this.imageSlideIntervals[productId]);
+      }
     });
+    this.imageSlideIntervals = {};
   }
 }

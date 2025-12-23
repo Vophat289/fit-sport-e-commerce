@@ -107,7 +107,8 @@ export class ProductDetailComponent implements OnInit {
     this.loadingReviews = true;
     this.accountService.getProductReviews(productId).subscribe({
       next: (res: any) => {
-        this.reviews = (res.data || []).map((r: any) => ({
+        console.log('Reviews response:', res);
+        this.reviews = (res.data || res || []).map((r: any) => ({
           ...r,
           sizeName: r.variant?.size_id?.name || null,
           colorName: r.variant?.color_id?.name || null,
@@ -119,7 +120,12 @@ export class ProductDetailComponent implements OnInit {
         this.calculateAverageRating();
         this.loadingReviews = false;
       },
-      error: () => (this.loadingReviews = false),
+      error: (err) => {
+        console.error('Lỗi khi tải đánh giá:', err);
+        this.loadingReviews = false;
+        this.reviews = [];
+        this.filteredReviews = [];
+      },
     });
   }
 

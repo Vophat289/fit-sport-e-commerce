@@ -10,8 +10,8 @@ import { HomeProductComponent } from '../home-product/home-product.component';
 })
 export class HomeComponent {
  images: string[] = [ 
-    'https://res.cloudinary.com/dolqwcawp/image/upload/v1761840246/banner-home_nt1stp.png',
-    'https://res.cloudinary.com/dolqwcawp/image/upload/v1761840764/311025_rlxhjl.png',  
+    'https://res.cloudinary.com/dolqwcawp/image/upload/v1766527408/home_slider_image_2_febhli.jpg',
+    'https://res.cloudinary.com/dolqwcawp/image/upload/v1766520354/banner-vnvodich_kfolfk.jpg',  
     'https://res.cloudinary.com/dolqwcawp/image/upload/v1761841770/banner-3_gwnpel.png'
   ];
 
@@ -20,7 +20,7 @@ export class HomeComponent {
   ngOnInit() {
     setInterval(() => {
       this.next();
-    }, 3000); // 4 giây đổi ảnh
+    }, 4000); // 4 giây đổi ảnh
   }
 
   next() {
