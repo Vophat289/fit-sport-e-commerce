@@ -16,8 +16,6 @@
           Xin chào, <span class="username">{{ userInfo.name }}</span>
         </h3>
         <div class="action-buttons">
-          <button class="action-button">Chỉnh sửa ảnh</button>
-
           <!-- Sửa thông tin -->
           <button type="button" (click)="enterEditMode()" *ngIf="!isEditing">
             Sửa thông tin cá nhân
@@ -235,10 +233,10 @@
 
                   <div class="order-actions">
                     <div class="order-total-price">
-                      Tổng tiền:
-                      <span class="total-amount"
-                        >{{ order.total_price | number }}₫</span
-                      >
+                      Tổng thanh toán:
+                      <span class="total-amount">
+                        {{ (order.total_price + (order.delivery_fee || 0) - (order.voucher_discount || 0)) | number }}₫
+                      </span>
                     </div>
                     <button
                       class="detail-button"
@@ -489,6 +487,10 @@
                         <strong>Tổng tiền hàng:</strong>
                         {{ selectedOrder.total_price | number }}₫
                       </p>
+                      <p *ngIf="selectedOrder.voucher_discount && selectedOrder.voucher_discount > 0">
+                        <strong>Giảm giá voucher:</strong>
+                        <span style="color: #10b981;">-{{ selectedOrder.voucher_discount | number }}₫</span>
+                      </p>
                       <p>
                         <strong>Phí vận chuyển:</strong>
                         {{ selectedOrder.delivery_fee | number }}₫
@@ -497,7 +499,7 @@
                       <h3 class="final-total">
                         <strong>Tổng thanh toán:</strong>
                         {{
-                          selectedOrder.total_price + selectedOrder.delivery_fee
+                          selectedOrder.total_price + selectedOrder.delivery_fee - (selectedOrder.voucher_discount || 0)
                             | number
                         }}₫
                       </h3>

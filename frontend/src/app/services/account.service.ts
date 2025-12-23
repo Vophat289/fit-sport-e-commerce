@@ -28,6 +28,7 @@ export interface Order {
   order_code: string;
   total_price: number;
   delivery_fee: number;
+  voucher_discount?: number;
   status: string;
   payment_status: string;
   createdAt: string;

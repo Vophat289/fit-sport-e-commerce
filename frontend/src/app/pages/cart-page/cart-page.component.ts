@@ -97,12 +97,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const selected = this.cartItems.filter((i) => i.selected);
     this.subtotal = selected.reduce((s, i) => s + i.price * i.quantityToAdd, 0);
 
-    // Nếu subtotal = 0 → miễn phí (không có sản phẩm)
-    // Nếu subtotal >= freeShipThreshold → miễn phí
-    // Ngược lại → 30.000
+    // Phí vận chuyển cố định 30,000₫ nếu có sản phẩm
     if (this.subtotal === 0) {
-      this.deliveryFee = 0;
-    } else if (this.subtotal >= this.freeShipThreshold) {
       this.deliveryFee = 0;
     } else {
       this.deliveryFee = 30000;

@@ -95,11 +95,7 @@
         <div class="summary-row">
           <span>Phí vận chuyển</span>
           <span class="discount-fee">
-            {{
-            deliveryFee === 0
-            ? "Free ship"
-            : "" + (deliveryFee | currency : "VND")
-            }}
+            {{ deliveryFee | currency : "VND" }}
           </span>
         </div>
 

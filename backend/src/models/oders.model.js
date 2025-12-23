@@ -30,6 +30,11 @@ const OdersSchema = new mongoose.Schema({
         required: true,
         default: 0,
     },
+    voucher_discount: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
     
     // TRẠNG THÁI ĐÃ ĐƯỢC CẬP NHẬT
     status: {

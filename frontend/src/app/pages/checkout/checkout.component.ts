@@ -177,7 +177,9 @@ export class CheckoutComponent implements OnInit{
   applyVoucherFromModal(voucher: Voucher) {
     this.voucherError = null;
 
-    this.userVoucherService.applyVoucher(voucher.code, this.subtotal).subscribe({
+    // Tính tổng tiền bao gồm phí ship để validate voucher đúng như backend
+    const orderTotal = this.subtotal + this.deliveryFee;
+    this.userVoucherService.applyVoucher(voucher.code, orderTotal).subscribe({
       next: (res) => {
         if (!res.success) {
           this.voucherError = res.message || 'Không thể áp dụng voucher này cho đơn hàng hiện tại.';
@@ -215,10 +217,8 @@ export class CheckoutComponent implements OnInit{
       return sum + (item.price * (item.quantityToAdd || 1));
     }, 0);
 
-    // Tính phí vận chuyển
+    // Tính phí vận chuyển: cố định 30.000đ nếu có hàng
     if (this.subtotal === 0) {
-      this.deliveryFee = 0;
-    } else if (this.subtotal >= this.freeShipThreshold) {
       this.deliveryFee = 0;
     } else {
       this.deliveryFee = 30000;

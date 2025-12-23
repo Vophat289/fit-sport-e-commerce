@@ -85,8 +85,8 @@
           <button class="action-btn" [class.collected]="isCollected(v)" [class.coming-soon]="isComingSoon(v)"
             [disabled]="isExpired(v) || isCollected(v) || isOutOfStock(v) || isComingSoon(v)"
             (click)="collectVoucher(v)">
-            {{ isComingSoon(v) ? 'Sắp diễn ra' : (isExpired(v) ? 'Hết hạn' : (isCollected(v) ? 'Đã thu thập' :
-            (isOutOfStock(v) ? 'Đã hết voucher' : 'Thu thập'))) }}
+            {{ isComingSoon(v) ? 'Sắp diễn ra' : (isCollected(v) && isExpired(v) ? 'Đã hết hạn' : (isCollected(v) ? 'Đã thu thập' :
+            (isExpired(v) ? 'Hết hạn' : (isOutOfStock(v) ? 'Đã hết voucher' : 'Thu thập')))) }}
           </button>
           <button class="detail-link" (click)="copyCode(v.code)" *ngIf="!isExpired(v) && !isComingSoon(v)">Sao chép
             mã</button>

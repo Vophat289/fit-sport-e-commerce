@@ -4,6 +4,7 @@ import {
   useVoucher as useVoucherService 
 } from "../services/voucher.service.js";
 import Voucher from "../models/voucher.model.js";
+import Oders from "../models/oders.model.js";
 
 // lấy danh sách voucher khả dụng
 export const getAvailable = async (req, res) => {
@@ -72,7 +73,10 @@ export const applyVoucher = async (req, res) => {
       return res.json({ success: false, type: "condition", message: "Voucher đã hết lượt sử dụng" });
     }
 
-    if (subtotal < voucher.min_order_value) {
+    // subtotal từ frontend giờ đã bao gồm cả phí ship (orderTotal)
+    const orderTotal = subtotal; // Frontend đã gửi subtotal + deliveryFee
+
+    if (orderTotal < voucher.min_order_value) {
       return res.json({
         success: false,
         type: "condition",
@@ -80,9 +84,9 @@ export const applyVoucher = async (req, res) => {
       });
     }
 
-    // tính giảm giá
+    // tính giảm giá dựa trên orderTotal (giống logic checkout)
     let discount = 0;
-    if (voucher.type === "percent") discount = Math.round((subtotal * voucher.value) / 100);
+    if (voucher.type === "percent") discount = Math.round((orderTotal * voucher.value) / 100);
     else if (voucher.type === "fixed") discount = voucher.value;
 
     res.json({
@@ -140,17 +144,30 @@ export const collectVoucher = async (req, res) => {
   }
 };
 
-// Lấy danh sách voucher đã thu thập của user
+// Lấy danh sách voucher đã thu thập của user (loại trừ voucher đã được sử dụng trong đơn hàng)
 export const getMyVouchers = async (req, res) => {
   try {
     const userId = req.user._id;
     const now = new Date();
 
     // Lấy các voucher mà user đã thu thập và chưa hết hạn
-    const vouchers = await Voucher.find({
+    const allCollectedVouchers = await Voucher.find({
       collectedBy: userId,
       end_date: { $gt: now }  // Chưa hết hạn
     }).sort({ end_date: 1 });  // Sắp xếp theo ngày hết hạn
+
+    // Lấy danh sách voucher_id đã được sử dụng trong các đơn hàng của user
+    const usedVoucherIds = await Oders.distinct('voucher_id', {
+      user_id: userId,
+      voucher_id: { $ne: null }  // Chỉ lấy các order có voucher
+    });
+
+    // Lọc ra các voucher chưa được sử dụng
+    const vouchers = allCollectedVouchers.filter(
+      voucher => !usedVoucherIds.some(
+        usedId => usedId && usedId.toString() === voucher._id.toString()
+      )
+    );
 
     res.json({ success: true, vouchers });
   } catch (error) {

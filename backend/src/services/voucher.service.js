@@ -50,16 +50,13 @@ export const validateVoucher = async (code, orderTotal) => {
   };
 };
 
-// Tăng số lượt đã sử dụng của voucher và (tuỳ chọn) xoá khỏi danh sách đã thu thập của user
+// Tăng số lượt đã sử dụng của voucher
+// KHÔNG xóa userId khỏi collectedBy để frontend vẫn biết user đã thu thập voucher này
 export const useVoucher = async (code, userId = null) => {
   const update = { $inc: { used_count: 1 } };
 
-  // Nếu truyền userId → coi như user này đã sử dụng voucher, xoá khỏi collectedBy
-  if (userId) {
-    // $pull xoá userId khỏi mảng collectedBy để voucher biến mất khỏi danh sách của user
-    // Các user khác đã thu thập vẫn giữ nguyên
-    update['$pull'] = { collectedBy: userId };
-  }
+  // Giữ userId trong collectedBy để frontend vẫn hiển thị "Đã thu thập"
+  // Chỉ tăng used_count để track số lần đã dùng
 
   return await Voucher.findOneAndUpdate(
     { code },

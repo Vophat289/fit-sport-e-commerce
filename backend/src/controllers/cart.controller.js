@@ -490,10 +490,9 @@ export const checkoutVNPay = async (req, res) => {
             return sum + (item.price * item.quantity);
         }, 0);
 
-        //tính phí giao hàng
-        const shipping = 1000000;
+        //tính phí giao hàng (phí cố định 30.000đ nếu có hàng)
         let deliveryFee = 0;
-        if(totalPrice > 0 && totalPrice < shipping){
+        if (totalPrice > 0) {
             deliveryFee = 30000;
         }
 
@@ -533,6 +532,7 @@ export const checkoutVNPay = async (req, res) => {
         cart.receiver_address = receiver_address;
         cart.total_price = totalPrice;
         cart.delivery_fee = deliveryFee;
+        cart.voucher_discount = voucherDiscount;
         if(voucherId){
             cart.voucher_id = voucherId;
             // Tăng số lượt sử dụng voucher và xoá voucher này khỏi danh sách đã thu thập của user
@@ -686,10 +686,9 @@ export const checkoutCOD = async (req, res) => {
             return sum + (item.price * item.quantity);
         }, 0);
 
-        //tính phí giao hàng
-        const shipping = 1000000;
+        //tính phí giao hàng (phí cố định 30.000đ nếu có hàng)
         let deliveryFee = 0;
-        if(totalPrice > 0 && totalPrice < shipping){
+        if (totalPrice > 0) {
             deliveryFee = 30000;
         }
 
@@ -729,6 +728,7 @@ export const checkoutCOD = async (req, res) => {
         cart.receiver_address = receiver_address;
         cart.total_price = totalPrice;
         cart.delivery_fee = deliveryFee;
+        cart.voucher_discount = voucherDiscount;
         
         // Không cần tạo vnpay_transaction_id cho COD
         
