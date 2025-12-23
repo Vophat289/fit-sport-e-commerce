@@ -42,7 +42,6 @@
           <th>Số điện thoại</th>
           <th>Nội dung</th>
           <th>Ngày tạo</th>
-          <th>Hành động</th>
         </tr>
       </thead>
 
@@ -53,14 +52,6 @@
           <td>{{ c.phone }}</td>
           <td>{{ c.content }}</td>
           <td>{{ c.createdAt | date : 'dd/MM/yyyy HH:mm' }}</td>
-
-          <td>
-            <div class="actions">
-              <button class="btn icon danger" (click)="deleteContact(c._id)">
-                <i class="bx bx-trash"></i>
-              </button>
-            </div>
-          </td>
         </tr>
       </tbody>
     </table>

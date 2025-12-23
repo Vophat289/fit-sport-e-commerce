@@ -191,7 +191,9 @@
 
 .btn-cart {
   width: 100%;
-  background: linear-gradient(135deg, #007bff, #0056d2);
+  background: #007bff;
+  background-color: #007bff;
+  background-image: none;
   color: #fff;
   font-weight: 600;
   font-size: 14px;
@@ -203,15 +205,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
 
 .btn-cart i {
-  font-size: 16px;
+  display: none;
 }
 
 .btn-cart:hover {
-  background: linear-gradient(135deg, #0056d2, #0041a8);
+  background: #0056d2;
+  background-color: #0056d2;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }

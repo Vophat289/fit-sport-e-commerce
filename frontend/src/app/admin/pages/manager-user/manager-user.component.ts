@@ -18,6 +18,9 @@ export class UserAdminComponent implements OnInit {
   loading: boolean = false;
 
   searchTerm: string = '';
+    roleFilter: string = 'all'; // 'all', 'admin', 'user'
+  statusFilter: string = 'all'; // 'all', 'active', 'blocked'
+  verifyFilter: string = 'all'; // 'all', 'verified', 'unverified'
 
   constructor(
     private userService: UserService,
@@ -33,7 +36,7 @@ export class UserAdminComponent implements OnInit {
     this.userService.getUsers().subscribe({
       next: (res) => {
         this.users = res;
-        this.filteredUsers = res; // Khởi tạo dữ liệu filtered
+        this.applyFilters(); // Áp dụng filter khi load xong
         this.loading = false;
       },
       error: () => {
@@ -43,10 +46,58 @@ export class UserAdminComponent implements OnInit {
   }
 
   onSearchChange(value: string) {
-    this.filteredUsers = this.users.filter(user =>
-      user.name.toLowerCase().includes(value.toLowerCase()) ||
-      user.email.toLowerCase().includes(value.toLowerCase())
-    );
+    this.searchTerm = value;
+    this.applyFilters();
+  }
+
+  onFilterChange() {
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.users];
+
+    // Filter theo search term
+    if (this.searchTerm.trim()) {
+      const search = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(user =>
+        user.name.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search)
+      );
+    }
+
+    // Filter theo role
+    if (this.roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === this.roleFilter);
+    }
+
+    // Filter theo status (hoạt động/bị chặn)
+    if (this.statusFilter !== 'all') {
+      if (this.statusFilter === 'active') {
+        filtered = filtered.filter(user => !user.isBlocked);
+      } else if (this.statusFilter === 'blocked') {
+        filtered = filtered.filter(user => user.isBlocked);
+      }
+    }
+
+    // Filter theo xác thực
+    if (this.verifyFilter !== 'all') {
+      if (this.verifyFilter === 'verified') {
+        filtered = filtered.filter(user => user.isVerified);
+      } else if (this.verifyFilter === 'unverified') {
+        filtered = filtered.filter(user => !user.isVerified);
+      }
+    }
+
+    this.filteredUsers = filtered;
+  }
+
+  resetFilters() {
+    this.searchTerm = '';
+    this.roleFilter = 'all';
+    this.statusFilter = 'all';
+    this.verifyFilter = 'all';
+    this.applyFilters();
   }
 
 toggleBlock(user: User) {
@@ -61,7 +112,8 @@ toggleBlock(user: User) {
       this.userService.unblockUser(user._id).subscribe({
         next: () => {
           this.notification.success('Đã mở chặn tài khoản thành công!');
-          this.loadUsers();
+          user.isBlocked = false;
+          this.applyFilters();
         },
         error: (err) => {
           console.error('Lỗi khi mở chặn:', err);
@@ -80,7 +132,8 @@ toggleBlock(user: User) {
       this.userService.blockUser(user._id).subscribe({
         next: () => {
           this.notification.success('Đã chặn tài khoản thành công!');
-          this.loadUsers();
+          user.isBlocked = true;
+          this.applyFilters();
         },
         error: (err) => {
           console.error('Lỗi khi chặn:', err);
@@ -116,6 +169,7 @@ toggleBlock(user: User) {
           this.notification.success(
             `Đã ${user.role === 'admin' ? 'nâng' : 'hạ'} quyền thành công!`
           );
+          this.applyFilters();
         },
         error: (err) => {
           console.error('Lỗi khi thay đổi quyền:', err);

@@ -59,73 +59,75 @@
     </div>
   </div>
 
-<div class="top-products-table-card">
-  <h4 class="table-title">Top 5 sản phẩm bán chạy</h4>
+<div class="tables-wrapper">
+  <div class="top-products-table-card">
+    <h4 class="table-title">Top 5 sản phẩm bán chạy</h4>
 
-  <table class="top-products-table">
-    <thead>
-      <tr>
-        <th>STT</th>
-        <th>Hình</th>
-        <th>Tên sản phẩm</th>
-        <th>Giá</th>
-        <th>Đã bán</th>
-      </tr>
-    </thead>
+    <table class="top-products-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Hình</th>
+          <th>Tên sản phẩm</th>
+          <th>Giá</th>
+          <th>Đã bán</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr *ngFor="let p of topProducts; let i = index">
-        <td>{{ i + 1 }}</td>
+      <tbody>
+        <tr *ngFor="let p of topProducts; let i = index">
+          <td>{{ i + 1 }}</td>
 
-        <td>
-          <img [src]="p.image || '/assets/no-image.png'" alt="{{ p.name }}" class="product-thumb" />
-        </td>
+          <td>
+            <img [src]="p.image || '/assets/no-image.png'" alt="{{ p.name }}" class="product-thumb" />
+          </td>
 
-        <td class="name-col">{{ p.name }}</td>
+          <td class="name-col">{{ p.name }}</td>
 
-        <td>{{ formatCurrency(p.price) }}</td>
+          <td>{{ formatCurrency(p.price) }}</td>
 
-        <td class="sold">{{ p.totalSold }}</td>
-      </tr>
-    </tbody>
-  </table>
+          <td class="sold">{{ p.totalSold }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <div *ngIf="topProducts.length === 0" class="empty-table">
-    Chưa có dữ liệu
+    <div *ngIf="topProducts.length === 0" class="empty-table">
+      Chưa có dữ liệu
+    </div>
   </div>
-</div>
 
-<div class="top-products-table-card">
-  <h4 class="table-title">Top 5 khách hàng mua nhiều nhất</h4>
+  <div class="top-products-table-card">
+    <h4 class="table-title">Top 5 khách hàng mua nhiều nhất</h4>
 
-  <table class="top-products-table">
-    <thead>
-      <tr>
-        <th>STT</th>
-        <th>Tên khách hàng</th>
-        <th>Email</th>
-        <th>Số đơn</th>
-        <th>Tổng chi</th>
-      </tr>
-    </thead>
+    <table class="top-products-table">
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Tên khách hàng</th>
+          <th>Email</th>
+          <th>Số đơn</th>
+          <th>Tổng chi</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr *ngFor="let u of topUsers; let i = index">
-        <td>{{ i + 1 }}</td>
+      <tbody>
+        <tr *ngFor="let u of topUsers; let i = index">
+          <td>{{ i + 1 }}</td>
 
-        <td class="name-col">{{ u.name }}</td>
+          <td class="name-col">{{ u.name }}</td>
 
-        <td>{{ u.email }}</td>
+          <td>{{ u.email }}</td>
 
-        <td class="sold">{{ u.totalOrders }}</td>
+          <td class="sold">{{ u.totalOrders }}</td>
 
-        <td>{{ formatCurrency(u.totalSpent) }}</td>
-      </tr>
-    </tbody>
-  </table>
+          <td>{{ formatCurrency(u.totalSpent) }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <div *ngIf="topUsers.length === 0" class="empty-table">
-    Chưa có dữ liệu
+    <div *ngIf="topUsers.length === 0" class="empty-table">
+      Chưa có dữ liệu
+    </div>
   </div>
 </div>
 

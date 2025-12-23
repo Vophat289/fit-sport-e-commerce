@@ -56,22 +56,6 @@ export class ContactsAdminComponent implements OnInit {
     });
   }
 
-  deleteContact(id: string): void {
-    this.notification.confirmDelete('liên hệ này').then((confirmed) => {
-      if (!confirmed) return;
-
-      this.contactService.deleteContact(id).subscribe({
-        next: (res: any) => {
-          this.notification.success('Xóa thành công!');
-          this.getContacts();
-        },
-        error: () => {
-          this.notification.error('Không thể xóa liên hệ');
-        }
-      });
-    });
-  }
-
   nextPage(): void {
     if (this.page < this.totalPages) {
       this.page++;

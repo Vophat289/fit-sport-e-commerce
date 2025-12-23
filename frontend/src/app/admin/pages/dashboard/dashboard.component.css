@@ -143,7 +143,7 @@ canvas {
 }
 
 .filter-title::before {
-  content: '📊';
+  
   font-size: 20px;
 }
 
@@ -641,12 +641,19 @@ canvas {
   cursor: pointer;
 }
 
+/* Wrapper chứa 2 bảng */
+.tables-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 28px;
+}
+
 /* CARD chứa bảng */
 .top-products-table-card {
   background: #0d0d0d;
   padding: 28px;
   border-radius: 18px;
-  margin-top: 28px;
   border: 1px solid #222;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
@@ -789,4 +796,42 @@ canvas {
 
 :host-context(.admin-theme-light) .empty-table {
   color: #64748b;
+}
+
+:host-context(.admin-theme-light) .top-products-table-card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+/* Responsive cho tables wrapper */
+@media (max-width: 1200px) {
+  .tables-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tables-wrapper {
+    gap: 16px;
+  }
+
+  .top-products-table-card {
+    padding: 20px;
+  }
+
+  .table-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .top-products-table {
+    font-size: 14px;
+  }
+
+  .top-products-table th,
+  .top-products-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
 }

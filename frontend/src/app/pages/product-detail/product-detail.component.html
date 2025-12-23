@@ -137,12 +137,10 @@
           <button class="btn-add-cart" (click)="addToCart()" [disabled]="
               !currentVariantDetails || currentVariantDetails.quantity === 0
             ">
-            <i class="fa-solid fa-cart-plus"></i>
             Thêm vào giỏ hàng
           </button>
           <button class="btn-buy-now" (click)="buyNow()"
             [disabled]="!currentVariantDetails || currentVariantDetails.quantity === 0">
-            <i class="fa-solid fa-bolt"></i>
             Mua ngay
           </button>
         </div>

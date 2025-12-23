@@ -1,8 +1,10 @@
-import { Component, HostListener, ElementRef } from '@angular/core';
+import { Component, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AdminThemeService, AdminThemeMode } from '../../services/theme.service';
-import { Observable } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-header',
@@ -11,10 +13,11 @@ import { Observable } from 'rxjs';
   templateUrl: './admin-header.component.html',
   styleUrls: ['./admin-header.component.css']  
 })
-export class AdminHeaderComponent {
+export class AdminHeaderComponent implements OnInit, OnDestroy {
   // Thông tin user hiển thị trong header
   userName: string = 'Admin';
   userRole: string = 'Quản trị viên';
+  userInitial: string = 'A';
 
   // State cho dropdowns
   showNotifications: boolean = false;
@@ -28,7 +31,33 @@ export class AdminHeaderComponent {
     { id: 3, title: 'Có tin nhắn mới từ khách hàng', time: 'Hôm qua', read: true }
   ];
 
-  constructor(private el: ElementRef, private themeService: AdminThemeService) {}
+  private userSubscription?: Subscription;
+
+  constructor(
+    private el: ElementRef, 
+    private themeService: AdminThemeService,
+    private authService: AuthService,
+    private router: Router,
+    private notification: NotificationService
+  ) {}
+
+  ngOnInit(): void {
+    // Lấy thông tin user từ AuthService
+    this.userSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userName = user.name || 'Admin';
+        this.userRole = user.role === 'admin' ? 'Quản trị viên' : 'Người dùng';
+        // Lấy chữ cái đầu của tên để hiển thị trong avatar
+        this.userInitial = this.userName.charAt(0).toUpperCase();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
 
   // Getter để lấy currentTheme$ observable
   get currentTheme$(): Observable<AdminThemeMode> {
@@ -75,7 +104,23 @@ export class AdminHeaderComponent {
 
   // Logout
   logout(): void {
-    // Logic logout sẽ được implement sau
-    console.log('Logout');
+    this.notification.confirm(
+      'Bạn có chắc chắn muốn đăng xuất không?',
+      'Xác nhận đăng xuất',
+      'Đăng xuất',
+      'Hủy'
+    ).then((confirmed) => {
+      if (!confirmed) return;
+
+      this.authService.logout().subscribe({
+        next: () => {
+          this.notification.success('Đăng xuất thành công!');
+          this.router.navigate(['/']);
+        },
+        error: () => {
+          this.notification.error('Đăng xuất thất bại');
+        }
+      });
+    });
   }
 }
