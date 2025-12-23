@@ -539,6 +539,26 @@ export class AccountPageComponent implements OnInit {
       default:
         return status;
     }
+  }
+
+  getOrderStatusSteps() {
+    return [
+      { key: 'PENDING', label: 'Chờ xác nhận' },
+      { key: 'CONFIRMED', label: 'Đã xác nhận' },
+      { key: 'PROCESSING', label: 'Đang xử lý' },
+      { key: 'SHIPPING', label: 'Đang giao' },
+      { key: 'DELIVERED', label: 'Hoàn thành' },
+    ];
+  }
+
+  isStatusStepActive(stepKey: string, currentStatus: string | undefined): boolean {
+    if (!currentStatus) return false;
+    const order = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED'];
+    const currentIndex = order.indexOf(currentStatus.toUpperCase());
+    const stepIndex = order.indexOf(stepKey);
+    if (currentIndex === -1 || stepIndex === -1) return false;
+    // Nếu đơn đã hủy, chỉ bật các bước trước thời điểm hủy (coi như dừng ở trạng thái hiện tại)
+    return stepIndex <= currentIndex;
   } // VOUCHERS METHODS
 
   /**

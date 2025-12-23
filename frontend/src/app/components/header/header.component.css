@@ -1,3 +1,33 @@
+.promo-strip {
+  width: 100%;
+  padding: 6px 24px;
+  background-color: #d62828; /* Đỏ Việt Nam */
+  color: #fffbe6;
+  font-size: 13px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.promo-text {
+  white-space: nowrap;
+}
+
+.promo-link {
+  border: none;
+  background: none;
+  color: var(--promo-link);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.promo-link:hover {
+  opacity: 0.85;
+}
+
 
 :root {
   --gray: #666;

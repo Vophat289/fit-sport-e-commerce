@@ -151,4 +151,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   hideResults() {
     setTimeout(() => (this.showResults = false), 200);
   }
+
+  // Promo link → trang ưu đãi
+  goToVoucherPage() {
+    this.router.navigate(['/voucher']);
+  }
 }

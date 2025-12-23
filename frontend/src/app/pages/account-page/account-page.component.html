@@ -230,9 +230,6 @@
                         <strong>Người nhận:</strong>
                         {{ order.receiver_name }} – {{ order.receiver_mobile }}
                       </p>
-                      <p>
-                        <strong>Địa chỉ:</strong> {{ order.receiver_address }}
-                      </p>
                     </div>
                   </div>
 
@@ -248,13 +245,6 @@
                       (click)="viewOrderDetail(order._id!)"
                     >
                       Chi tiết
-                    </button>
-                    <button
-                      class="cancel-button-order"
-                      *ngIf="order.status.toUpperCase() === 'PENDING'"
-                      (click)="cancelOrder(order._id!)"
-                    >
-                      Hủy đơn hàng
                     </button>
                     <span
                       class="order-status"
@@ -327,179 +317,192 @@
                   </button>
                 </div>
               </div>
-              <hr />
 
-              <h3>Sản phẩm:</h3>
-              <div class="order-items-detail">
-                <div
-                  class="item-detail-card"
-                  *ngFor="let item of selectedOrderItems"
-                >
-                  <img
-                    [src]="
-                      item.productDetail?.image[0] ||
-                      'assets/images/default-product.png'
-                    "
-                    alt="Sản phẩm"
-                    class="item-image-detail"
-                  />
-
-                  <div class="item-info-detail">
-                    <p class="item-name">
-                      <strong>{{
-                        item.productDetail?.name || "Đang tải tên..."
-                      }}</strong>
-                    </p>
-                    <p class="item-variant">
-                      <strong>Size:</strong> {{ item.variant.size }} |
-                      <strong>Màu:</strong> {{ item.variant.color }}
-                    </p>
-                    <p class="item-qty-price">
-                      <strong>Số lượng:</strong> {{ item.quantity }} x
-                      {{ item.price | number }}₫
-                    </p>
-                    <p class="item-subtotal">
-                      <strong style="color: black">Thành tiền: </strong>
-                      <strong
-                        >{{ item.quantity * item.price | number }}₫</strong
-                      >
-                    </p>
-                    <!-- Nếu đã đánh giá rồi thì chỉ hiển thị thông báo -->
-                    <p
-                      class="reviewed-text"
-                      *ngIf="
-                        hasReviewed[selectedOrder._id + '_' + item.variant_id]
-                      "
-                    >
-                      Bạn đã đánh giá sản phẩm này rồi.
-                    </p>
-                    <!-- Nếu CHƯA đánh giá thì mới hiện nút -->
-                    <button
-                      class="action-button review-button"
-                      *ngIf="
-                        selectedOrder.status.toUpperCase() === 'DELIVERED' &&
-                        !hasReviewed[selectedOrder._id + '_' + item.variant_id]
-                      "
-                      (click)="toggleReviewForm(item.variant_id)"
-                    >
-                      {{
-                        reviewFormVisible[
-                          selectedOrder._id + "_" + item.variant_id
-                        ]
-                          ? "Đóng đánh giá"
-                          : "Đánh giá"
-                      }}
-                    </button>
-                    <!-- Form đánh giá -->
-                    <div
-                      class="review-form"
-                      *ngIf="
-                        reviewFormVisible[
-                          selectedOrder._id + '_' + item.variant_id
-                        ] &&
-                        !hasReviewed[selectedOrder._id + '_' + item.variant_id]
-                      "
-                    >
-                      <!-- đảm bảo đối tượng review tồn tại -->
-                      <ng-container
-                        *ngIf="
-                          productReviews[
-                            selectedOrder._id + '_' + item.variant_id
-                          ] as PR
-                        "
-                      >
-                        <label>Đánh giá số sao:</label>
-
-                        <div class="rating-stars">
-                          <i
-                            *ngFor="let s of stars; let i = index"
-                            class="bx bxs-star"
-                            [class.active]="
-                              getStarActive(
-                                selectedOrder._id + '_' + item.variant_id,
-                                i
-                              )
-                            "
-                            (mouseover)="
-                              hoverStars(
-                                selectedOrder._id + '_' + item.variant_id,
-                                i + 1
-                              )
-                            "
-                            (mouseleave)="
-                              leaveStars(
-                                selectedOrder._id + '_' + item.variant_id
-                              )
-                            "
-                            (click)="
-                              selectStars(
-                                selectedOrder._id + '_' + item.variant_id,
-                                i + 1
-                              )
-                            "
-                          ></i>
-                        </div>
-
-                        <label>Bình luận:</label>
-                        <textarea
-                          [(ngModel)]="PR.comment"
-                          name="comment_{{ item.variant_id }}"
-                          placeholder="Nhập nội dung đánh giá..."
-                        ></textarea>
-
-                       <button
-                          type="button"
-                          class="submit-review-btn"
-                          (click)="submitReview(item.productDetail._id, item.variant_id)"
-                        >
-                          Gửi đánh giá
-                        </button>
-                      </ng-container>
-                    </div>
+              <div class="order-status-timeline" *ngIf="selectedOrder">
+                <div class="timeline-track"></div>
+                <div class="timeline-steps">
+                  <div
+                    class="timeline-step"
+                    *ngFor="let step of getOrderStatusSteps(); let i = index"
+                    [class.active]="isStatusStepActive(step.key, selectedOrder.status)"
+                  >
+                    <div class="step-dot"></div>
+                    <div class="step-label">{{ step.label }}</div>
                   </div>
                 </div>
               </div>
-
               <hr />
 
-              <div class="payment-summary">
-                <div class="payment-actions">
-                  <button
-                    class="action-button refund-button"
-                    *ngIf="
-                      selectedOrder.status.toUpperCase() === 'DELIVERED' ||
-                      selectedOrder.status.toUpperCase() === 'SHIPPED'
-                    "
-                    (click)="requestRefund(selectedOrder._id!)"
-                  >
-                    Yêu cầu Trả hàng/Hoàn tiền
-                  </button>
+              <div class="order-detail-main">
+                <div class="order-detail-left">
+                  <h3 class="section-title">Sản phẩm</h3>
+                  <div class="order-items-detail">
+                    <div
+                      class="item-detail-card"
+                      *ngFor="let item of selectedOrderItems"
+                    >
+                      <img
+                        [src]="
+                          item.productDetail?.image[0] ||
+                          'assets/images/default-product.png'
+                        "
+                        alt="Sản phẩm"
+                        class="item-image-detail"
+                      />
 
-                  <button
-                    class="action-button reorder-button"
-                    (click)="reorder(selectedOrder._id!)"
-                  >
-                    Mua lại đơn hàng
-                  </button>
+                      <div class="item-info-detail">
+                        <p class="item-name">
+                          <strong>{{
+                            item.productDetail?.name || "Đang tải tên..."
+                          }}</strong>
+                        </p>
+                        <p class="item-variant">
+                          <strong>Size:</strong> {{ item.variant.size }} |
+                          <strong>Màu:</strong> {{ item.variant.color }}
+                        </p>
+                        <p class="item-qty-price">
+                          <strong>Số lượng:</strong> {{ item.quantity }} x
+                          {{ item.price | number }}₫
+                        </p>
+                        <p class="item-subtotal">
+                          <strong style="color: black">Thành tiền: </strong>
+                          <strong
+                            >{{ item.quantity * item.price | number }}₫</strong
+                          >
+                        </p>
+                        <!-- Nếu đã đánh giá rồi thì chỉ hiển thị thông báo -->
+                        <p
+                          class="reviewed-text"
+                          *ngIf="
+                            hasReviewed[selectedOrder._id + '_' + item.variant_id]
+                          "
+                        >
+                          Bạn đã đánh giá sản phẩm này rồi.
+                        </p>
+                        <!-- Nếu CHƯA đánh giá thì mới hiện nút -->
+                        <button
+                          class="action-button review-button"
+                          *ngIf="
+                            selectedOrder.status.toUpperCase() === 'DELIVERED' &&
+                            !hasReviewed[selectedOrder._id + '_' + item.variant_id]
+                          "
+                          (click)="toggleReviewForm(item.variant_id)"
+                        >
+                          {{
+                            reviewFormVisible[
+                              selectedOrder._id + '_' + item.variant_id
+                            ]
+                              ? 'Đóng đánh giá'
+                              : 'Đánh giá'
+                          }}
+                        </button>
+                        <!-- Form đánh giá -->
+                        <div
+                          class="review-form"
+                          *ngIf="
+                            reviewFormVisible[
+                              selectedOrder._id + '_' + item.variant_id
+                            ] &&
+                            !hasReviewed[selectedOrder._id + '_' + item.variant_id]
+                          "
+                        >
+                          <!-- đảm bảo đối tượng review tồn tại -->
+                          <ng-container
+                            *ngIf="
+                              productReviews[
+                                selectedOrder._id + '_' + item.variant_id
+                              ] as PR
+                            "
+                          >
+                            <label>Đánh giá số sao:</label>
+
+                            <div class="rating-stars">
+                              <i
+                                *ngFor="let s of stars; let i = index"
+                                class="bx bxs-star"
+                                [class.active]="
+                                  getStarActive(
+                                    selectedOrder._id + '_' + item.variant_id,
+                                    i
+                                  )
+                                "
+                                (mouseover)="
+                                  hoverStars(
+                                    selectedOrder._id + '_' + item.variant_id,
+                                    i + 1
+                                  )
+                                "
+                                (mouseleave)="
+                                  leaveStars(
+                                    selectedOrder._id + '_' + item.variant_id
+                                  )
+                                "
+                                (click)="
+                                  selectStars(
+                                    selectedOrder._id + '_' + item.variant_id,
+                                    i + 1
+                                  )
+                                "
+                              ></i>
+                            </div>
+
+                            <label>Bình luận:</label>
+                            <textarea
+                              [(ngModel)]="PR.comment"
+                              name="comment_{{ item.variant_id }}"
+                              placeholder="Nhập nội dung đánh giá..."
+                            ></textarea>
+
+                            <button
+                              type="button"
+                              class="submit-review-btn"
+                              (click)="
+                                submitReview(item.productDetail._id, item.variant_id)
+                              "
+                            >
+                              Gửi đánh giá
+                            </button>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="payment-calculation">
-                  <p>
-                    <strong>Tổng tiền hàng:</strong>
-                    {{ selectedOrder.total_price | number }}₫
-                  </p>
-                  <p>
-                    <strong>Phí vận chuyển:</strong>
-                    {{ selectedOrder.delivery_fee | number }}₫
-                  </p>
+                <div class="order-detail-right">
+                  <div class="payment-summary">
+                    <div class="payment-actions">
+                      <button
+                        class="action-button refund-button"
+                        *ngIf="
+                          selectedOrder.status.toUpperCase() === 'DELIVERED' ||
+                          selectedOrder.status.toUpperCase() === 'SHIPPED'
+                        "
+                        (click)="requestRefund(selectedOrder._id!)"
+                      >
+                        Yêu cầu Trả hàng/Hoàn tiền
+                      </button>
+                    </div>
 
-                  <h3 class="final-total">
-                    <strong>Tổng thanh toán:</strong>
-                    {{
-                      selectedOrder.total_price + selectedOrder.delivery_fee
-                        | number
-                    }}₫
-                  </h3>
+                    <div class="payment-calculation">
+                      <p>
+                        <strong>Tổng tiền hàng:</strong>
+                        {{ selectedOrder.total_price | number }}₫
+                      </p>
+                      <p>
+                        <strong>Phí vận chuyển:</strong>
+                        {{ selectedOrder.delivery_fee | number }}₫
+                      </p>
+
+                      <h3 class="final-total">
+                        <strong>Tổng thanh toán:</strong>
+                        {{
+                          selectedOrder.total_price + selectedOrder.delivery_fee
+                            | number
+                        }}₫
+                      </h3>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

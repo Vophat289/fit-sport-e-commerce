@@ -6,7 +6,8 @@
   max-width: 1200px;
   margin: 0 auto;
   font-family: 'Roboto', sans-serif;
-  /* background-color: #f4f6f8; Removed to blend with main bg */
+  background: radial-gradient(circle at top, rgba(214, 40, 40, 0.18) 0, transparent 55%),
+    radial-gradient(circle at bottom, rgba(255, 193, 7, 0.14) 0, transparent 60%);
   min-height: 100vh;
   position: relative;
 }
@@ -29,8 +30,8 @@
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: #333;
-  border-bottom: 2px solid #2850FF;
-  /* Blue */
+  border-bottom: 2px solid #d62828;
+  /* Red VN */
   padding-bottom: 0.5rem;
   display: inline-block;
 }
@@ -62,16 +63,16 @@
 }
 
 .filter-btn:hover {
-  background-color: #e6eaff;
-  /* Light Blue */
-  color: #2850FF;
+  background-color: rgba(214, 40, 40, 0.08);
+  /* Light Red */
+  color: #d62828;
 }
 
 .filter-btn.active {
-  background-color: #2850FF;
-  color: white;
+  background: linear-gradient(135deg, #d62828, #f77f00);
+  color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 4px 10px rgba(40, 80, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(214, 40, 40, 0.4);
 }
 
 /* --- GIFT BOX --- */
@@ -120,87 +121,44 @@
   }
 }
 
-/* --- FIREWORKS --- */
-.firework-container {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 100px;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.firework-container.left {
-  left: 0;
-}
-
-.firework-container.right {
-  right: 0;
-}
-
-.firework {
+/* Celebration confetti strip (subtle, like ăn mừng) */
+.celebration-strip {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  box-shadow: 0 0 #fff;
-  animation: explosion 1s ease-out infinite;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
 }
 
-.firework:nth-child(1) {
-  top: 20%;
-  left: 20%;
-  animation-delay: 0s;
-  background: #ff4d4f;
+.celebration-confetti {
+  position: absolute;
+  top: -10px;
+  width: 6px;
+  height: 16px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-fall 4s linear infinite;
 }
 
-.firework:nth-child(2) {
-  top: 50%;
-  left: 50%;
-  animation-delay: 0.4s;
-  background: #2850FF;
-}
+.celebration-confetti:nth-child(1) { left: 10%; background: #ffd166; animation-delay: 0s; }
+.celebration-confetti:nth-child(2) { left: 22%; background: #ef476f; animation-delay: .5s; }
+.celebration-confetti:nth-child(3) { left: 34%; background: #06d6a0; animation-delay: 1s; }
+.celebration-confetti:nth-child(4) { left: 48%; background: #118ab2; animation-delay: 1.5s; }
+.celebration-confetti:nth-child(5) { left: 63%; background: #ffd166; animation-delay: 2s; }
+.celebration-confetti:nth-child(6) { left: 77%; background: #ef476f; animation-delay: 2.5s; }
+.celebration-confetti:nth-child(7) { left: 90%; background: #06d6a0; animation-delay: 3s; }
 
-.firework:nth-child(3) {
-  top: 80%;
-  left: 30%;
-  animation-delay: 0.8s;
-  background: #52c41a;
-}
-
-.firework-container.right .firework:nth-child(1) {
-  top: 30%;
-  right: 20%;
-  left: auto;
-  background: #faad14;
-}
-
-.firework-container.right .firework:nth-child(2) {
-  top: 60%;
-  right: 50%;
-  left: auto;
-  background: #722ed1;
-}
-
-.firework-container.right .firework:nth-child(3) {
-  top: 90%;
-  right: 30%;
-  left: auto;
-  background: #eb2f96;
-}
-
-@keyframes explosion {
+@keyframes confetti-fall {
   0% {
-    transform: scale(1);
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-  }
-
-  100% {
-    transform: scale(20);
+    transform: translateY(0) rotateZ(0deg);
     opacity: 0;
-    box-shadow: 0 0 20px 20px rgba(255, 255, 255, 0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotateZ(320deg);
+    opacity: 0;
   }
 }
 
@@ -211,25 +169,122 @@
 
 .voucher-header {
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #4c6ef5, #2850FF);
-  /* Blue Gradient */
+  background: linear-gradient(120deg, #d62828, #f77f00);
+  /* Red - Orange (VN Champion theme) */
   padding: 2rem;
   border-radius: 12px;
   color: white;
-  box-shadow: 0 4px 15px rgba(40, 80, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(214, 40, 40, 0.45);
+  position: relative;
+  overflow: hidden;
+  animation: header-glow 3s ease-in-out infinite alternate;
+}
+
+.voucher-header::before,
+.voucher-header::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0, transparent 60%);
+  opacity: 0.3;
+}
+
+.voucher-header::before {
+  width: 220px;
+  height: 220px;
+  top: -80px;
+  right: -40px;
+}
+
+.voucher-header::after {
+  width: 160px;
+  height: 160px;
+  bottom: -60px;
+  left: -20px;
+}
+
+.voucher-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .voucher-header h1 {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  animation: title-shimmer 3.5s linear infinite;
 }
 
-.voucher-header p {
+.voucher-header-subtitle {
   margin: 0;
-  opacity: 0.9;
-  font-size: 1.1rem;
+  opacity: 0.95;
+  font-size: 1.02rem;
+  max-width: 640px;
 }
+
+.vn-badge {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(4px);
+  animation: badge-pulse 1.8s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+@keyframes header-glow {
+  from {
+    box-shadow: 0 10px 30px rgba(214, 40, 40, 0.4);
+  }
+
+  to {
+    box-shadow: 0 18px 42px rgba(214, 40, 40, 0.7);
+  }
+}
+
+@keyframes title-shimmer {
+  0% {
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0.3);
+  }
+
+  50% {
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.85);
+  }
+
+  100% {
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(255, 234, 167, 0.6);
+  }
+
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px 0 rgba(255, 234, 167, 0.9);
+  }
+
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(255, 234, 167, 0.6);
+  }
+}
+
+/* (celebration-banner styles removed as requested) */
 
 /* Grid */
 .voucher-grid {
