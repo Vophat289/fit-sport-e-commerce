@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeCategoryComponent } from '../home-category/home-category.component'
 import { HomeProductComponent } from '../home-product/home-product.component';
+import { HomeBestSellingProductComponent } from '../home-best-selling-product/home-best-selling-product.component';
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, HomeCategoryComponent, HomeProductComponent],
+  imports: [CommonModule, HomeCategoryComponent, HomeProductComponent, HomeBestSellingProductComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

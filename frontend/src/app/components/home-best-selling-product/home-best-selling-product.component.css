@@ -1,7 +1,5 @@
 .product-section {
   width: 100%;
-
-
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -9,20 +7,72 @@
 }
 
 /* ================================
-   🔹 GRID DANH SÁCH SẢN PHẨM (6 CỘT × 2 HÀNG)
+   🔹 CAROUSEL CONTAINER
+================================ */
+.products-container {
+  position: relative;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 50px;
+}
+
+/* ================================
+   🔹 GRID DANH SÁCH SẢN PHẨM (5 CỘT)
 ================================ */
 .product-list {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  /* 6 cột */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 cột */
   gap: 28px;
   /* ✅ khoảng cách thoáng hơn */
   justify-content: center;
-  max-width: 1440px;
-  /* ✅ rộng ra */
   width: 100%;
-  margin: 0 auto;
   box-sizing: border-box;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* ================================
+   🔹 CAROUSEL NAVIGATION BUTTONS
+================================ */
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.carousel-nav-btn:hover {
+  background: #007bff;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-nav-btn.prev-btn {
+  left: 0;
+}
+
+.carousel-nav-btn.next-btn {
+  right: 0;
+}
+
+.carousel-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 /* ================================
@@ -82,29 +132,6 @@
   transform: scale(1.05);
 }
 
-.product-image {
-  position: relative;
-}
-
-.btn-detail {
-  background: #fff;
-  color: #333;
-}
-
-.btn-detail:hover {
-  background: #f1f1f1;
-}
-
-.btn-buy {
-  background: #0081fa;
-  color: #fff;
-}
-
-.btn-buy:hover {
-  background: #0054d3;
-  transform: scale(1.05);
-}
-
 /* ================================
    🔹 THÔNG TIN SẢN PHẨM
 ================================ */
@@ -145,69 +172,83 @@
 }
 
 /* ================================
-   🔹 LƯỢT XEM
+   🔹 LƯỢT BÁN
 ================================ */
 .product-views {
   font-size: 13px;
-  color: #888;
-  margin: 0;
+  color: #777;
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.product-views i {
-  color: #888;
-  /* ✅ Icon màu xám */
-  font-size: 14px;
-}
-
-/* ================================
-   🔹 MÀU SẮC
-================================ */
-.product-colors {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.color-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid #ccc;
-  display: inline-block;
-  transition: all 0.25s ease;
-}
-
-.color-dot:hover {
-  transform: scale(1.15);
-  border-color: #444;
-}
-
-/* ================================
-   🔹 SIZE
-================================ */
-.product-sizes {
-  display: flex;
-  flex-wrap: wrap;
   gap: 5px;
 }
 
-.size-tag {
-  font-size: 12px;
-  padding: 3px 6px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #f9f9f9;
-  transition: all 0.2s ease;
+.product-views i {
+  color: #28a745;
+  font-size: 14px;
 }
 
-.size-tag:hover {
-  background: #222;
-  color: #fff;
+/* Icon shopping cart cho lượt bán - màu xanh lá */
+.product-views i.fa-shopping-cart {
+  color: #28a745;
+}
+
+/* Icon shopping cart cho lượt bán */
+.product-views i.fa-cart-shopping {
+  color: #28a745;
+}
+
+/* Container meta: lượt bán + trái tim */
+.product-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee; 
+}
+
+/* Nút trái tim */
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.favorite-btn i {
+    font-size: 18px;
+    color: #ddd;
+    transition: all 0.25s ease;
+}
+
+/* Hover */
+.favorite-btn:hover {
+    background: #fff5f5;
+}
+
+.favorite-btn:hover i {
+    color: #ff475ef8;
+    transform: scale(1.2);
+}
+
+/* Khi đã yêu thích */
+.favorite-btn.active i {
+    color: #e74c3c;
+    transform: scale(1.1);
+    animation: beat 0.4s ease;
+}
+
+@keyframes beat {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.4); }
+    100% { transform: scale(1.1); }
 }
 
 /* ================================
@@ -259,13 +300,21 @@
 ================================ */
 @media (max-width: 1300px) {
   .product-list {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .products-container {
+    padding: 0 45px;
   }
 }
 
 @media (max-width: 1024px) {
   .product-list {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .products-container {
+    padding: 0 45px;
   }
 }
 
@@ -274,77 +323,25 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
   }
+
+  .products-container {
+    padding: 0 40px;
+  }
+
+  .carousel-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 480px) {
   .product-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .products-container {
+    padding: 0 35px;
   }
 }
-/* Container meta: lượt xem + trái tim */
-.product-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #eee; 
-}
 
-/* Lượt xem */
-.product-views {
-    font-size: 13px;
-    color: #777;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.product-views i {
-    color: #999;
-    font-size: 14px;
-}
-
-/* Nút trái tim */
-.favorite-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s ease;
-}
-
-.favorite-btn i {
-    font-size: 18px;
-    color: #ddd;
-    transition: all 0.25s ease;
-}
-
-/* Hover */
-.favorite-btn:hover {
-    background: #fff5f5;
-}
-
-.favorite-btn:hover i {
-    color: #ff475ef8;
-    transform: scale(1.2);
-}
-
-/* Khi đã yêu thích */
-.favorite-btn.active i {
-    color: #e74c3c;
-    transform: scale(1.1);
-    animation: beat 0.4s ease;
-}
-
-@keyframes beat {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.4); }
-    100% { transform: scale(1.1); }
-}

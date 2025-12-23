@@ -39,6 +39,7 @@ export interface Product {
   displayPrices?: number[]
   displayColors?: string[];
   displaySizes?: string[];
+  soldCount?: number; // Số lượng đã bán
 }
 export interface VariantSelection {
   sizeId: string;
@@ -126,5 +127,13 @@ export class ProductService {
   ): Observable<VariantDetails> {
     const url = `${this.apiUrl}/variant-details?product=${productId}&size=${sizeId}&color=${colorId}`;
     return this.http.get<VariantDetails>(url);
+  }
+
+  getRelatedProducts(productId: string, limit: number = 10): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/related/${productId}?limit=${limit}`);
+  }
+
+  getBestSellingProducts(limit: number = 12): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/best-selling?limit=${limit}`);
   }
 }

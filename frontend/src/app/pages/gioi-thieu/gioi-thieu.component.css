@@ -1,111 +1,356 @@
-.about-container {
-  max-width: 1700px;
-  margin: 40px auto;
+/* ================================
+   🔹 HERO SECTION - Background ảnh trái đất
+================================ */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  background-image: url('https://img.freepik.com/free-photo/photorealistic-earth-planet_23-2151075865.jpg?semt=ais_hybrid&w=740&q=80');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+  overflow: hidden;
+  filter: brightness(1.05) contrast(1.1);
+}
+
+/* Overlay gradient mờ dần từ trên xuống - ảnh rõ hơn */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    rgba(255, 255, 255, 0.85) 90%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 1200px;
   padding: 0 20px;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  animation: fadeInDown 1s ease-out;
+}
+
+.hero-subtitle {
+  font-size: 2rem;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   🔹 ABOUT CONTAINER - Nội dung giới thiệu
+================================ */
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 20px;
   color: #333;
-  line-height: 1.7;
-  gap: 16px;
+  line-height: 1.8;
+  background: #fff;
+}
+
+/* ================================
+   🔹 INTRO SECTION - Card giới thiệu
+================================ */
+.intro-section {
+  margin-bottom: 40px;
+}
+
+.intro-card {
+  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #007bff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.intro-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 123, 255, 0.15);
+}
+
+.intro-text {
+  font-size: 18px;
+  color: #2d3748;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ================================
+   🔹 CONTENT SECTION
+================================ */
+.content-section {
+  margin-bottom: 30px;
+  padding: 30px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
 .about-container h1 {
-  grid-column: 2 / span 4;
-  text-align: left;
-  color: #222;
-  margin-top: 2px;
-  font-size: 1.5rem;
-  font-weight: 600;
+  text-align: center;
+  color: #1a202c;
+  margin: 60px 0 30px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.about-container h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #00d4ff);
+  border-radius: 2px;
 }
 
 .about-container h2 {
-  grid-column: 1 / span 12;
-  color: #0077B6;
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 500;
-  margin: 2px 0;
-}
-
-.about-container p {
-  grid-column: 2 / span 10;
-  text-align: justify;
-  margin-bottom: 5px;
-  font-weight: normal;
+  display: none; /* Ẩn h2 trong about-container vì đã có trong hero */
 }
 
 /* ảnh chính giữa */
 .img-container {
-  grid-column: 1 / span 12;
   text-align: center;
+  margin: 50px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .img-large {
-  width: 85%;
+  width: 100%;
+  max-width: 900px;
   height: auto;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.img-large:hover {
+  transform: scale(1.02);
+}
+
+/* ================================
+   🔹 VIDEO CONTAINER
+================================ */
+.video-container {
+  text-align: center;
+  margin: 50px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.video-large {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.video-large:hover {
+  transform: scale(1.02);
 }
 
 /* Tiêu đề phần */
 .section-title,
 .section-title-start {
-  grid-column: 3 / span 5;
   text-align: center;
-  color: #0077B6;
-  font-size: 1.8rem;
-  margin-top: 30px;
+  color: #007bff;
+  font-size: 2.2rem;
+  margin: 60px 0 30px 0;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.section-title::after,
+.section-title-start::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #00d4ff);
+  border-radius: 2px;
 }
 
 /* slogan */
 .slogan-text {
-  grid-column: 2 / span 10;
-  color: #0077B6;
+  color: #007bff;
   text-align: center;
-  font-size: 2rem;
-  font-weight: 500;
-  margin: 10px 0;
-  padding: 10px 0;
-  /* border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd; */
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 60px auto;
+  padding: 30px;
+  max-width: 1000px;
+  background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.slogan-text::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #007bff, transparent);
 }
 
 /* nội dung đoạn văn */
-.section-content,
-.section-content-bold {
-  grid-column: 2 / span 10;
-  text-align:center;
-  margin-bottom: 2px ;
+.section-content {
+  text-align: justify;
+  margin: 0;
+  font-size: 17px;
+  color: #4a5568;
+  line-height: 1.9;
 }
 
 .section-content-bold {
-  font-weight: 500;
-  color: #000;
+  font-weight: 600;
+  color: #1a202c;
+  font-size: 18px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* ================================
+   🔹 HIGHLIGHT BOX
+================================ */
+.highlight-box {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f0f4ff 100%);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 30px 0;
+  border-left: 5px solid #007bff;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.highlight-box:hover {
+  transform: translateX(10px);
 }
 
 /* danh sách sứ mệnh */
+.mission-container {
+  margin: 40px 0;
+}
+
 .mission-list {
-  grid-column: 2 / span 10;
   list-style: none;
   padding: 0;
-  margin: 3px 0 30px 0;
-  font-size: 1.05rem;
+  margin: 0;
 }
 
 .mission-list li {
-  margin-bottom: 15px;
-  padding-left: 25px;
-  position: relative;
+  margin-bottom: 25px;
+  padding: 0;
+}
+
+.mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.mission-item:hover {
+  transform: translateX(10px);
+  box-shadow: 0 8px 30px rgba(0, 123, 255, 0.15);
+  border-left-color: #007bff;
+}
+
+.mission-item i {
+  font-size: 28px;
+  color: #007bff;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.mission-item div {
+  flex: 1;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #4a5568;
   text-align: justify;
 }
 
-.mission-list li::before {
-  content: '✓';
-  color: #0077B6;
-  font-weight: bold;
-  position: absolute;
-  left: 0;
-  top: 0;
+.mission-item strong {
+  color: #1a202c;
+  font-size: 17px;
 }
 
 /* ================================
@@ -138,33 +383,43 @@
 }
 
 .policy-card {
-  background: #f5f5f5;
-  border-radius: 10px;
-  padding: 30px 20px;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border-radius: 20px;
+  padding: 35px 25px;
+  transition: all 0.4s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 }
 
 .policy-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 123, 255, 0.2);
+  border-color: #007bff;
+  background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
 }
 
 .policy-card i {
-  font-size: 32px;
-  color: #0077B6;
-  margin-bottom: 12px;
+  font-size: 40px;
+  color: #007bff;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.policy-card:hover i {
+  transform: scale(1.2) rotate(5deg);
 }
 
 .policy-card h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 6px;
-  color: #111;
+  margin-bottom: 10px;
+  color: #1a202c;
 }
 
 .policy-card p {
-  color: #666;
-  font-size: 14px;
+  color: #4a5568;
+  font-size: 15px;
+  margin: 0;
 }
 
 /* ================================
@@ -182,22 +437,170 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   color: #222;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
+  padding: 20px;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  min-width: 120px;
+}
+
+.value-item:hover {
+  transform: translateY(-8px) scale(1.1);
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+  background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
 }
 
 .value-item i {
-  font-size: 28px;
-  color: #111;
+  font-size: 36px;
+  color: #007bff;
+  transition: all 0.3s ease;
 }
 
 .value-item p {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
 }
 
 .value-item:hover i {
-  color: #0077B6;
-  transform: scale(1.1);
+  transform: scale(1.2) rotate(10deg);
+  color: #0056b3;
+}
+
+/* ================================
+   🔹 RESPONSIVE
+================================ */
+@media (max-width: 1024px) {
+  .hero-section {
+    min-height: 60vh;
+    padding-top: 100px;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .about-container {
+    padding: 60px 20px;
+  }
+
+  .section-title,
+  .section-title-start {
+    font-size: 2rem;
+  }
+
+  .slogan-text {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 50vh;
+    padding-top: 80px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .about-container {
+    padding: 50px 20px;
+  }
+
+  .intro-card {
+    padding: 30px;
+  }
+
+  .intro-text {
+    font-size: 17px;
+  }
+
+  .section-title,
+  .section-title-start {
+    font-size: 1.8rem;
+    margin: 50px 0 25px 0;
+  }
+
+  .slogan-text {
+    font-size: 1.8rem;
+    padding: 25px;
+  }
+
+  .mission-item {
+    padding: 20px;
+  }
+
+  .content-section {
+    padding: 25px;
+  }
+
+  .highlight-box {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 40vh;
+    padding-top: 60px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .about-container {
+    padding: 40px 15px;
+  }
+
+  .intro-card {
+    padding: 25px;
+  }
+
+  .intro-text {
+    font-size: 16px;
+  }
+
+  .section-title,
+  .section-title-start {
+    font-size: 1.5rem;
+    margin: 40px 0 20px 0;
+  }
+
+  .slogan-text {
+    font-size: 1.5rem;
+    padding: 20px;
+  }
+
+  .mission-item {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .mission-item i {
+    font-size: 24px;
+  }
+
+  .highlight-box {
+    padding: 25px;
+  }
 }

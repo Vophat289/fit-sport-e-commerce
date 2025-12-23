@@ -277,5 +277,69 @@
       </div>
     </section>
 
+    <!-- Sản phẩm liên quan -->
+    <section class="related-products-section" *ngIf="!loading && product">
+      <h2 class="related-products-title">Sản phẩm liên quan</h2>
+      
+      <div *ngIf="loadingRelatedProducts" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Đang tải sản phẩm liên quan...</p>
+      </div>
+
+      <div *ngIf="!loadingRelatedProducts && relatedProducts.length > 0" class="related-products-container">
+        <button 
+          class="related-products-nav-btn prev-btn" 
+          *ngIf="canScrollPrev()"
+          (click)="scrollRelatedProductsPrev()"
+          aria-label="Sản phẩm trước">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="related-products-list">
+          <div class="related-product-card" *ngFor="let product of getVisibleRelatedProducts()" (click)="viewProductDetail(product)">
+            <div class="related-product-image" 
+                 (mouseenter)="startImageSlide(product)" 
+                 (mouseleave)="stopImageSlide(product)"
+                 (click)="$event.stopPropagation()">
+              <img *ngFor="let img of getProductImages(product); let i = index"
+                   [src]="img"
+                   [alt]="product.name" 
+                   class="related-product-img"
+                   [class.active]="i === getCurrentImageIndex(product)"
+                   [style.z-index]="i === getCurrentImageIndex(product) ? 1 : 0" />
+            </div>
+
+            <div class="related-product-info">
+              <h3 class="related-product-name">{{ product.name }}</h3>
+              <p class="related-product-price">{{ (product.displayPrice || product.price) | number }} ₫</p>
+              <div class="related-product-meta">
+                <span class="related-product-views">
+                  <i class="fa-solid fa-eye"></i>
+                  {{ product.viewCount || 0 }} lượt xem
+                </span>
+                <button class="related-favorite-btn" 
+                        (click)="toggleFavoriteRelated(product, $event)"
+                        [class.active]="isFavorite(product)">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          class="related-products-nav-btn next-btn" 
+          *ngIf="canScrollNext()"
+          (click)="scrollRelatedProductsNext()"
+          aria-label="Sản phẩm tiếp theo">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <div *ngIf="!loadingRelatedProducts && relatedProducts.length === 0" class="empty-related-products">
+        <p>Chưa có sản phẩm liên quan</p>
+      </div>
+    </section>
+
   </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="banner">
   <div class="slides" [style.transform]="'translateX(-' + current * 100 + '%)'">
     <div class="slide" *ngFor="let img of images">
-      <img [src]="img" alt="Banner">
+      <img [src]="img" alt="Banner" />
     </div>
   </div>
 
@@ -9,12 +9,12 @@
   <button class="arrow right" (click)="next()">&#10095;</button>
 
   <div class="dots">
-    <span 
+    <span
       *ngFor="let img of images; let i = index"
       [class.active]="i === current"
-      (click)="current = i">
+      (click)="current = i"
+    >
     </span>
-    
   </div>
 </div>
 
@@ -22,52 +22,59 @@
 
 <section class="product-section">
   <h2 class="title">Sản phẩm nổi bật</h2>
-<app-home-product></app-home-product>
+  <app-home-product></app-home-product>
 </section>
+
 <section class="about-section">
   <div class="about-container">
-    
     <!-- 🔹 Cột trái: Nội dung -->
     <div class="about-content">
       <h2 class="about-title">
-        <span>FitSport Việt Nam</span> | Cửa Hàng Thể Thao
-        <br> Chính Hãng
+        <span>FitSport Việt Nam</span> | Cửa Hàng Thể Thao <br />
+        Chính Hãng
       </h2>
 
       <p class="about-description">
-        FitSport Việt Nam - thương hiệu đồ thể thao đạt chuẩn Châu Âu.
-        Với hơn <strong>5.000 sản phẩm</strong> cho 60+ môn thể thao, cho mọi đối tượng,
+        FitSport Việt Nam - thương hiệu đồ thể thao đạt chuẩn Châu Âu. Với hơn
+        <strong>5.000 sản phẩm</strong> cho 60+ môn thể thao, cho mọi đối tượng,
         từ người mới bắt đầu đến chuyên nghiệp. Khám phá ngay giày thể thao,
-        quần áo thể thao, dụng cụ thể thao cho cả người lớn và trẻ em.
-        Chất lượng vượt trội, giá cả phải chăng, nhiều ưu đãi lớn!
+        quần áo thể thao, dụng cụ thể thao cho cả người lớn và trẻ em. Chất
+        lượng vượt trội, giá cả phải chăng, nhiều ưu đãi lớn!
       </p>
 
-      <button class="about-btn">
-        Tìm hiểu thêm
-      </button>
+      <button class="about-btn">Tìm hiểu thêm</button>
     </div>
 
     <!-- 🔹 Cột phải: Ảnh -->
     <div class="about-image">
-      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762832859/about-home3_cntchx.jpg" alt="Giới thiệu FitSport" />
+      <img
+        src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762832859/about-home3_cntchx.jpg"
+        alt="Giới thiệu FitSport"
+      />
     </div>
-
   </div>
 </section>
 
-
-
-<app-home-product></app-home-product>
+<section class="product-section">
+  <h2 class="title">Sản phẩm bán chạy nhất</h2>
+  <app-home-best-selling-product></app-home-best-selling-product>
+</section>
 
 <section class="deal-section">
   <h2 class="deal-title">Khám phá các deal hời thể thao</h2>
 
   <div class="deal-banner">
     <div class="deal-item">
-      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828332/banner-voucher-1_ugkbow.png" alt="Deal hot thể thao" />
+      <img
+        src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828332/banner-voucher-1_ugkbow.png"
+        alt="Deal hot thể thao"
+      />
     </div>
     <div class="deal-item">
-      <img src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828334/banner-voucher-2_n7yxeh.png" alt="Deal chồng deal" />
+      <img
+        src="https://res.cloudinary.com/dolqwcawp/image/upload/v1762828334/banner-voucher-2_n7yxeh.png"
+        alt="Deal chồng deal"
+      />
     </div>
   </div>
 </section>
@@ -78,34 +85,44 @@
   <div class="sale-grid">
     <div class="sale-card">
       <div class="sale-content">
-        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
-        <h3 class="sale-text">BỘ SƯU TẬP<br><span class="sale-price">&lt;99K</span></h3>
+        <p class="sale-sub">
+          GIÁ GIẢM<br /><span class="sale-label">PRICE DROP</span>
+        </p>
+        <h3 class="sale-text">
+          BỘ SƯU TẬP<br /><span class="sale-price">&lt;99K</span>
+        </h3>
         <button class="sale-btn">Khám phá</button>
       </div>
     </div>
 
     <div class="sale-card">
       <div class="sale-content">
-        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
-        <h3 class="sale-text">BỘ SƯU TẬP<br><span class="sale-price">&lt;199K</span></h3>
+        <p class="sale-sub">
+          GIÁ GIẢM<br /><span class="sale-label">PRICE DROP</span>
+        </p>
+        <h3 class="sale-text">
+          BỘ SƯU TẬP<br /><span class="sale-price">&lt;199K</span>
+        </h3>
         <button class="sale-btn">Khám phá</button>
       </div>
     </div>
 
     <div class="sale-card">
       <div class="sale-content">
-        <p class="sale-sub">GIÁ GIẢM<br><span class="sale-label">PRICE DROP</span></p>
-        <h3 class="sale-text">TẤT CẢ<br><span class="sale-price">600+ sản phẩm</span></h3>
+        <p class="sale-sub">
+          GIÁ GIẢM<br /><span class="sale-label">PRICE DROP</span>
+        </p>
+        <h3 class="sale-text">
+          TẤT CẢ<br /><span class="sale-price">600+ sản phẩm</span>
+        </h3>
         <button class="sale-btn">Khám phá</button>
       </div>
     </div>
   </div>
 </section>
 
-
 <section class="policy-section">
   <div class="policy-container">
-
     <!-- 🔹 Hàng trên: Chính sách -->
     <div class="policy-grid">
       <div class="policy-card">
@@ -156,11 +173,5 @@
         <p>Nhu cầu</p>
       </div>
     </div>
-
   </div>
 </section>
-
-
-
-
-

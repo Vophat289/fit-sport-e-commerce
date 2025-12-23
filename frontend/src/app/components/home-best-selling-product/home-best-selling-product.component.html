@@ -1,0 +1,76 @@
+<section class="product-section">
+
+  <!-- Khi đang tải -->
+  <p *ngIf="loading" class="loading">Đang tải sản phẩm...</p>
+
+  <!-- Danh sách sản phẩm với carousel -->
+  <div class="products-container" *ngIf="!loading && products.length > 0">
+    <button 
+      class="carousel-nav-btn prev-btn" 
+      *ngIf="canScrollPrev()"
+      (click)="scrollPrev()"
+      aria-label="Sản phẩm trước">
+      <i class="fa fa-chevron-left"></i>
+    </button>
+
+    <div class="product-list">
+      <div class="product-card" *ngFor="let product of getVisibleProducts()" (click)="viewProductDetail(product)">
+
+      <!-- ẢNH SẢN PHẨM -->
+      <div class="product-image" 
+           (mouseenter)="startImageSlide(product)" 
+           (mouseleave)="stopImageSlide(product)"
+           (click)="$event.stopPropagation()">
+        <img *ngFor="let img of getProductImages(product); let i = index"
+             [src]="img"
+             [alt]="product.name" 
+             class="product-img"
+             [class.active]="i === getCurrentImageIndex(product)"
+             [style.z-index]="i === getCurrentImageIndex(product) ? 1 : 0" />
+      </div>
+
+      <!-- THÔNG TIN SẢN PHẨM -->
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ (product.displayPrice || product.price) | number }} ₫</p>
+
+        <!-- Container lượt bán + trái tim -->
+        <div class="product-meta">
+          <span class="product-views">
+            <i class="fa fa-shopping-cart"></i> {{ product.soldCount || 0 }} lượt bán
+          </span>
+
+          <button class="favorite-btn" [class.active]="isFavorite(product)" (click)="toggleFavorite(product, $event)">
+            <i class="fa fa-heart"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ✅ NÚT THÊM VÀO GIỎ -->
+      <div class="product-action" (click)="$event.stopPropagation()">
+        <button class="btn-cart" (click)="openVariantModal(product)">
+          Thêm vào giỏ hàng
+        </button>
+      </div>
+
+      </div>
+    </div>
+
+    <button 
+      class="carousel-nav-btn next-btn" 
+      *ngIf="canScrollNext()"
+      (click)="scrollNext()"
+      aria-label="Sản phẩm tiếp theo">
+      <i class="fa fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Nếu không có sản phẩm -->
+  <p *ngIf="!loading && products.length === 0" class="empty">
+    Chưa có sản phẩm nào
+  </p>
+  <app-product-modal [isModalOpen]="isModalOpen" [selectedProduct]="selectedProduct" (closeModal)="closeModal()"
+    (confirmAddToCart)="handleAddToCart($event)">
+  </app-product-modal>
+</section>
+

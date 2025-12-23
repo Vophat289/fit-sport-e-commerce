@@ -625,12 +625,6 @@
 .product-image {
   position: relative;
 }
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  min-width: 110px;
-}
 
 .btn-detail {
   background: #fff;

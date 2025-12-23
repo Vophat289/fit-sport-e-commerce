@@ -30,8 +30,12 @@ export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
         throw new Error('VNP_RETURNURL is not configured in .env');
     }
     
+    console.log('=== VNPay buildPayment Debug ===');
+    console.log('- Amount nhận vào (VND):', amount);
+    console.log('- Lưu ý: Thư viện VNPay sẽ tự động nhân 100, không cần nhân ở đây');
+    
     const paymentConfig = {
-        vnp_Amount: amount * 100, //Số tiền * 100 (bắt buộc theo chuẩn VNPAY)
+        vnp_Amount: amount, // Thư viện VNPay sẽ tự động nhân 100 trong buildPaymentUrl
         vnp_IpAddr: ipAddr,
         vnp_TxnRef: orderId, // mã đơn hàng
         vnp_OrderInfo: `Order #${orderId}`,
@@ -45,6 +49,8 @@ export function buildPayment(amount, orderId, ipAddr = "127.0.0.1"){
     console.log('- Địa chỉ IP:', ipAddr);
     console.log('- Return URL:', config.returnUrl);
     console.log('- TMN Code:', config.tmnCode ? '***' + config.tmnCode.slice(-3) : 'THIẾU');
+    console.log('- vnp_Amount trong config (VND):', paymentConfig.vnp_Amount);
+    console.log('- vnp_Amount sau khi thư viện nhân 100:', paymentConfig.vnp_Amount * 100);
     
     try {
         const paymentUrl = vnpay.buildPaymentUrl(paymentConfig);

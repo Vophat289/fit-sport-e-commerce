@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product, VariantDetails } from '@app/services/product.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -7,6 +7,7 @@ import { CartService, AddCartPayload } from '@app/services/cart.service';
 import { AuthService } from '@app/services/auth.service';
 import { AccountService } from '@app/services/account.service';
 import { FavoriteService } from '@app/services/favorite.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
@@ -15,7 +16,7 @@ import { FavoriteService } from '@app/services/favorite.service';
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css',
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   product: Product | null = null;
 
   loading: boolean = true;
@@ -40,6 +41,17 @@ export class ProductDetailComponent implements OnInit {
   // ================= TAB =================
   activeTab: 'description' | 'reviews' = 'description';
 
+  // ================= RELATED PRODUCTS =================
+  relatedProducts: Product[] = [];
+  loadingRelatedProducts: boolean = false;
+  currentImageIndex: { [productId: string]: number } = {};
+  imageSlideIntervals: { [productId: string]: any } = {};
+  relatedProductsStartIndex: number = 0;
+  relatedProductsPerView: number = 4; // Số sản phẩm hiển thị mỗi lần (mặc định desktop)
+  
+  // Subscription để cleanup
+  private routeSubscription?: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     public router: Router,
@@ -51,11 +63,40 @@ export class ProductDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug');
+    this.updateProductsPerView();
+    
+    // Subscribe vào route params để reload khi slug thay đổi
+    this.routeSubscription = this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug');
     if (slug) {
       this.loadProduct(slug);
+        // Scroll to top khi chuyển trang
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        this.router.navigate(['/products']);
+      }
+    });
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.updateProductsPerView();
+  }
+
+  updateProductsPerView(): void {
+    const width = window.innerWidth;
+    if (width <= 480) {
+      this.relatedProductsPerView = 1;
+    } else if (width <= 768) {
+      this.relatedProductsPerView = 2;
+    } else if (width <= 1024) {
+      this.relatedProductsPerView = 3;
     } else {
-      this.router.navigate(['/products']);
+      this.relatedProductsPerView = 4;
+    }
+    // Reset index khi thay đổi số lượng hiển thị
+    if (this.relatedProducts.length > 0) {
+      this.relatedProductsStartIndex = 0;
     }
   }
 
@@ -90,6 +131,7 @@ export class ProductDetailComponent implements OnInit {
 
         if (this.product._id) {
           this.loadReviews(this.product._id);
+          this.loadRelatedProducts(this.product._id);
         }
 
         this.loading = false;
@@ -332,5 +374,136 @@ export class ProductDetailComponent implements OnInit {
         if (this.product) this.product.viewCount = res.viewCount;
       },
     });
+  }
+
+  // ================= RELATED PRODUCTS =================
+  loadRelatedProducts(productId: string): void {
+    this.loadingRelatedProducts = true;
+    this.productService.getRelatedProducts(productId, 10).subscribe({
+      next: (products) => {
+        this.relatedProducts = products;
+        this.relatedProductsStartIndex = 0;
+        this.loadingRelatedProducts = false;
+      },
+      error: (err) => {
+        console.error('Lỗi khi tải sản phẩm liên quan:', err);
+        this.relatedProducts = [];
+        this.loadingRelatedProducts = false;
+      },
+    });
+  }
+
+  getVisibleRelatedProducts(): Product[] {
+    const endIndex = this.relatedProductsStartIndex + this.relatedProductsPerView;
+    const visible = this.relatedProducts.slice(this.relatedProductsStartIndex, endIndex);
+    
+    // Nếu chưa đủ số lượng, lấy thêm từ đầu (vòng lặp)
+    if (visible.length < this.relatedProductsPerView && this.relatedProducts.length > 0) {
+      const remaining = this.relatedProductsPerView - visible.length;
+      const fromStart = this.relatedProducts.slice(0, remaining);
+      return [...visible, ...fromStart];
+    }
+    
+    return visible;
+  }
+
+  canScrollPrev(): boolean {
+    return this.relatedProducts.length > this.relatedProductsPerView;
+  }
+
+  canScrollNext(): boolean {
+    return this.relatedProducts.length > this.relatedProductsPerView;
+  }
+
+  scrollRelatedProductsPrev(): void {
+    if (this.relatedProducts.length <= this.relatedProductsPerView) return;
+    
+    this.relatedProductsStartIndex = 
+      (this.relatedProductsStartIndex - this.relatedProductsPerView + this.relatedProducts.length) % this.relatedProducts.length;
+  }
+
+  scrollRelatedProductsNext(): void {
+    if (this.relatedProducts.length <= this.relatedProductsPerView) return;
+    
+    this.relatedProductsStartIndex = 
+      (this.relatedProductsStartIndex + this.relatedProductsPerView) % this.relatedProducts.length;
+  }
+
+  viewProductDetail(product: Product): void {
+    if (product.slug || product._id) {
+      // Scroll to top trước khi navigate
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Navigate đến trang chi tiết sản phẩm (ưu tiên slug, fallback về _id)
+      this.router.navigate(['/products', product.slug || product._id]).then(() => {
+        // Component sẽ tự động reload thông qua route params subscription trong ngOnInit
+      });
+    }
+  }
+
+  getProductImages(product: Product): string[] {
+    const images = product.image && Array.isArray(product.image) ? product.image : [];
+    if (images.length === 0) return ['assets/images/placeholder.jpg'];
+    return images;
+  }
+
+  getCurrentImageIndex(product: Product): number {
+    const productId = product._id || '';
+    return this.currentImageIndex[productId] || 0;
+  }
+
+  startImageSlide(product: Product): void {
+    const productId = product._id || '';
+    const images = product.image && Array.isArray(product.image) ? product.image : [];
+    
+    if (images.length <= 1) return;
+
+    if (this.imageSlideIntervals[productId]) {
+      clearInterval(this.imageSlideIntervals[productId]);
+    }
+
+    this.currentImageIndex[productId] = 0;
+
+    this.imageSlideIntervals[productId] = setInterval(() => {
+      const currentIndex = this.currentImageIndex[productId] || 0;
+      const nextIndex = (currentIndex + 1) % images.length;
+      this.currentImageIndex[productId] = nextIndex;
+    }, 2000);
+  }
+
+  stopImageSlide(product: Product): void {
+    const productId = product._id || '';
+    
+    if (this.imageSlideIntervals[productId]) {
+      clearInterval(this.imageSlideIntervals[productId]);
+      delete this.imageSlideIntervals[productId];
+    }
+
+    this.currentImageIndex[productId] = 0;
+  }
+
+  isFavorite(product: Product): boolean {
+    return this.favoriteService.isFavorite(product._id);
+  }
+
+  toggleFavoriteRelated(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.favoriteService.toggleFavorite(product).subscribe({
+      error: (err) => console.error('Toggle favorite thất bại', err),
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup route subscription
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    
+    // Cleanup tất cả intervals khi component bị destroy
+    Object.keys(this.imageSlideIntervals).forEach(productId => {
+      if (this.imageSlideIntervals[productId]) {
+        clearInterval(this.imageSlideIntervals[productId]);
+      }
+    });
+    this.imageSlideIntervals = {};
   }
 }

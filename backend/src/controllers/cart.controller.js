@@ -519,6 +519,12 @@ export const checkoutVNPay = async (req, res) => {
 
         const finalAmount = totalPrice + deliveryFee - voucherDiscount;
 
+        console.log('- Total Price:', totalPrice);
+        console.log('- Delivery Fee:', deliveryFee);
+        console.log('- Voucher Discount:', voucherDiscount);
+        console.log('- Final Amount (VND):', finalAmount);
+        console.log('- Final Amount sẽ gửi đến VNPay (x100):', finalAmount * 100);
+
         if(finalAmount <= 0){
             return res.status(400).json({message: 'Tổng tiền không hợp lệ'});
         }

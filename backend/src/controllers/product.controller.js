@@ -5,6 +5,8 @@ import fs from "fs";
 import slugify from "slugify";
 import { error } from "console";
 import ProductsVariant from "../models/productsVariant.model.js";
+import OdersDetails from "../models/odersDetails.model.js";
+import Orders from "../models/oders.model.js";
 
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
@@ -415,3 +417,183 @@ export const searchProducts = async (req, res) => {
     res.status(500).json({message: 'Lỗi khi tìm kiếm sản phẩm', error:error.message})
   }
 }
+
+//lấy sản phẩm liên quan
+export const getRelatedProducts = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { limit = 10 } = req.query; // Mặc định lấy 10 sản phẩm
+    const maxLimit = parseInt(limit);
+
+    // Lấy sản phẩm hiện tại để biết category
+    const currentProduct = await Product.findById(productId).lean();
+    
+    if (!currentProduct) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+
+    // Bước 1: Lấy sản phẩm cùng category (ưu tiên), loại trừ sản phẩm hiện tại
+    const relatedProducts = await Product.find({
+      category: currentProduct.category,
+      _id: { $ne: productId }
+    })
+      .populate("category", "name slug")
+      .limit(maxLimit)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    let finalProducts = relatedProducts;
+
+    // Bước 2: Nếu chưa đủ số lượng, lấy thêm sản phẩm khác category
+    if (relatedProducts.length < maxLimit) {
+      const remainingCount = maxLimit - relatedProducts.length;
+      const otherProducts = await Product.find({
+        category: { $ne: currentProduct.category },
+        _id: { $ne: productId }
+      })
+        .populate("category", "name slug")
+        .limit(remainingCount)
+        .sort({ createdAt: -1 })
+        .lean();
+      
+      finalProducts = [...relatedProducts, ...otherProducts];
+    }
+
+    // Tính giá từ variant đầu tiên cho mỗi sản phẩm
+    const productsWithPrice = await Promise.all(
+      finalProducts.map(async (product) => {
+        const firstVariant = await ProductsVariant.findOne({ product_id: product._id })
+          .sort({ createdAt: 1 })
+          .lean();
+        
+        const displayPrice = firstVariant?.price || product.price || 0;
+        
+        return {
+          ...product,
+          displayPrice,
+          price: displayPrice,
+        };
+      })
+    );
+
+    res.json(productsWithPrice);
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy sản phẩm liên quan",
+      error: error.message,
+    });
+  }
+};
+
+//lấy sản phẩm bán chạy nhất
+export const getBestSellingProducts = async (req, res) => {
+  try {
+    const { limit = 12 } = req.query; // Mặc định lấy 12 sản phẩm
+
+    const pipeline = [
+      // 1) Join với orders để lọc đơn hàng hợp lệ
+      {
+        $lookup: {
+          from: "oders",
+          localField: "order_id",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+      { $unwind: "$order" },
+
+      // 2) Chỉ lấy đơn hàng hợp lệ (đã thanh toán, không phải CART)
+      {
+        $match: {
+          "order.status": { $nin: ["CART", "CANCELLED"] },
+          "order.payment_status": { $in: ["SUCCESS", "COD"] },
+        },
+      },
+
+      // 3) Lookup variant để có product_id
+      {
+        $lookup: {
+          from: "productsvariants",
+          localField: "variant_id",
+          foreignField: "_id",
+          as: "variant",
+        },
+      },
+      { $unwind: "$variant" },
+
+      // 4) Group theo product_id để tính tổng số lượng bán
+      {
+        $group: {
+          _id: "$variant.product_id",
+          totalSold: { $sum: "$quantity" },
+        },
+      },
+
+      // 5) Sort theo số lượng bán giảm dần
+      { $sort: { totalSold: -1 } },
+      { $limit: parseInt(limit) },
+    ];
+
+    const bestSellingData = await OdersDetails.aggregate(pipeline);
+
+    // Nếu không có sản phẩm nào bán được, trả về mảng rỗng
+    if (!bestSellingData || bestSellingData.length === 0) {
+      return res.json([]);
+    }
+
+    // Lấy danh sách product IDs
+    const productIds = bestSellingData.map((item) => item._id).filter(id => id != null);
+
+    // Nếu không có product IDs hợp lệ, trả về mảng rỗng
+    if (productIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Lấy thông tin đầy đủ của các sản phẩm
+    const products = await Product.find({ _id: { $in: productIds } })
+      .populate("category", "name slug")
+      .lean();
+
+    // Nếu không tìm thấy sản phẩm, trả về mảng rỗng
+    if (!products || products.length === 0) {
+      return res.json([]);
+    }
+
+    // Tạo map để dễ dàng tìm totalSold
+    const soldCountMap = new Map();
+    bestSellingData.forEach((item) => {
+      if (item._id) {
+        soldCountMap.set(item._id.toString(), item.totalSold || 0);
+      }
+    });
+
+    // Tính giá từ variant đầu tiên và thêm totalSold
+    const productsWithPrice = await Promise.all(
+      products.map(async (product) => {
+        const firstVariant = await ProductsVariant.findOne({ product_id: product._id })
+          .sort({ createdAt: 1 })
+          .lean();
+        
+        const displayPrice = firstVariant?.price || product.price || 0;
+        const totalSold = soldCountMap.get(product._id.toString()) || 0;
+        
+        return {
+          ...product,
+          displayPrice,
+          price: displayPrice,
+          soldCount: totalSold, // Thêm số lượng đã bán
+        };
+      })
+    );
+
+    // Sắp xếp lại theo thứ tự soldCount (vì có thể thứ tự bị thay đổi sau khi populate)
+    productsWithPrice.sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0));
+
+    res.json(productsWithPrice);
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy sản phẩm bán chạy",
+      error: error.message,
+    });
+  }
+};
