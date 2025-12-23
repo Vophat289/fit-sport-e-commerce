@@ -88,7 +88,8 @@ export class ReviewAdminComponent implements OnInit {
       })
       .subscribe({
         next: (data) => {
-          this.reviews = data || [];
+          console.log('Reviews data received:', data);
+          this.reviews = Array.isArray(data) ? data : [];
           this.recalcPagination();
           this.loading = false;
         },
@@ -121,10 +122,22 @@ export class ReviewAdminComponent implements OnInit {
   }
 
   getProductName(r: any): string {
-    return r?.product?.name || '—';
+    if (!r) return '—';
+    // Kiểm tra nếu product là object (đã populate)
+    if (r.product && typeof r.product === 'object') {
+      return r.product.name || '—';
+    }
+    // Nếu product là string (chưa populate) hoặc null
+    return '—';
   }
 
   getUserName(r: any): string {
-    return r?.user?.name || r?.user?.email || '—';
+    if (!r) return '—';
+    // Kiểm tra nếu user là object (đã populate)
+    if (r.user && typeof r.user === 'object') {
+      return r.user.name || r.user.email || '—';
+    }
+    // Nếu user là string (chưa populate) hoặc null
+    return '—';
   }
 }

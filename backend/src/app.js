@@ -11,6 +11,7 @@ import voucherRoutes from './routes/voucher.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import orderRoutes from "./routes/order.routes.js";
+import favoriteRoutes from './routes/favorite.routes.js';
 
 
 import path from 'path';
@@ -23,6 +24,7 @@ import adminContactRoutes from './routes/admin/contact.admin.routes.js';
 import adminNewsRoutes from './routes/admin/news.admin.routes.js';
 import adminOrderRoutes from './routes/admin/order.admin.routes.js';
 import adminVariantRoutes from './routes/admin/variant.admin.routes.js';
+import adminReviewRoutes from './routes/admin/review.admin.routes.js';
 import vnpayRoute from "./routes/vnpay.route.js";
 import { returnUrl } from "./controllers/vnpay.controller.js";
 
@@ -74,6 +76,7 @@ app.use("/api/voucher", voucherRoutes);
 app.use("/api/account/vouchers", voucherRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/favorites", favoriteRoutes);
 // app.use ("/api/news", newsRoutes);
 
 // Kết nối route admin
@@ -87,6 +90,7 @@ app.use("/api/admin/contacts", adminContactRoutes);
 app.use("/api/admin", adminVariantRoutes);
 app.use("/api/admin/news", adminNewsRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/reviews", adminReviewRoutes);
 
 app.use("/api/vnpay", vnpayRoute);
 

@@ -26,8 +26,16 @@ export const getAllReviews = async (req, res) => {
     }
 
     const reviews = await Review.find(filter)
-      .populate('user', 'name email')
-      .populate('product', 'name')
+      .populate({
+        path: 'user',
+        select: 'name email',
+        model: 'User'
+      })
+      .populate({
+        path: 'product',
+        select: 'name',
+        model: 'Product'
+      })
       .sort({ createdAt: -1 })
       .lean();
 

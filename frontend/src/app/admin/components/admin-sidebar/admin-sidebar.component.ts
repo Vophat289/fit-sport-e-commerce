@@ -54,4 +54,9 @@ export class AdminSidebarComponent implements OnInit {
   isActive(route: string): boolean {
     return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
   }
+
+  // Navigate về trang chủ/cửa hàng
+  goToStore(): void {
+    this.router.navigate(['/']);
+  }
 }

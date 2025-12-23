@@ -131,7 +131,7 @@
 
                     <div class="product-info">
                         <h3 class="product-name">{{ product.name }}</h3>
-                        <p class="product-price">{{ product.price | number }} ₫</p>
+                        <p class="product-price">{{ (product.displayPrice || product.price) | number }} ₫</p>
                         <!-- Container chứa lượt xem + trái tim -->
                         <div class="product-meta">
                             <p class="product-views">

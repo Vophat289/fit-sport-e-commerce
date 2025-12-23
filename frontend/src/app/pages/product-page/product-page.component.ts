@@ -135,9 +135,10 @@ export class ProductPageComponent implements OnInit {
     }
 
     result = result.filter((product) => {
+      const productPrice = product.displayPrice || product.price;
       return (
-        product.price >= this.filters.priceRange.min &&
-        product.price <= this.filters.priceRange.max
+        productPrice >= this.filters.priceRange.min &&
+        productPrice <= this.filters.priceRange.max
       );
     });
 

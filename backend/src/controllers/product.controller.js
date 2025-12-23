@@ -9,8 +9,28 @@ import ProductsVariant from "../models/productsVariant.model.js";
 //lấy toàn bộ sản phẩm
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category", "name slug") .sort({ createdAt: -1 });
-    res.json(products);
+    const products = await Product.find().populate("category", "name slug").sort({ createdAt: -1 }).lean();
+    
+    // Tính giá từ variant đầu tiên cho mỗi sản phẩm (giống trang chi tiết)
+    const productsWithPrice = await Promise.all(
+      products.map(async (product) => {
+        // Lấy variant đầu tiên (theo thứ tự trong DB, giống như trang chi tiết chọn màu đầu tiên + size đầu tiên)
+        const firstVariant = await ProductsVariant.findOne({ product_id: product._id })
+          .sort({ createdAt: 1 })
+          .lean();
+        
+        // Nếu có variant, dùng giá của variant đó, nếu không dùng giá cũ
+        const displayPrice = firstVariant?.price || product.price || 0;
+        
+        return {
+          ...product,
+          displayPrice, // Giá của variant đầu tiên
+          price: displayPrice, // Ghi đè price để đảm bảo consistency
+        };
+      })
+    );
+    
+    res.json(productsWithPrice);
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi lấy danh sách sản phẩm",
@@ -89,14 +109,34 @@ export const getProductsByCategory = async (req, res) => {
     const products = await Product.find({ category: category._id }).populate(
       "category",
       "name slug"
-    );
+    ).lean();
+    
     if (!products || products.length === 0) {
       return res
         .status(404)
         .json({ message: "Không có sản phẩm trong danh mục này" });
     }
 
-    res.json(products);
+    // Tính giá từ variant đầu tiên cho mỗi sản phẩm (giống trang chi tiết)
+    const productsWithPrice = await Promise.all(
+      products.map(async (product) => {
+        // Lấy variant đầu tiên (theo thứ tự trong DB)
+        const firstVariant = await ProductsVariant.findOne({ product_id: product._id })
+          .sort({ createdAt: 1 })
+          .lean();
+        
+        // Nếu có variant, dùng giá của variant đó, nếu không dùng giá cũ
+        const displayPrice = firstVariant?.price || product.price || 0;
+        
+        return {
+          ...product,
+          displayPrice, // Giá của variant đầu tiên
+          price: displayPrice, // Ghi đè price để đảm bảo consistency
+        };
+      })
+    );
+
+    res.json(productsWithPrice);
   } catch (error) {
     return res
       .status(500)
@@ -345,12 +385,31 @@ export const searchProducts = async (req, res) => {
         {name: { $regex: q, $options: 'i' }}, //regex là tìm kiếm theo pattern nhen và option i cũng v
         {description: {$regex: q, $options: 'i'}}
       ]
-    }).populate("category","name slug");
+    }).populate("category","name slug").lean();
+
+    // Tính giá từ variant đầu tiên cho mỗi sản phẩm (giống trang chi tiết)
+    const productsWithPrice = await Promise.all(
+      products.map(async (product) => {
+        // Lấy variant đầu tiên (theo thứ tự trong DB)
+        const firstVariant = await ProductsVariant.findOne({ product_id: product._id })
+          .sort({ createdAt: 1 })
+          .lean();
+        
+        // Nếu có variant, dùng giá của variant đó, nếu không dùng giá cũ
+        const displayPrice = firstVariant?.price || product.price || 0;
+        
+        return {
+          ...product,
+          displayPrice, // Giá của variant đầu tiên
+          price: displayPrice, // Ghi đè price để đảm bảo consistency
+        };
+      })
+    );
 
     res.json({
       query: q,
-      count: products.length,
-      products:  products
+      count: productsWithPrice.length,
+      products: productsWithPrice
     });
   }catch(error){
     res.status(500).json({message: 'Lỗi khi tìm kiếm sản phẩm', error:error.message})

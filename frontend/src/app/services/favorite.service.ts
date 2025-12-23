@@ -8,6 +8,7 @@ export interface Product {
   _id: string;       // luôn bắt buộc
   name: string;
   price: number;
+  displayPrice?: number;
   slug?: string;
   image?: string[];
   viewCount?: number;

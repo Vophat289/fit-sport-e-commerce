@@ -10,6 +10,8 @@
   z-index: 1000;
   overflow-y: auto;
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -32,6 +34,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  flex: 1;
 }
 
 .menu li {
@@ -82,6 +85,49 @@
 :host-context(.admin-theme-light) .menu li.active {
   background: #2563eb;
   color: #ffffff;
+}
+
+/* Nút quay lại cửa hàng */
+.back-to-store {
+  padding: 20px;
+  border-top: 1px solid #333;
+  margin-top: auto;
+}
+
+.store-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  color: #ccc;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: color 0.2s ease;
+  text-align: left;
+}
+
+.store-btn:hover {
+  color: white;
+}
+
+.store-btn i {
+  font-size: 18px;
+}
+
+:host-context(.admin-theme-light) .back-to-store {
+  border-top: 1px solid #cbd5e1;
+}
+
+:host-context(.admin-theme-light) .store-btn {
+  color: #0f172a;
+}
+
+:host-context(.admin-theme-light) .store-btn:hover {
+  color: #1e293b;
 }
 
 @media (max-width: 768px) {

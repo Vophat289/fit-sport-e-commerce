@@ -21,8 +21,7 @@
 
       <div class="info">
         <h4 (click)="goToProduct(product.slug)">{{ product.name }}</h4>
-        <p>{{ product.price | number }}₫</p>
-
+        <p>{{ (product.displayPrice ?? product.price ?? 0) | number }}₫</p>
         <div class="product-meta">
           <div class="product-views">
             <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
