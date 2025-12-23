@@ -24,17 +24,27 @@ export const createCategory = async (req, res) => {
             return res.status(400).json({message: "Tên danh mục bắt buộc"});
         }
 
+        //kiểm tra bắt buộc phải có file ảnh
+        if(!req.file){
+            return res.status(400).json({message: "Vui lòng chọn ảnh danh mục"});
+        }
+
+        // Kiểm tra loại file - chỉ chấp nhận JPG và PNG
+        const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if(!allowedMimeTypes.includes(req.file.mimetype.toLowerCase())){
+            fs.unlinkSync(req.file.path); //xóa file không hợp lệ
+            return res.status(400).json({message: "Chỉ chấp nhận file JPG và PNG"});
+        }
+
         let imageUrl = "";
 
-        //nếu thêm ảnh
-        if(req.file){
-            const result = await cloudinary.uploader.upload(req.file.path, {
-                folder: "categories", //categories là folder trên cloudinary
-            });
+        //upload ảnh lên cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "categories", //categories là folder trên cloudinary
+        });
 
-            imageUrl = result.secure_url; 
-            fs.unlinkSync(req.file.path) //xóa ảnh 
-        }
+        imageUrl = result.secure_url; 
+        fs.unlinkSync(req.file.path) //xóa ảnh tạm
 
         //ktra slug da co chua
         const exiting = await Category.findOne({ slug });
@@ -64,16 +74,36 @@ export const updateCategory = async (req, res) => {
             return res.status(404).json({message:"Không tìm thấy danh mục"})
         }
 
-        //nếu file có ảnh mới thì upload lên cloudinary
+        //nếu có file ảnh mới thì upload lên cloudinary
         if(req.file){
-            const uploadResult = await cloudinary.uploader.rename(req.file.path, {
+            // Kiểm tra loại file - chỉ chấp nhận JPG và PNG
+            const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if(!allowedMimeTypes.includes(req.file.mimetype.toLowerCase())){
+                fs.unlinkSync(req.file.path); //xóa file không hợp lệ
+                return res.status(400).json({message: "Chỉ chấp nhận file JPG và PNG"});
+            }
+
+            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
                 folder: "categories",
             });
 
-            //xóa file ảnh cũ nếu mún
+            //xóa file ảnh cũ trên cloudinary nếu có
+            if(category.image){
+                try {
+                    // Lấy public_id từ URL cũ
+                    const urlParts = category.image.split('/');
+                    const filename = urlParts[urlParts.length - 1];
+                    const publicId = `categories/${filename.split('.')[0]}`;
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (deleteError) {
+                    console.warn('Không thể xóa ảnh cũ trên cloudinary:', deleteError);
+                }
+            }
+
             category.image = uploadResult.secure_url;
             fs.unlinkSync(req.file.path);
         }
+        // Nếu không có file mới, giữ nguyên ảnh cũ (không cần làm gì)
 
         //cập nhật dữ liệu
         if(name?.trim()){

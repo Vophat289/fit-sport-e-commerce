@@ -321,6 +321,7 @@ code {
 }
 
 .image-preview {
+  position: relative;
   border: 1px dashed #334155;
   border-radius: 10px;
   padding: 10px;

@@ -128,21 +128,36 @@
         </label>
 
         <label>
-          URL ảnh
+          Ảnh danh mục <span class="required" *ngIf="!editCategory">*</span>
           <input
-            type="text"
-            [(ngModel)]="categoryForm.image"
-            name="image"
-            placeholder="https://..."
+            type="file"
+            (change)="onFileChange($event)"
+            accept="image/jpeg,image/jpg,image/png"
+            name="imageFile"
+            [required]="!editCategory"
           />
+          <small style="display: block; margin-top: 4px; color: #64748b;">
+            Chỉ chấp nhận file JPG và PNG
+            <span *ngIf="editCategory"> (Để trống nếu muốn giữ ảnh cũ)</span>
+          </small>
         </label>
 
-        <div class="image-preview" *ngIf="categoryForm.image">
+        <div class="image-preview" *ngIf="imagePreview">
           <img
-            [src]="categoryForm.image"
+            [src]="imagePreview"
             alt="category preview"
             onerror="this.style.display='none'"
           />
+          <button
+            type="button"
+            class="btn icon danger"
+            (click)="removeImage()"
+            *ngIf="selectedFile"
+            style="position: absolute; top: 8px; right: 8px;"
+            title="Xóa ảnh đã chọn"
+          >
+            <i class="bx bx-trash"></i>
+          </button>
         </div>
 
         <div class="modal-actions">

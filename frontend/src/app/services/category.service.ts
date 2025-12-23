@@ -33,8 +33,16 @@ export class CategoryService{
         return this.http.post<Category[]>(this.apiUrl, data);
     }
 
+    createWithFile(formData: FormData): Observable<Category>{
+        return this.http.post<Category>(this.apiUrl, formData);
+    }
+
     update(id:string, data: Partial<Category>): Observable<Category>{
         return this.http.post<Category>(`${this.apiUrl}/${id}`, data)
+    }
+
+    updateWithFile(id: string, formData: FormData): Observable<Category>{
+        return this.http.post<Category>(`${this.apiUrl}/${id}`, formData);
     }
 
     delete(id: string): Observable<any>{

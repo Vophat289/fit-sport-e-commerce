@@ -18,8 +18,9 @@ export class CategoryAdminComponent implements OnInit {
   categoryForm: Partial<Category> = {
     name: '',
     description: '',
-    image: '',
   };
+  selectedFile: File | null = null; // File ảnh được chọn
+  imagePreview: string | null = null; // Preview ảnh
   showForm: boolean = false;
   isLoading: boolean = false; //loading state
   searchTerm: string = ''; //từ khóa tìm kiếm
@@ -56,7 +57,9 @@ export class CategoryAdminComponent implements OnInit {
   //hàm tạo form create
   createAdminForm(): void {
     this.editCategory = null;
-    this.categoryForm = { name: '', description: '', image: '' };
+    this.categoryForm = { name: '', description: '' };
+    this.selectedFile = null;
+    this.imagePreview = null;
     this.showForm = true;
   }
 
@@ -66,15 +69,71 @@ export class CategoryAdminComponent implements OnInit {
     this.categoryForm = {
       name: category.name,
       description: category.description || '',
-      image: category.image || '',
     };
+    this.selectedFile = null;
+    this.imagePreview = category.image || null;
     this.showForm = true;
+  }
+
+  //hàm xử lý khi chọn file
+  onFileChange(event: any): void {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Kiểm tra loại file - chỉ chấp nhận JPG và PNG
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type.toLowerCase())) {
+        this.showMessage('error', 'Chỉ chấp nhận file JPG và PNG');
+        // Reset file input
+        event.target.value = '';
+        return;
+      }
+      
+      // Kiểm tra kích thước file (tối đa 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.showMessage('error', 'Kích thước file không được vượt quá 5MB');
+        // Reset file input
+        event.target.value = '';
+        return;
+      }
+
+      this.selectedFile = file;
+      
+      // Tạo preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target?.result || null;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  //hàm xóa ảnh đã chọn
+  removeImage(): void {
+    this.selectedFile = null;
+    this.imagePreview = this.editCategory?.image || null;
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 
   //hàm submit form
   submitForm(): void {
     if (!this.categoryForm.name?.trim()) {
       this.showMessage('error', 'Tên danh mục không được để trống');
+      return;
+    }
+
+    // Kiểm tra bắt buộc phải có file ảnh khi tạo mới
+    if (!this.editCategory && !this.selectedFile) {
+      this.showMessage('error', 'Vui lòng chọn ảnh danh mục');
+      return;
+    }
+
+    // Khi sửa, nếu không chọn file mới thì giữ ảnh cũ
+    if (this.editCategory && !this.selectedFile && !this.editCategory.image) {
+      this.showMessage('error', 'Vui lòng chọn ảnh danh mục');
       return;
     }
 
@@ -85,18 +144,39 @@ export class CategoryAdminComponent implements OnInit {
 
     this.isLoading = true;
 
-    if (this.editCategory) {
+    // Luôn gửi FormData khi có file, hoặc khi tạo mới (bắt buộc có file)
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('name', this.categoryForm.name!.trim());
+      formData.append('description', this.categoryForm.description || '');
+      formData.append('image', this.selectedFile);
+
+      if (this.editCategory) {
+        this.categoryService
+          .updateWithFile(this.editCategory._id!, formData)
+          .subscribe({
+            next: () => this.handleSuccess('Cập nhật thành công'),
+            error: () => this.handleError('Có lỗi khi cập nhật'),
+          });
+      } else {
+        this.categoryService.createWithFile(formData).subscribe({
+          next: () => this.handleSuccess('Thêm danh mục thành công'),
+          error: () => this.handleError('Lỗi khi thêm danh mục'),
+        });
+      }
+    } else {
+      // Trường hợp sửa nhưng không chọn file mới - giữ ảnh cũ
+      // Không cần gửi gì về ảnh, backend sẽ giữ nguyên
+      const formData = new FormData();
+      formData.append('name', this.categoryForm.name!.trim());
+      formData.append('description', this.categoryForm.description || '');
+
       this.categoryService
-        .update(this.editCategory._id!, this.categoryForm)
+        .updateWithFile(this.editCategory!._id!, formData)
         .subscribe({
           next: () => this.handleSuccess('Cập nhật thành công'),
           error: () => this.handleError('Có lỗi khi cập nhật'),
         });
-    } else {
-      this.categoryService.create(this.categoryForm).subscribe({
-        next: () => this.handleSuccess('Thêm danh mục thành công'),
-        error: () => this.handleError('Lỗi khi thêm danh mục'),
-      });
     }
   }
 
@@ -123,6 +203,9 @@ export class CategoryAdminComponent implements OnInit {
   private handleSuccess(message: string): void {
     this.showMessage('success', message);
     this.isLoading = false;
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.showForm = false;
     this.loadCategories();
   }
 
