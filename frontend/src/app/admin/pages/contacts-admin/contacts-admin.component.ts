@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContactService } from '../../../services/contact.service';
+import { NotificationService } from '../../../services/notification.service';
 
 interface Contact {
   _id: string;
@@ -29,7 +30,10 @@ export class ContactsAdminComponent implements OnInit {
   loading = false;
   errorMsg = '';
 
-  constructor(private contactService: ContactService) {}
+  constructor(
+    private contactService: ContactService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.getContacts();
@@ -53,16 +57,18 @@ export class ContactsAdminComponent implements OnInit {
   }
 
   deleteContact(id: string): void {
-    if (!confirm('Bạn có chắc muốn xóa liên hệ này?')) return;
+    this.notification.confirmDelete('liên hệ này').then((confirmed) => {
+      if (!confirmed) return;
 
-    this.contactService.deleteContact(id).subscribe({
-      next: (res: any) => {
-        alert('Xóa thành công!');
-        this.getContacts();
-      },
-      error: () => {
-        alert('Không thể xóa liên hệ');
-      }
+      this.contactService.deleteContact(id).subscribe({
+        next: (res: any) => {
+          this.notification.success('Xóa thành công!');
+          this.getContacts();
+        },
+        error: () => {
+          this.notification.error('Không thể xóa liên hệ');
+        }
+      });
     });
   }
 
@@ -86,6 +92,6 @@ export class ContactsAdminComponent implements OnInit {
   }
 
 openCreateForm(): void {
-    alert('Chức năng tạo liên hệ mới sẽ được mở ở đây!');
+    this.notification.info('Chức năng tạo liên hệ mới sẽ được mở ở đây!');
   }
 }

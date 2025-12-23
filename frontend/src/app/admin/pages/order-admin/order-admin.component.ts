@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderAdminService, Order, OrderDetail } from '../../services/order-admin.service';
 import { OrderDetailModalComponent } from '../order-detail-modal/order-detail-modal.component';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-order-admin',
@@ -53,7 +54,10 @@ export class OrderAdminComponent implements OnInit {
     { value: 'COD', label: 'COD' }
   ];
 
-  constructor(private orderService: OrderAdminService) {}
+  constructor(
+    private orderService: OrderAdminService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -78,7 +82,7 @@ export class OrderAdminComponent implements OnInit {
       error: (err) => {
         console.error('Lỗi khi tải đơn hàng:', err);
         this.loading = false;
-        alert('Lỗi khi tải danh sách đơn hàng');
+        this.notification.error('Lỗi khi tải danh sách đơn hàng');
       }
     });
   }
@@ -113,7 +117,7 @@ export class OrderAdminComponent implements OnInit {
       error: (err) => {
         console.error('Lỗi khi tải chi tiết đơn hàng:', err);
         this.loading = false;
-        alert('Lỗi khi tải chi tiết đơn hàng');
+        this.notification.error('Lỗi khi tải chi tiết đơn hàng');
       }
     });
   }

@@ -10,6 +10,7 @@ import {
   AddCartPayload,
 } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -37,7 +38,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -131,12 +133,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     // Kiểm tra tồn kho
     if (allowedQty <= 0) {
-      alert('Sản phẩm này đã hết tồn kho.');
+      this.notification.warning('Sản phẩm này đã hết tồn kho.');
       return;
     }
 
     if (quantity > allowedQty) {
-      alert(`Chỉ còn ${allowedQty} sản phẩm có thể thêm.`);
+      this.notification.warning(`Chỉ còn ${allowedQty} sản phẩm có thể thêm.`);
       quantity = allowedQty;
     }
 
@@ -158,12 +160,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     this.cartService.addToCart(payload).subscribe({
       next: () => {
-        alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+        this.notification.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'Thêm vào giỏ hàng');
         this.loadCart();
       },
       error: (err) => {
         console.error('Thêm vào giỏ hàng thất bại:', err);
-        alert('Thêm vào giỏ hàng thất bại.');
+        this.notification.error('Thêm vào giỏ hàng thất bại.');
       },
     });
   }
@@ -181,14 +183,16 @@ export class CartPageComponent implements OnInit, OnDestroy {
     if (isNaN(newQuantity) || newQuantity < 0) newQuantity = 0;
 
     if (newQuantity > maxStock) {
-      alert(`Chỉ còn ${maxStock} sản phẩm trong kho.`);
+      this.notification.warning(`Chỉ còn ${maxStock} sản phẩm trong kho.`);
       newQuantity = maxStock;
     }
 
     if (newQuantity === 0) {
-      if (confirm(`Bạn có muốn xóa "${currentItem.name}" khỏi giỏ hàng?`)) {
-        this.deleteItem(itemId);
-      }
+      this.notification.confirmDelete(currentItem.name).then((confirmed) => {
+        if (confirmed) {
+          this.deleteItem(itemId);
+        }
+      });
       return;
     }
 
@@ -198,7 +202,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: () => {},
       error: (err) => {
-        alert('Cập nhật thất bại!');
+        this.notification.error('Cập nhật thất bại!');
         this.loadCart();
       },
     });
@@ -206,14 +210,15 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
   deleteItem(itemId: number | undefined): void {
     if (itemId === undefined) return;
-    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
-
-    this.cartService.deleteCartItem(itemId).subscribe({
-      next: () => this.loadCart(),
-      error: (err) => {
-        console.error('Xóa thất bại', err);
-        alert('Xóa thất bại!');
-      },
+    this.notification.confirmDelete().then((confirmed) => {
+      if (!confirmed) return;
+      this.cartService.deleteCartItem(itemId).subscribe({
+        next: () => this.loadCart(),
+        error: (err) => {
+          console.error('Xóa thất bại', err);
+          this.notification.error('Xóa thất bại!');
+        },
+      });
     });
   }
 
@@ -257,7 +262,7 @@ applyVoucher(): void {
   proceedToCheckout(): void {
     const selected = this.cartItems.filter((i) => i.selected);
     if (selected.length === 0) {
-      alert('Chọn ít nhất 1 sản phẩm để thanh toán.');
+      this.notification.warning('Chọn ít nhất 1 sản phẩm để thanh toán.');
       return;
     }
     // Lưu selected items vào localStorage để checkout có thể lấy
@@ -279,30 +284,32 @@ applyVoucher(): void {
   deleteSelectedItems(): void {
     const selectedItems = this.cartItems.filter((i) => i.selected);
     if (selectedItems.length === 0) {
-      alert('Chọn ít nhất 1 sản phẩm để xóa.');
+      this.notification.warning('Chọn ít nhất 1 sản phẩm để xóa.');
       return;
     }
 
-    if (
-      !confirm(
-        `Bạn có chắc chắn muốn xóa ${selectedItems.length} sản phẩm đã chọn?`
-      )
-    )
-      return;
+    this.notification.confirm(
+      `Bạn có chắc chắn muốn xóa ${selectedItems.length} sản phẩm đã chọn?`,
+      'Xác nhận xóa',
+      'Xóa',
+      'Hủy'
+    ).then((confirmed) => {
+      if (!confirmed) return;
 
-    // Dùng Promise.all để xóa tất cả
-    const deleteObservables = selectedItems.map((item) =>
-      this.cartService.deleteCartItem(item._id)
-    );
+      // Dùng Promise.all để xóa tất cả
+      const deleteObservables = selectedItems.map((item) =>
+        this.cartService.deleteCartItem(item._id)
+      );
 
-    Promise.all(deleteObservables.map((obs) => obs.toPromise()))
-      .then(() => {
-        alert('Đã xóa các sản phẩm đã chọn!');
-        this.loadCart();
-      })
-      .catch((err) => {
-        console.error('Xóa thất bại', err);
-        alert('Xóa thất bại!');
-      });
+      Promise.all(deleteObservables.map((obs) => obs.toPromise()))
+        .then(() => {
+          this.notification.success('Đã xóa các sản phẩm đã chọn!');
+          this.loadCart();
+        })
+        .catch((err) => {
+          console.error('Xóa thất bại', err);
+          this.notification.error('Xóa thất bại!');
+        });
+    });
   }
 }

@@ -22,7 +22,24 @@ export const appConfig: ApplicationConfig = {
 
     importProvidersFrom(
       BrowserAnimationsModule,
-      ToastrModule.forRoot()
+      ToastrModule.forRoot({
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+        closeButton: true,
+        progressBar: true,
+        enableHtml: true,
+        tapToDismiss: true,
+        newestOnTop: true,
+        maxOpened: 5,
+        autoDismiss: true,
+        iconClasses: {
+          error: 'toast-error',
+          info: 'toast-info',
+          success: 'toast-success',
+          warning: 'toast-warning'
+        }
+      })
     ),
   ],
 };

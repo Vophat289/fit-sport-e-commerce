@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoryService, Category } from '@app/services/category.service';
+import { NotificationService } from '@app/services/notification.service';
 
 @Component({
   selector: 'app-category-admin',
@@ -28,7 +29,10 @@ export class CategoryAdminComponent implements OnInit {
   readonly placeholderImage =
     "data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='120' height='120' rx='16' ry='16' fill='%231e293b'/%3E%3Cpath d='M24 84l16-20 20 24 12-14 24 30H24z' fill='%2338bdf8' opacity='0.4'/%3E%3Ccircle cx='42' cy='44' r='12' fill='%2394a3b8' opacity='0.6'/%3E%3C/svg%3E";
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -98,20 +102,20 @@ export class CategoryAdminComponent implements OnInit {
 
   //xóa danh mục
   deleteAdminForm(id: string): void {
-    if (!confirm('Bạn có xác nhận xóa danh mục này')) {
-      return;
-    }
+    this.notification.confirmDelete('danh mục này').then((confirmed) => {
+      if (!confirmed) return;
 
-    this.isLoading = true;
-    this.categoryService.delete(id).subscribe({
-      next: () => {
-        this.showMessage('success', 'Xóa danh mục thành công');
-        this.loadCategories();
-      },
-      error: () => {
-        this.showMessage('error', 'Xóa danh mục không thành công');
-        this.isLoading = false;
-      },
+      this.isLoading = true;
+      this.categoryService.delete(id).subscribe({
+        next: () => {
+          this.notification.success('Xóa danh mục thành công');
+          this.loadCategories();
+        },
+        error: () => {
+          this.notification.error('Xóa danh mục không thành công');
+          this.isLoading = false;
+        },
+      });
     });
   }
 

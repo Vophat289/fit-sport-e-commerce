@@ -21,7 +21,7 @@
 
       <div class="info">
         <h4 (click)="goToProduct(product.slug)">{{ product.name }}</h4>
-        <p>{{ (product.displayPrice ?? product.price ?? 0) | number }}₫</p>
+        <p>{{ ((product.displayPrice ?? product.price) | number) }}₫</p>
         <div class="product-meta">
           <div class="product-views">
             <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
@@ -35,7 +35,20 @@
         </div>
       </div>
 
-      
+      <!-- Nút thêm vào giỏ hàng -->
+      <div class="product-action">
+        <button class="btn-cart" (click)="openVariantModal(product)">
+          <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Modal chọn variant -->
+  <app-product-modal 
+    [isModalOpen]="isModalOpen" 
+    [selectedProduct]="selectedProduct" 
+    (closeModal)="closeModal()"
+    (confirmAddToCart)="handleAddToCart($event)">
+  </app-product-modal>
 </div>

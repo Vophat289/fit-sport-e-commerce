@@ -6,6 +6,7 @@ import { ProductService } from '../../../services/product.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { NotificationService } from '../../../services/notification.service';
 
 // --- INTERFACES ---
 
@@ -68,7 +69,8 @@ export class VariantAdminComponent implements OnInit {
     private fb: FormBuilder,
     private variantService: VariantService,
     private productService: ProductService,
-    private http: HttpClient
+    private http: HttpClient,
+    private notification: NotificationService
   ) {
     this.variantForm = this.fb.group({
       size_id: ['', Validators.required],
@@ -189,17 +191,19 @@ export class VariantAdminComponent implements OnInit {
   }
 
   deleteVariant(id: string): void {
-    if (!confirm('Bạn có chắc chắn muốn xóa biến thể này?')) return;
-    this.isLoading = true;
-    this.variantService.deleteVariant(id).subscribe({
-      next: () => {
-        this.showMessage('success', 'Xóa biến thể thành công.');
-        this.loadVariants(this.productId!);
-      },
-      error: () => {
-        this.showMessage('error', 'Lỗi khi xóa biến thể.');
-        this.isLoading = false;
-      },
+    this.notification.confirmDelete('biến thể này').then((confirmed) => {
+      if (!confirmed) return;
+      this.isLoading = true;
+      this.variantService.deleteVariant(id).subscribe({
+        next: () => {
+          this.notification.success('Xóa biến thể thành công.');
+          this.loadVariants(this.productId!);
+        },
+        error: () => {
+          this.notification.error('Lỗi khi xóa biến thể.');
+          this.isLoading = false;
+        },
+      });
     });
   }
 

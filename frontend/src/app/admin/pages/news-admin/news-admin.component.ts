@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NewsService, News } from '../../../services/news.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-news-admin',
@@ -43,7 +44,8 @@ export class NewsAdminComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private newsService: NewsService
+    private newsService: NewsService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -252,19 +254,26 @@ export class NewsAdminComponent implements OnInit {
 
   // ==================== TOGGLE HIDE ====================
   toggleHide(id: string, currentIsActive: boolean) {
-    if (!confirm(`${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`)) return;
+    this.notification.confirm(
+      `${currentIsActive ? 'Ẩn' : 'Bỏ ẩn'} bài viết này?`,
+      'Xác nhận',
+      currentIsActive ? 'Ẩn' : 'Bỏ ẩn',
+      'Hủy'
+    ).then((confirmed) => {
+      if (!confirmed) return;
 
-    this.isLoading = true;
-    this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
-      next: () => {
-        this.showMessage('success', currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
-        this.loadNews();
-      },
-      error: (err) => {
-        console.error(err);
-        this.showMessage('error', 'Không thể thay đổi trạng thái');
-        this.isLoading = false;
-      }
+      this.isLoading = true;
+      this.http.patch(`${this.apiUrl}/${id}/toggle-hide`, {}).subscribe({
+        next: () => {
+          this.notification.success(currentIsActive ? 'Đã ẩn bài viết' : 'Đã bỏ ẩn bài viết');
+          this.loadNews();
+        },
+        error: (err) => {
+          console.error(err);
+          this.notification.error('Không thể thay đổi trạng thái');
+          this.isLoading = false;
+        }
+      });
     });
   }
 

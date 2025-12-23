@@ -3,6 +3,7 @@
   import { Component, OnInit } from '@angular/core';
   import { Voucher, VoucherService } from '../../../services/voucher.service';
   import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+  import { NotificationService } from '../../../services/notification.service';
 
   @Component({
     selector: 'app-voucher-admin',
@@ -25,7 +26,11 @@
     errorMsg = '';
 
     
-    constructor(private voucherService: VoucherService, private fb: FormBuilder) {
+    constructor(
+      private voucherService: VoucherService,
+      private fb: FormBuilder,
+      private notification: NotificationService
+    ) {
       this.form = this.fb.group({
         code: ['', Validators.required],
         value: [1, [Validators.required, Validators.min(1)]],
@@ -131,13 +136,18 @@
     }
 
     deleteVoucher(code: string) {
-      if (!confirm('Bạn có chắc chắn muốn xóa voucher này?')) return;
-      this.voucherService.deleteVoucher(code).subscribe({
-        next: () => this.loadVouchers(),
-        error: (err) => {
-          alert(err.error?.error || 'Lỗi xóa voucher');
-          console.error(err);
-        },
+      this.notification.confirmDelete('voucher này').then((confirmed) => {
+        if (!confirmed) return;
+        this.voucherService.deleteVoucher(code).subscribe({
+          next: () => {
+            this.notification.success('Đã xóa voucher thành công!');
+            this.loadVouchers();
+          },
+          error: (err) => {
+            this.notification.error(err.error?.error || 'Lỗi xóa voucher');
+            console.error(err);
+          },
+        });
       });
     }
 

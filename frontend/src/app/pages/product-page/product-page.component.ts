@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '@app/services/cart.service';
 import { FavoriteService } from '@app/services/favorite.service';
+import { NotificationService } from '@app/services/notification.service';
 import {
   ProductModalComponent,
   VariantSelection,
@@ -49,7 +50,8 @@ export class ProductPageComponent implements OnInit {
     private cartService: CartService,
     private favoriteService: FavoriteService, // ❤️ Thêm Favorite Service
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notification: NotificationService
   ) {}
 
   // ==================== YÊU THÍCH - SỬ DỤNG FAVORITE SERVICE ====================
@@ -273,30 +275,40 @@ export class ProductPageComponent implements OnInit {
       if (totalDesiredQuantity > maxStock) {
         const canAdd = maxStock - (existingItem?.quantityToAdd || 0);
         if (canAdd <= 0) {
-          alert(`Đã hết tồn kho cho sản phẩm này.`);
+          this.notification.warning('Đã hết tồn kho cho sản phẩm này.');
           return;
         }
 
-        const confirmAdd = confirm(
-          `Số lượng yêu cầu vượt quá tồn kho. Bạn có muốn thêm ${canAdd} sản phẩm còn lại không?`
-        );
-        if (!confirmAdd) return;
-
-        cartPayload.quantityToAdd = canAdd;
+        this.notification.confirm(
+          `Số lượng yêu cầu vượt quá tồn kho. Bạn có muốn thêm ${canAdd} sản phẩm còn lại không?`,
+          'Xác nhận số lượng',
+          'Thêm',
+          'Hủy'
+        ).then((confirmed) => {
+          if (!confirmed) return;
+          cartPayload.quantityToAdd = canAdd;
+          this.addToCartFinal(cartPayload);
+        });
+        return;
       }
 
-      this.cartService.addToCart(cartPayload).subscribe({
-        next: () => {
-          alert(
-            `Đã thêm ${cartPayload.quantityToAdd} ${this.selectedProduct!.name} vào giỏ hàng!`
-          );
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('Thêm vào giỏ hàng thất bại:', err);
-          alert('Thêm vào giỏ hàng thất bại.');
-        },
-      });
+      this.addToCartFinal(cartPayload);
+    });
+  }
+
+  private addToCartFinal(cartPayload: any): void {
+    this.cartService.addToCart(cartPayload).subscribe({
+      next: () => {
+        this.notification.success(
+          `Đã thêm ${cartPayload.quantityToAdd} ${this.selectedProduct!.name} vào giỏ hàng!`,
+          'Thêm vào giỏ hàng'
+        );
+        this.closeModal();
+      },
+      error: (err) => {
+        console.error('Thêm vào giỏ hàng thất bại:', err);
+        this.notification.error('Thêm vào giỏ hàng thất bại.');
+      },
     });
   }
 }

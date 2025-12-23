@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderAdminService, OrderDetail } from '../../services/order-admin.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-order-detail-modal',
@@ -37,7 +38,10 @@ export class OrderDetailModalComponent implements OnInit {
     { value: 'DELIVERED', label: 'Giao hàng thành công' }
   ];
 
-  constructor(private orderService: OrderAdminService) {}
+  constructor(
+    private orderService: OrderAdminService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.selectedStatus = this.order.status;
@@ -78,23 +82,31 @@ export class OrderDetailModalComponent implements OnInit {
       return;
     }
 
-    if (!confirm(`Bạn có chắc chắn muốn chuyển đơn hàng sang trạng thái "${this.getStatusLabel(this.selectedStatus)}"?`)) {
-      return;
-    }
+    this.notification.confirm(
+      `Bạn có chắc chắn muốn chuyển đơn hàng sang trạng thái "${this.getStatusLabel(this.selectedStatus)}"?`,
+      'Xác nhận thay đổi trạng thái',
+      'Xác nhận',
+      'Hủy',
+      'question'
+    ).then((confirmed) => {
+      if (!confirmed) return;
 
-    this.updating = true;
-    this.errorMsg = '';
+      this.updating = true;
+      this.errorMsg = '';
 
-    this.orderService.updateOrderStatus(this.order._id, this.selectedStatus).subscribe({
-      next: () => {
-        this.updating = false;
-        this.statusUpdated.emit();
-      },
-      error: (err) => {
-        this.updating = false;
-        this.errorMsg = err.error?.message || 'Lỗi khi cập nhật trạng thái đơn hàng';
-        console.error(err);
-      }
+      this.orderService.updateOrderStatus(this.order._id, this.selectedStatus).subscribe({
+        next: () => {
+          this.updating = false;
+          this.notification.success('Đã cập nhật trạng thái đơn hàng thành công!');
+          this.statusUpdated.emit();
+        },
+        error: (err) => {
+          this.updating = false;
+          this.errorMsg = err.error?.message || 'Lỗi khi cập nhật trạng thái đơn hàng';
+          this.notification.error(this.errorMsg);
+          console.error(err);
+        }
+      });
     });
   }
 

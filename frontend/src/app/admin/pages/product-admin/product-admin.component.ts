@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 
 import { VariantService } from '../../services/variant.service';
 import { PriceRangePipe } from '../price-range.pipe';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-product-admin',
@@ -50,6 +51,7 @@ export class ProductAdminComponent implements OnInit {
     private categoryService: CategoryService,
     private router: Router,
     private variantService: VariantService,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -286,7 +288,9 @@ submit() {
       // cập nhật phân trang ngay (không cần loadProducts)
       this.updatePagedProducts();
 
-      alert(this.isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!');
+      this.notification.success(
+        this.isEdit ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!'
+      );
 
       this.showForm = false;
       this.productForm.reset();
@@ -298,18 +302,25 @@ submit() {
 
     error: () => {
       this.isLoading = false;
-      alert('Có lỗi xảy ra. Vui lòng thử lại.');
+      this.notification.error('Có lỗi xảy ra. Vui lòng thử lại.');
     }
   });
 }
 
   delete(productId: string) {
-    if (confirm('Bạn có chắc muốn xóa sản phẩm?')) {
-      this.productService.deleteProduct(productId).subscribe(() => {
-        this.loadProducts();
-        alert('Đã xóa sản phẩm!');
+    this.notification.confirmDelete('sản phẩm này').then((confirmed) => {
+      if (!confirmed) return;
+      this.productService.deleteProduct(productId).subscribe({
+        next: () => {
+          this.notification.success('Đã xóa sản phẩm!');
+          this.loadProducts();
+        },
+        error: (err) => {
+          console.error('Lỗi khi xóa sản phẩm:', err);
+          this.notification.error('Lỗi khi xóa sản phẩm.');
+        }
       });
-    }
+    });
   }
 
   onImageError(event: any) {

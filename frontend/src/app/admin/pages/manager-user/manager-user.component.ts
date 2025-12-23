@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';  // Thêm FormsModule để ngModel hoạt động
 import { UserService, User } from '../../../services/manager-user.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-user-admin',
@@ -18,7 +19,10 @@ export class UserAdminComponent implements OnInit {
 
   searchTerm: string = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private notification: NotificationService
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -47,26 +51,42 @@ export class UserAdminComponent implements OnInit {
 
 toggleBlock(user: User) {
   if (user.isBlocked) {
-    if (!confirm(`Bạn muốn mở chặn tài khoản: ${user.name}?`)) return;
-
-    this.userService.unblockUser(user._id).subscribe({
-      next: () => {
-        this.loadUsers(); //
-      },
-      error: (err) => {
-        console.error('Lỗi khi mở chặn:', err);
-      }
+    this.notification.confirm(
+      `Bạn muốn mở chặn tài khoản: ${user.name}?`,
+      'Xác nhận mở chặn',
+      'Mở chặn',
+      'Hủy'
+    ).then((confirmed) => {
+      if (!confirmed) return;
+      this.userService.unblockUser(user._id).subscribe({
+        next: () => {
+          this.notification.success('Đã mở chặn tài khoản thành công!');
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error('Lỗi khi mở chặn:', err);
+          this.notification.error('Lỗi khi mở chặn tài khoản.');
+        }
+      });
     });
   } else {
-    if (!confirm(`Bạn muốn CHẶN tài khoản: ${user.name}?`)) return;
-
-    this.userService.blockUser(user._id).subscribe({
-      next: () => {
-        this.loadUsers(); 
-      },
-      error: (err) => {
-        console.error('Lỗi khi chặn:', err);
-      }
+    this.notification.confirmDanger(
+      `Bạn muốn CHẶN tài khoản: ${user.name}?`,
+      'Xác nhận chặn tài khoản',
+      'Chặn',
+      'Hủy'
+    ).then((confirmed) => {
+      if (!confirmed) return;
+      this.userService.blockUser(user._id).subscribe({
+        next: () => {
+          this.notification.success('Đã chặn tài khoản thành công!');
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error('Lỗi khi chặn:', err);
+          this.notification.error('Lỗi khi chặn tài khoản.');
+        }
+      });
     });
   }
 } 
@@ -78,10 +98,30 @@ toggleBlock(user: User) {
       ? `Bạn có chắc muốn hạ quyền ADMIN của "${user.name}" xuống USER không?`
       : `Bạn có chắc muốn nâng quyền "${user.name}" lên ADMIN không?`;
 
-    if (!confirm(msg)) return;
+    const title = user.role === 'admin' ? 'Xác nhận hạ quyền' : 'Xác nhận nâng quyền';
+    const confirmText = user.role === 'admin' ? 'Hạ quyền' : 'Nâng quyền';
 
-    this.userService.changeRole(user._id, newRole).subscribe(() => {
-      user.role = newRole;
+    this.notification.confirm(
+      msg,
+      title,
+      confirmText,
+      'Hủy',
+      user.role === 'admin' ? 'warning' : 'question'
+    ).then((confirmed) => {
+      if (!confirmed) return;
+
+      this.userService.changeRole(user._id, newRole).subscribe({
+        next: () => {
+          user.role = newRole;
+          this.notification.success(
+            `Đã ${user.role === 'admin' ? 'nâng' : 'hạ'} quyền thành công!`
+          );
+        },
+        error: (err) => {
+          console.error('Lỗi khi thay đổi quyền:', err);
+          this.notification.error('Lỗi khi thay đổi quyền.');
+        }
+      });
     });
   }
 }

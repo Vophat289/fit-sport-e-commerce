@@ -1,8 +1,9 @@
 // src/app/services/favorite.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, map } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, distinctUntilChanged } from 'rxjs';
 import { Product as ProductServiceProduct } from './product.service'; // import Product từ ProductService
+import { AuthService } from './auth.service';
 
 export interface Product {
   _id: string;       // luôn bắt buộc
@@ -23,14 +24,41 @@ export class FavoriteService {
   private favoritesSubject = new BehaviorSubject<Product[]>([]);
   favorites$ = this.favoritesSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.loadFavorites();
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
+    // Lắng nghe sự thay đổi của user để tự động load/xóa favorites
+    this.authService.currentUser$.pipe(
+      distinctUntilChanged((prev, curr) => prev?._id === curr?._id)
+    ).subscribe(user => {
+      if (user) {
+        // User đăng nhập: load lại favorites
+        this.loadFavorites();
+      } else {
+        // User đăng xuất: xóa favorites
+        this.favoritesSubject.next([]);
+      }
+    });
   }
 
   loadFavorites(): void {
+    // Chỉ load nếu user đã đăng nhập
+    if (!this.authService.isLoggedIn()) {
+      this.favoritesSubject.next([]);
+      return;
+    }
+
     this.http.get<Product[]>(this.apiUrl).subscribe({
       next: products => this.favoritesSubject.next(products),
-      error: err => console.error('Lỗi khi load favorites:', err)
+      error: err => {
+        // Nếu lỗi 401 (unauthorized), clear favorites
+        if (err.status === 401) {
+          this.favoritesSubject.next([]);
+        } else {
+          console.error('Lỗi khi load favorites:', err);
+        }
+      }
     });
   }
 

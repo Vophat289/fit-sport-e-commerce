@@ -35,6 +35,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '@app/services/product.service';
 import { AuthService } from '@app/services/auth.service';
 import { Router } from '@angular/router';
+import { NotificationService } from '@app/services/notification.service';
 
 
 @Component({
@@ -64,7 +65,12 @@ export class ProductModalComponent implements OnChanges {
 
   currentVariantDetails: VariantDetails | null = null;
   stockMessage: string | null = null; 
-  constructor(private productService: ProductService,  private authService: AuthService, private router: Router ) {}
+  constructor(
+    private productService: ProductService,
+    private authService: AuthService,
+    private router: Router,
+    private notification: NotificationService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedProduct'] && this.selectedProduct) {
@@ -104,7 +110,7 @@ export class ProductModalComponent implements OnChanges {
       },
       error: (err: any) => {
         console.error('Không tải được biến thể khả dụng:', err);
-        alert(
+        this.notification.error(
           err.error?.message || 'Sản phẩm này hiện hết hàng hoặc có lỗi xảy ra.'
         );
         this.isVariantsLoading = false;
@@ -139,7 +145,7 @@ export class ProductModalComponent implements OnChanges {
             if (this.quantityToAdd > quantity)
               this.quantityToAdd = quantity > 0 ? 1 : 0;
             if (quantity === 0)
-              alert('Tổ hợp Kích cỡ/Màu sắc này hiện đã hết hàng.');
+              this.notification.warning('Tổ hợp Kích cỡ/Màu sắc này hiện đã hết hàng.');
           },
           error: (err: any) => {
             this.currentVariantDetails = {
@@ -147,7 +153,7 @@ export class ProductModalComponent implements OnChanges {
               quantity: 0,
             };
             this.quantityToAdd = 0;
-            alert(
+            this.notification.warning(
               err.error?.message || 'Tổ hợp này không tồn tại hoặc hết hàng.'
             );
           },
@@ -163,7 +169,7 @@ export class ProductModalComponent implements OnChanges {
     if (this.quantityToAdd < maxQuantity) {
       this.quantityToAdd++;
     } else if(this.quantityToAdd >= maxQuantity && maxQuantity > 0) {
-      alert(`Chỉ còn ${maxQuantity} sản phẩm trong kho.`);
+      this.notification.warning(`Chỉ còn ${maxQuantity} sản phẩm trong kho.`);
     }
   }
 
@@ -175,7 +181,7 @@ export class ProductModalComponent implements OnChanges {
     if (isNaN(value) || value < 1) value = 1;
     else if (value > maxQuantity) {
       value = maxQuantity > 0 ? maxQuantity : 1;
-      if (maxQuantity > 0) alert(`Chỉ còn ${maxQuantity} sản phẩm trong kho.`);
+      if (maxQuantity > 0) this.notification.warning(`Chỉ còn ${maxQuantity} sản phẩm trong kho.`);
     }
     
     this.quantityToAdd = value;
@@ -208,7 +214,7 @@ export class ProductModalComponent implements OnChanges {
         !this.currentVariantDetails ||
         this.quantityToAdd < 1
     ) {
-        alert('Vui lòng chọn Kích cỡ, Màu sắc và Số lượng hợp lệ.');
+        this.notification.warning('Vui lòng chọn Kích cỡ, Màu sắc và Số lượng hợp lệ.');
         return;
     }
     
@@ -220,7 +226,7 @@ export class ProductModalComponent implements OnChanges {
     );
 
     if (!actualSize || !actualColor) {
-        alert('Lỗi dữ liệu: Không tìm thấy biến thể đã chọn.');
+        this.notification.error('Lỗi dữ liệu: Không tìm thấy biến thể đã chọn.');
         return;
     }
     

@@ -180,3 +180,42 @@
   color: white;
   border-color: #ff4d4f;
 }
+
+/* ======================= */
+/* NÚT THÊM VÀO GIỎ HÀNG */
+/* ======================= */
+.product-action {
+  padding: 12px;
+  margin-top: auto;
+}
+
+.btn-cart {
+  width: 100%;
+  background: linear-gradient(135deg, #007bff, #0056d2);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-cart i {
+  font-size: 16px;
+}
+
+.btn-cart:hover {
+  background: linear-gradient(135deg, #0056d2, #0041a8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.btn-cart:active {
+  transform: translateY(0);
+}
