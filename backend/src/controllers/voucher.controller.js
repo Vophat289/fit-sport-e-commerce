@@ -139,3 +139,21 @@ export const collectVoucher = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Lấy danh sách voucher đã thu thập của user
+export const getMyVouchers = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const now = new Date();
+
+    // Lấy các voucher mà user đã thu thập và chưa hết hạn
+    const vouchers = await Voucher.find({
+      collectedBy: userId,
+      end_date: { $gt: now }  // Chưa hết hạn
+    }).sort({ end_date: 1 });  // Sắp xếp theo ngày hết hạn
+
+    res.json({ success: true, vouchers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

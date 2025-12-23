@@ -16,7 +16,6 @@
         <!-- Overlay khi hover -->
         <div class="product-overlay">
           <button class="btn-detail" (click)="viewProductDetail(product)">Xem chi tiết</button>
-          <button class="btn-buy">Mua ngay</button>
         </div>
       </div>
 
@@ -35,11 +34,9 @@
             <i class="fa fa-eye"></i> {{ product.viewCount || 0 }} lượt xem
           </span>
 
-          <button class="favorite-btn" 
-        [class.active]="isFavorite(product)" 
-        (click)="toggleFavorite(product, $event)">
-  <i class="fa fa-heart"></i>
-</button>
+          <button class="favorite-btn" [class.active]="isFavorite(product)" (click)="toggleFavorite(product, $event)">
+            <i class="fa fa-heart"></i>
+          </button>
         </div>
       </div>
 
@@ -50,8 +47,8 @@
       <!-- ✅ NÚT THÊM VÀO GIỎ -->
       <div class="product-action">
         <button class="btn-cart" (click)="openVariantModal(product)">
-  <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-</button>
+          <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+        </button>
       </div>
 
     </div>
@@ -61,10 +58,7 @@
   <p *ngIf="!loading && products.length === 0" class="empty">
     Chưa có sản phẩm nào
   </p>
-<app-product-modal 
-    [isModalOpen]="isModalOpen" 
-    [selectedProduct]="selectedProduct"
-    (closeModal)="closeModal()"
+  <app-product-modal [isModalOpen]="isModalOpen" [selectedProduct]="selectedProduct" (closeModal)="closeModal()"
     (confirmAddToCart)="handleAddToCart($event)">
-</app-product-modal>
+  </app-product-modal>
 </section>

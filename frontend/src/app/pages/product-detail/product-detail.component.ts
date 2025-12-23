@@ -226,6 +226,86 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  buyNow(): void {
+    if (!this.product || !this.selectedColor || !this.selectedSize) return;
+
+    if (!this.currentVariantDetails || this.currentVariantDetails.quantity === 0) {
+      this.stockMessage = 'Phiên bản sản phẩm này đã hết hàng.';
+      return;
+    }
+
+    // First, check if this item already exists in cart and remove it
+    // This ensures we SET the quantity instead of ADDING to it
+    this.cartService.getCartDetails().subscribe({
+      next: (cartDetails) => {
+        // Find existing item with same variant
+        const existingItem = cartDetails.items.find(item => 
+          item.variant_id === this.product!._id &&
+          item.sizeId === this.selectedSize &&
+          item.colorId === this.selectedColor
+        );
+
+        // If item exists, delete it first
+        const deletePromise = existingItem 
+          ? this.cartService.deleteCartItem(existingItem._id).toPromise()
+          : Promise.resolve();
+
+        deletePromise.then(() => {
+          // Now add the item with the exact quantity selected
+          const payload: AddCartPayload = {
+            productId: this.product!._id!,
+            name: this.product!.name,
+            image: this.product!.image?.[0] || '',
+            price: this.currentVariantDetails!.price,
+            quantityToAdd: this.quantity,
+            sizeId: this.selectedSize!,
+            sizeName: this.product!.availableSizes?.find(s => s.id === this.selectedSize)?.name || '—',
+            colorId: this.selectedColor!,
+            colorName: this.product!.availableColors?.find(c => c.id === this.selectedColor)?.name || '—',
+            stock: this.currentVariantDetails!.quantity,
+          };
+
+          this.cartService.addToCart(payload).subscribe({
+            next: () => {
+              // Get the cart again to find the newly added item
+              this.cartService.getCartDetails().subscribe({
+                next: (updatedCart) => {
+                  const newItem = updatedCart.items.find(item => 
+                    item.variant_id === this.product!._id &&
+                    item.sizeId === this.selectedSize &&
+                    item.colorId === this.selectedColor
+                  );
+
+                  if (newItem) {
+                    // Set only this item as selected for checkout
+                    const selectedItems = [newItem];
+                    localStorage.setItem('selectedCartItems', JSON.stringify(selectedItems));
+                    
+                    // Navigate to checkout page
+                    this.router.navigate(['/checkout']);
+                  } else {
+                    this.stockMessage = 'Không thể tìm thấy sản phẩm trong giỏ hàng.';
+                  }
+                },
+                error: () => {
+                  this.stockMessage = 'Không thể lấy thông tin giỏ hàng.';
+                }
+              });
+            },
+            error: () => {
+              this.stockMessage = 'Không thể thêm vào giỏ.';
+            },
+          });
+        }).catch(() => {
+          this.stockMessage = 'Lỗi khi xóa sản phẩm cũ trong giỏ hàng.';
+        });
+      },
+      error: () => {
+        this.stockMessage = 'Không thể lấy thông tin giỏ hàng.';
+      }
+    });
+  }
+
   // ================= FAVORITE ❤️ =================
   toggleFavorite(): void {
     if (!this.product) return;

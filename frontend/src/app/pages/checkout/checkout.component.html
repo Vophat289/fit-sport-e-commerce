@@ -115,16 +115,34 @@
 
       
 
-      <div class="form-group">
-        <label for="voucher_code">Mã voucher đã chọn</label>
-        <input
-          type="text"
-          id="voucher_code"
-          [(ngModel)]="voucher_code"
-          name="voucher_code"
-          placeholder="Voucher đã được áp dụng"
-          readonly
-        />
+      <div class="form-group voucher-group">
+        <label for="voucher_code">Voucher</label>
+        <div class="voucher-input-row" (click)="openVoucherModal()">
+          <input
+            type="text"
+            id="voucher_code"
+            [(ngModel)]="voucher_code"
+            name="voucher_code"
+            placeholder="Chọn hoặc nhập mã giảm giá"
+            readonly
+          />
+          <button 
+            type="button" 
+            class="btn btn-secondary btn-select-voucher" 
+            (click)="$event.stopPropagation(); openVoucherModal()">
+            Chọn voucher
+          </button>
+          <button 
+            *ngIf="voucher_code" 
+            type="button" 
+            class="btn-link clear-voucher" 
+            (click)="$event.stopPropagation(); clearVoucher()">
+            Xóa
+          </button>
+        </div>
+        <p *ngIf="voucherDiscount > 0" class="voucher-note">
+          Đã áp dụng voucher: {{ voucher_code }} (giảm {{ voucherDiscount | currency : 'VND' }})
+        </p>
       </div>
 
       <div class="payment-method-section">
@@ -161,6 +179,68 @@
     </form>
 
    
+  </div>
+
+  <!-- Voucher modal -->
+  <div class="voucher-modal-backdrop" *ngIf="isVoucherModalOpen">
+    <div class="voucher-modal">
+      <div class="voucher-modal-header">
+        <h3>Chọn voucher của bạn</h3>
+        <button type="button" class="close-btn" (click)="closeVoucherModal()">×</button>
+      </div>
+
+      <div class="voucher-modal-body">
+        <p class="order-subtotal">
+          Giá trị đơn hàng: <strong>{{ subtotal | currency : 'VND' }}</strong>
+        </p>
+
+        <div *ngIf="isLoadingVouchers" class="voucher-loading">
+          Đang tải danh sách voucher...
+        </div>
+
+        <div *ngIf="voucherError" class="voucher-error">
+          {{ voucherError }}
+        </div>
+
+        <div *ngIf="!isLoadingVouchers && !voucherError">
+          <div *ngIf="myVouchers.length === 0" class="voucher-empty">
+            Bạn chưa có voucher nào. Hãy thu thập voucher ở trang khuyến mãi nhé.
+          </div>
+
+          <div 
+            *ngFor="let v of myVouchers" 
+            class="voucher-item"
+            [ngClass]="{ 'disabled': subtotal < v.min_order_value }"
+          >
+            <div class="voucher-info">
+              <div class="voucher-code">{{ v.code }}</div>
+              <div class="voucher-desc">
+                <span *ngIf="v.type === 'percent'">Giảm {{ v.value }}%</span>
+                <span *ngIf="v.type === 'fixed'">Giảm {{ v.value | currency : 'VND' }}</span>
+                <span class="voucher-min">
+                  Đơn tối thiểu: {{ v.min_order_value | currency : 'VND' }}
+                </span>
+              </div>
+              <div class="voucher-date">
+                Hạn dùng: {{ v.end_date | date:'dd/MM/yyyy' }}
+              </div>
+            </div>
+
+            <div class="voucher-actions">
+              <button
+                type="button"
+                class="btn btn-small"
+                [disabled]="subtotal < v.min_order_value"
+                (click)="applyVoucherFromModal(v)"
+              >
+                <span *ngIf="subtotal >= v.min_order_value">Áp dụng</span>
+                <span *ngIf="subtotal < v.min_order_value">Chưa đủ điều kiện</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <ng-template #loadingTemplate>

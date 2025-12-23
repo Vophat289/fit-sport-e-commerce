@@ -589,6 +589,7 @@
                 <button
                   class="voucher-apply-btn"
                   *ngIf="voucher.status !== 'EXPIRED'"
+                  (click)="applyVoucherFromAccount(voucher)"
                 >
                   ÁP DỤNG
                 </button>

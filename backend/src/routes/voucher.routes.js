@@ -9,6 +9,7 @@ router.post("/validate", voucherController.validate);
 router.post("/use", voucherController.useVoucher);
 router.post("/apply", voucherController.applyVoucher);
 router.post("/collect", authMiddleware, voucherController.collectVoucher);
+router.get("/my-vouchers", authMiddleware, voucherController.getMyVouchers);
 
 export default router;
 

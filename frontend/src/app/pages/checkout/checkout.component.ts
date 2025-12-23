@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CartService, CartItem } from '@app/services/cart.service';
 import { AccountService, Address } from '@app/services/account.service';
+import { UserVoucherService } from '@app/services/user-voucher.service';
+import { Voucher } from '@app/services/voucher.service';
 
 @Component({
   selector: 'app-checkout',
@@ -35,12 +37,19 @@ export class CheckoutComponent implements OnInit{
   selectedAddressId: string | null = null;
   useNewAddress: boolean = false;
 
+  // Voucher modal
+  isVoucherModalOpen = false;
+  isLoadingVouchers = false;
+  myVouchers: Voucher[] = [];
+  voucherError: string | null = null;
+
   constructor(
     private vnpaymentService: VNPaymentService,
     private cartService: CartService,
     private accountService: AccountService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private userVoucherService: UserVoucherService,
   ){}
 
   ngOnInit(): void {
@@ -131,6 +140,74 @@ export class CheckoutComponent implements OnInit{
       alert('Không có sản phẩm được chọn. Vui lòng quay lại giỏ hàng.');
       this.router.navigate(['/cart']);
     }
+  }
+
+  // ====== VOUCHER LOGIC ======
+
+  openVoucherModal() {
+    this.isVoucherModalOpen = true;
+    this.voucherError = null;
+
+    if (this.myVouchers.length > 0) {
+      return;
+    }
+
+    this.isLoadingVouchers = true;
+    this.userVoucherService.getMyVouchers().subscribe({
+      next: (res) => {
+        this.isLoadingVouchers = false;
+        if (res.success) {
+          this.myVouchers = res.vouchers || [];
+        } else {
+          this.voucherError = 'Không thể tải danh sách voucher. Vui lòng thử lại.';
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi khi lấy danh sách voucher:', err);
+        this.isLoadingVouchers = false;
+        this.voucherError = err.error?.message || 'Không thể tải danh sách voucher.';
+      }
+    });
+  }
+
+  closeVoucherModal() {
+    this.isVoucherModalOpen = false;
+  }
+
+  applyVoucherFromModal(voucher: Voucher) {
+    this.voucherError = null;
+
+    this.userVoucherService.applyVoucher(voucher.code, this.subtotal).subscribe({
+      next: (res) => {
+        if (!res.success) {
+          this.voucherError = res.message || 'Không thể áp dụng voucher này cho đơn hàng hiện tại.';
+          return;
+        }
+
+        this.voucher_code = res.code || voucher.code;
+        this.voucherDiscount = res.discount || 0;
+        this.calculateTotals();
+
+        // Lưu vào localStorage để dùng lại nếu cần
+        localStorage.setItem('appliedVoucher', JSON.stringify({
+          code: this.voucher_code,
+          discount: this.voucherDiscount,
+        }));
+
+        this.isVoucherModalOpen = false;
+      },
+      error: (err) => {
+        console.error('Lỗi khi áp dụng voucher:', err);
+        this.voucherError = err.error?.message || 'Không thể áp dụng voucher. Vui lòng thử lại.';
+      }
+    });
+  }
+
+  clearVoucher() {
+    this.voucher_code = '';
+    this.voucherDiscount = 0;
+    localStorage.removeItem('appliedVoucher');
+    this.calculateTotals();
   }
 
   calculateTotals() {

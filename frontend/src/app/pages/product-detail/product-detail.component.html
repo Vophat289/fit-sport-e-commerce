@@ -30,28 +30,17 @@
       <div class="product-images">
         <!-- Ảnh lớn (hiển thị ảnh đang chọn) -->
         <div class="main-image">
-          <img
-            [src]="
+          <img [src]="
               product.image && product.image[selectedImageIndex]
                 ? product.image[selectedImageIndex]
                 : 'assets/images/placeholder.jpg'
-            "
-            [alt]="product.name"
-            class="main-img"
-          />
+            " [alt]="product.name" class="main-img" />
         </div>
 
         <!-- Gallery: Danh sách ảnh nhỏ -->
-        <div
-          *ngIf="product.image && product.image.length > 1"
-          class="image-gallery"
-        >
-          <div
-            *ngFor="let img of product.image; let i = index"
-            class="gallery-thumb"
-            [class.active]="i === selectedImageIndex"
-            (click)="selectImage(i)"
-          >
+        <div *ngIf="product.image && product.image.length > 1" class="image-gallery">
+          <div *ngFor="let img of product.image; let i = index" class="gallery-thumb"
+            [class.active]="i === selectedImageIndex" (click)="selectImage(i)">
             <img [src]="img" [alt]="product.name + ' - Ảnh ' + (i + 1)" />
           </div>
         </div>
@@ -60,27 +49,23 @@
       <!-- Cột phải: Thông tin sản phẩm -->
       <div class="product-info">
         <!-- Tên sản phẩm -->
-<h1 class="product-title">{{ product.name }}</h1>
+        <h1 class="product-title">{{ product.name }}</h1>
 
-<!-- Tồn kho + nút yêu thích -->
-<div class="stock-favorite-container" style="display: flex; align-items: center; gap: 8px;">
-  <span class="stock-text text-sm text-gray-600">
-    Tồn kho:
-    <span class="font-semibold">
-      {{ currentVariantDetails?.quantity || 0 }}
-    </span>
-  </span>
+        <!-- Tồn kho + nút yêu thích -->
+        <div class="stock-favorite-container" style="display: flex; align-items: center; gap: 8px;">
+          <span class="stock-text text-sm text-gray-600">
+            Tồn kho:
+            <span class="font-semibold">
+              {{ currentVariantDetails?.quantity || 0 }}
+            </span>
+          </span>
 
-  <!-- Nút yêu thích kế bên -->
-  <button 
-    class="favorite-btn" 
-    (click)="toggleFavorite(); $event.stopPropagation()"
-    [class.active]="isProductFavorite"
-    [title]="isProductFavorite ? 'Đã yêu thích' : 'Yêu thích'"
->
-    <i class="fa-solid fa-heart"></i>
-</button>
-</div>
+          <!-- Nút yêu thích kế bên -->
+          <button class="favorite-btn" (click)="toggleFavorite(); $event.stopPropagation()"
+            [class.active]="isProductFavorite" [title]="isProductFavorite ? 'Đã yêu thích' : 'Yêu thích'">
+            <i class="fa-solid fa-heart"></i>
+          </button>
+        </div>
 
 
         <!-- Giá -->
@@ -88,7 +73,7 @@
           <div>
             <span class="price">{{
               currentVariantDetails?.price | currency : "VND"
-            }}</span>
+              }}</span>
             <span class="price-tag">Giá tốt nhất hôm nay</span>
           </div>
         </div>
@@ -115,36 +100,21 @@
           </div> -->
 
         <!-- Chọn màu sắc -->
-        <div
-          *ngIf="product.availableColors && product.availableColors.length > 0"
-          class="product-options"
-        >
+        <div *ngIf="product.availableColors && product.availableColors.length > 0" class="product-options">
           <h3 class="option-title">Màu sắc:</h3>
           <div class="color-options">
-            <div
-              *ngFor="let color of product.availableColors"
-              class="color-option"
-              [class.selected]="selectedColor === color.id"
-              (click)="selectColor(color.id); updateVariantDetails()"
-              [style.backgroundColor]="color.hex_code"
-              [title]="color.name"
-            ></div>
+            <div *ngFor="let color of product.availableColors" class="color-option"
+              [class.selected]="selectedColor === color.id" (click)="selectColor(color.id); updateVariantDetails()"
+              [style.backgroundColor]="color.hex_code" [title]="color.name"></div>
           </div>
         </div>
 
         <!-- Chọn kích thước -->
-        <div
-          *ngIf="product.availableSizes && product.availableSizes.length > 0"
-          class="product-options"
-        >
+        <div *ngIf="product.availableSizes && product.availableSizes.length > 0" class="product-options">
           <h3 class="option-title">Kích thước:</h3>
           <div class="size-options">
-            <button
-              *ngFor="let size of product.availableSizes"
-              class="size-option"
-              [class.selected]="selectedSize === size.id"
-              (click)="selectSize(size.id); updateVariantDetails()"
-            >
+            <button *ngFor="let size of product.availableSizes" class="size-option"
+              [class.selected]="selectedSize === size.id" (click)="selectSize(size.id); updateVariantDetails()">
               {{ size.name }}
             </button>
           </div>
@@ -155,12 +125,7 @@
           <label>Số lượng:</label>
           <div class="quantity-controls">
             <button class="qty-btn" (click)="decreaseQuantity()">−</button>
-            <input
-              type="number"
-              [(ngModel)]="quantity"
-              min="1"
-              class="qty-input"
-            />
+            <input type="number" [(ngModel)]="quantity" min="1" class="qty-input" />
             <button class="qty-btn" (click)="increaseQuantity()">+</button>
           </div>
         </div>
@@ -169,17 +134,14 @@
         </div>
         <!-- Nút thêm vào giỏ -->
         <div class="action-buttons">
-          <button
-            class="btn-add-cart"
-            (click)="addToCart()"
-            [disabled]="
+          <button class="btn-add-cart" (click)="addToCart()" [disabled]="
               !currentVariantDetails || currentVariantDetails.quantity === 0
-            "
-          >
+            ">
             <i class="fa-solid fa-cart-plus"></i>
             Thêm vào giỏ hàng
           </button>
-          <button class="btn-buy-now">
+          <button class="btn-buy-now" (click)="buyNow()"
+            [disabled]="!currentVariantDetails || currentVariantDetails.quantity === 0">
             <i class="fa-solid fa-bolt"></i>
             Mua ngay
           </button>
@@ -213,136 +175,109 @@
     </section>
 
     <!-- Tab thông tin chi tiết (mô tả, đánh giá, v.v.) -->
-<section class="product-tabs">
-  <div class="tab-header">
-    <button
-      class="tab-btn"
-      [class.active]="activeTab === 'description'"
-      (click)="switchTab('description')"
-    >
-      Mô tả sản phẩm
-    </button>
-    <button
-      class="tab-btn"
-      [class.active]="activeTab === 'reviews'"
-      (click)="switchTab('reviews')"
-    >
-      Đánh giá
-    </button>
-  </div>
+    <section class="product-tabs">
+      <div class="tab-header">
+        <button class="tab-btn" [class.active]="activeTab === 'description'" (click)="switchTab('description')">
+          Mô tả sản phẩm
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">
+          Đánh giá
+        </button>
+      </div>
 
-  <div class="tab-content">
-    <!-- Mô tả sản phẩm -->
-    <div *ngIf="activeTab === 'description'">
-      
-      <p>{{ product.description }}</p>
-    </div>
+      <div class="tab-content">
+        <!-- Mô tả sản phẩm -->
+        <div *ngIf="activeTab === 'description'">
 
-    <!-- Đánh giá sản phẩm -->
-<div *ngIf="activeTab === 'reviews'">
-  <div *ngIf="loadingReviews" class="loading-state">Đang tải đánh giá...</div>
-  <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-state">
-    Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
-  </div>
-
-  <div class="average-rating">
-  <span class="avg-stars">
-    {{ averageRating }}
-    <i class="fa-solid fa-star filled-star"></i>
-  </span>
-  <span class="avg-text">/ 5</span>
-  <span class="total-reviews">    ({{ reviews.length }} đánh giá)</span>
-</div>
-<div class="review-filter">
-  <button
-    class="filter-btn"
-    [class.active]="selectedStar === null"
-    (click)="filterByStar(null)"
-  >
-    Tất cả
-  </button>
-
-  <button
-    *ngFor="let star of [5,4,3,2,1]"
-    class="filter-btn"
-    [class.active]="selectedStar === star"
-    (click)="filterByStar(star)"
-  >
-    {{ star }}
-    <i class="fa-solid fa-star"></i>
-  </button>
-</div>
-
-  <div *ngIf="!loadingReviews && reviews.length > 0">
-    
-    <div *ngFor="let r of filteredReviews" class="review-item">
-      <div class="review-header">
-        <img
-          *ngIf="r.user?.avatarUrl"
-          [src]="r.user?.avatarUrl"
-          alt="Avatar"
-          class="review-avatar"
-        />
-        <div class="review-user-info">
-          <p class="review-user">{{ r.user?.name || 'Người dùng Ẩn Danh' }}</p>
-          <span *ngIf="r.isVerifiedBuyer" class="badge-verified">
-            <i class="fa-solid fa-circle-check"></i> Đã mua hàng
-          </span>
+          <p>{{ product.description }}</p>
         </div>
-      </div>
 
-      <div class="review-rating-info">
-        <p class="review-rating">
-          <ng-container *ngFor="let star of [].constructor(r.rating)">
-            <i class="fa-solid fa-star filled-star"></i>
-          </ng-container>
-          <ng-container *ngFor="let star of [].constructor(5 - r.rating)">
-            <i class="fa-regular fa-star empty-star"></i>
-          </ng-container>
-        </p>
-         <p class="review-date">{{ r.createdAt | date:'dd/MM/yyyy' }}</p>
-      </div>
-      
-      <p class="review-variant" *ngIf="r.sizeName || r.colorName">
-        Phân loại: <span *ngIf="r.sizeName">Size: {{ r.sizeName }}</span>
-        <span *ngIf="r.colorName"> | Màu: {{ r.colorName }}</span>
-      </p>
+        <!-- Đánh giá sản phẩm -->
+        <div *ngIf="activeTab === 'reviews'">
+          <div *ngIf="loadingReviews" class="loading-state">Đang tải đánh giá...</div>
+          <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-state">
+            Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
+          </div>
 
-      <p class="review-comment">{{ r.comment }}</p>
+          <div class="average-rating">
+            <span class="avg-stars">
+              {{ averageRating }}
+              <i class="fa-solid fa-star filled-star"></i>
+            </span>
+            <span class="avg-text">/ 5</span>
+            <span class="total-reviews"> ({{ reviews.length }} đánh giá)</span>
+          </div>
+          <div class="review-filter">
+            <button class="filter-btn" [class.active]="selectedStar === null" (click)="filterByStar(null)">
+              Tất cả
+            </button>
 
-      <div class="review-actions">
-          <button 
-              class="action-button helpful-button" 
-              [class.is-clicked]="r.isClicked" 
-              (click)="markHelpful(r._id)" 
-              title="Đánh dấu là hữu ích"
-          >
-              <i class="fa-thumbs-up" 
-                [class.fa-solid]="r.isClicked" 
-                [class.fa-regular]="!r.isClicked"></i> 
-              Hữu ích ({{ r.helpfulCount || 0 }})
-          </button>
-          
-          <button class="action-button report-button">
-            <i class="fa-solid fa-flag"></i> Báo cáo
-          </button>
-      </div>
+            <button *ngFor="let star of [5,4,3,2,1]" class="filter-btn" [class.active]="selectedStar === star"
+              (click)="filterByStar(star)">
+              {{ star }}
+              <i class="fa-solid fa-star"></i>
+            </button>
+          </div>
 
-      <hr class="review-separator"/>
-    </div>
-  </div>
-</div>
+          <div *ngIf="!loadingReviews && reviews.length > 0">
+
+            <div *ngFor="let r of filteredReviews" class="review-item">
+              <div class="review-header">
+                <img *ngIf="r.user?.avatarUrl" [src]="r.user?.avatarUrl" alt="Avatar" class="review-avatar" />
+                <div class="review-user-info">
+                  <p class="review-user">{{ r.user?.name || 'Người dùng Ẩn Danh' }}</p>
+                  <span *ngIf="r.isVerifiedBuyer" class="badge-verified">
+                    <i class="fa-solid fa-circle-check"></i> Đã mua hàng
+                  </span>
+                </div>
+              </div>
+
+              <div class="review-rating-info">
+                <p class="review-rating">
+                  <ng-container *ngFor="let star of [].constructor(r.rating)">
+                    <i class="fa-solid fa-star filled-star"></i>
+                  </ng-container>
+                  <ng-container *ngFor="let star of [].constructor(5 - r.rating)">
+                    <i class="fa-regular fa-star empty-star"></i>
+                  </ng-container>
+                </p>
+                <p class="review-date">{{ r.createdAt | date:'dd/MM/yyyy' }}</p>
+              </div>
+
+              <p class="review-variant" *ngIf="r.sizeName || r.colorName">
+                Phân loại: <span *ngIf="r.sizeName">Size: {{ r.sizeName }}</span>
+                <span *ngIf="r.colorName"> | Màu: {{ r.colorName }}</span>
+              </p>
+
+              <p class="review-comment">{{ r.comment }}</p>
+
+              <div class="review-actions">
+                <button class="action-button helpful-button" [class.is-clicked]="r.isClicked"
+                  (click)="markHelpful(r._id)" title="Đánh dấu là hữu ích">
+                  <i class="fa-thumbs-up" [class.fa-solid]="r.isClicked" [class.fa-regular]="!r.isClicked"></i>
+                  Hữu ích ({{ r.helpfulCount || 0 }})
+                </button>
+
+                <button class="action-button report-button">
+                  <i class="fa-solid fa-flag"></i> Báo cáo
+                </button>
+              </div>
+
+              <hr class="review-separator" />
+            </div>
+          </div>
+        </div>
 
 
-<!-- <div *ngIf="activeTab === 'description' && product">
+        <!-- <div *ngIf="activeTab === 'description' && product">
     <div class="product-description-content">
         <h3 class="description-title">Mô tả Sản phẩm</h3>
         <p [innerHTML]="product.description"></p>
     </div>
 </div> -->
 
-  </div>
-</section>
+      </div>
+    </section>
 
   </div>
 </div>

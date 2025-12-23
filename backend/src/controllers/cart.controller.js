@@ -535,9 +535,9 @@ export const checkoutVNPay = async (req, res) => {
         cart.delivery_fee = deliveryFee;
         if(voucherId){
             cart.voucher_id = voucherId;
-            //tăng số lượt sử dụng voucher
+            // Tăng số lượt sử dụng voucher và xoá voucher này khỏi danh sách đã thu thập của user
             try {
-                await useVoucher(voucher_code);
+                await useVoucher(voucher_code, userId);
             } catch (useVoucherError) {
                 console.error('Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
                 // Không block checkout, chỉ log lỗi
@@ -734,9 +734,9 @@ export const checkoutCOD = async (req, res) => {
         
         if(voucherId){
             cart.voucher_id = voucherId;
-            //tăng số lượt sử dụng voucher
+            // Tăng số lượt sử dụng voucher và xoá voucher này khỏi danh sách đã thu thập của user
             try {
-                await useVoucher(voucher_code);
+                await useVoucher(voucher_code, userId);
             } catch (useVoucherError) {
                 console.error('Lỗi khi sử dụng voucher:', voucher_code, useVoucherError);
                 // Không block checkout, chỉ log lỗi

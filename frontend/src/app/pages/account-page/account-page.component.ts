@@ -16,6 +16,7 @@ import {
   ProductVariant,
   Review,
 } from '../../services/account.service';
+import { UserVoucherService } from '@app/services/user-voucher.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -65,6 +66,7 @@ export class AccountPageComponent implements OnInit {
   voucherFilter: 'ALL' | string = 'ALL';
   showAllVouchers: boolean = false;
   voucherCurrentPage: number = 1;
+  // Hiển thị 3 cột x 2 hàng = 6 voucher / trang
   voucherPageSize: number = 6;
   voucherTotalPages: number = 1;
 
@@ -81,7 +83,8 @@ export class AccountPageComponent implements OnInit {
     private accountService: AccountService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userVoucherService: UserVoucherService
   ) {}
 
   ngOnInit(): void {
@@ -537,10 +540,22 @@ export class AccountPageComponent implements OnInit {
         return status;
     }
   } // VOUCHERS METHODS
+
+  /**
+   * Lấy đúng danh sách voucher mà user đã THU THẬP
+   * Sử dụng API /api/voucher/my-vouchers thay vì lấy tất cả voucher trong hệ thống.
+   */
   loadVouchers() {
-    this.accountService.getVouchers().subscribe({
-      next: (data) => {
-        this.vouchers = data.map(
+    this.userVoucherService.getMyVouchers().subscribe({
+      next: (res) => {
+        if (!res?.success) {
+          this.vouchers = [];
+          this.calculateTotalPages();
+          return;
+        }
+
+        // Map từ cấu trúc voucher backend sang interface Voucher dùng cho UI account page
+        this.vouchers = (res.vouchers || []).map(
           (v: any): Voucher => ({
             code: v.code,
             discountValue: v.value ?? 0,
@@ -549,7 +564,7 @@ export class AccountPageComponent implements OnInit {
             expiryDate: v.end_date
               ? new Date(v.end_date).toLocaleDateString('en-GB')
               : '',
-            description: v.description || '',
+            description: '', // có thể bổ sung mô tả nếu schema thêm field description
             status: 'ACTIVE',
           })
         );
@@ -557,7 +572,11 @@ export class AccountPageComponent implements OnInit {
         this.calculateVoucherStatus();
         this.calculateTotalPages();
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('Lỗi khi tải danh sách voucher của user:', err);
+        this.vouchers = [];
+        this.calculateTotalPages();
+      },
     });
   }
   private parseDate(dateStr?: string): Date {
@@ -615,15 +634,28 @@ export class AccountPageComponent implements OnInit {
    * @param totalItems
    */
   calculateTotalPages(totalItems: number = this.vouchers.length): void {
-    this.voucherTotalPages = Math.ceil(totalItems / this.voucherPageSize);
-    if (
-      this.voucherPageSize > this.voucherTotalPages &&
-      this.voucherTotalPages > 0
-    ) {
-      this.voucherPageSize = this.voucherTotalPages;
+    const items = totalItems ?? this.vouchers.length;
+
+    // Không có voucher → 1 trang, không hiển thị phân trang
+    if (!items || items <= 0) {
+      this.voucherTotalPages = 1;
+      this.voucherCurrentPage = 1;
+      return;
     }
-    if (this.voucherTotalPages === 0) {
-      this.voucherPageSize = 1;
+
+    // Nếu số voucher ≤ số phần tử trên 1 trang → chỉ 1 trang
+    if (items <= this.voucherPageSize) {
+      this.voucherTotalPages = 1;
+      this.voucherCurrentPage = 1;
+      return;
+    }
+
+    // Ngược lại, tính số trang theo page size
+    this.voucherTotalPages = Math.ceil(items / this.voucherPageSize);
+
+    // Đảm bảo currentPage không vượt quá tổng số trang
+    if (this.voucherCurrentPage > this.voucherTotalPages) {
+      this.voucherCurrentPage = this.voucherTotalPages;
     }
   }
   /**
@@ -633,6 +665,23 @@ export class AccountPageComponent implements OnInit {
     if (page >= 1 && page <= this.voucherTotalPages) {
       this.voucherCurrentPage = page;
     }
+  }
+
+ 
+  applyVoucherFromAccount(voucher: Voucher): void {
+    if (!voucher?.code) return;
+
+    // Lưu mã voucher, discount sẽ được tính lại ở trang checkout dựa trên đơn hàng hiện tại
+    localStorage.setItem(
+      'appliedVoucher',
+      JSON.stringify({
+        code: voucher.code,
+        discount: 0, // sẽ được tính lại ở trang checkout bằng API applyVoucher
+      })
+    );
+
+    // Điều hướng đến trang giỏ hàng để user chọn sản phẩm và thanh toán
+    this.router.navigate(['/cart'], { queryParams: { from: 'voucher' } });
   }
   cancelOrder(orderId: string): void {
     if (

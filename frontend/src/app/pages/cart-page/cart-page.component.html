@@ -18,12 +18,7 @@
     <div class="cart-items-section">
       <!-- Select all -->
       <div class="cart-header">
-        <input
-          type="checkbox"
-          [checked]="allItemsSelected"
-          (change)="toggleSelectAll($event)"
-          class="select-all"
-        />
+        <input type="checkbox" [checked]="allItemsSelected" (change)="toggleSelectAll($event)" class="select-all" />
         <span>Chọn tất cả sản phẩm</span>
         <div class="cart-actions">
           <button (click)="deleteSelectedItems()" class="delete-selected-btn">
@@ -35,25 +30,14 @@
       <div class="items-list">
         <!-- CART ITEMS -->
         <ng-container *ngIf="cartItems.length > 0; else emptyCart">
-          <div
-            class="cart-item-row"
-            *ngFor="let item of cartItems; trackBy: trackByItem"
-          >
+          <div class="cart-item-row" *ngFor="let item of cartItems; trackBy: trackByItem">
             <!-- checkbox -->
-            <input
-              type="checkbox"
-              class="select-item"
-              [(ngModel)]="item.selected"
-              (ngModelChange)="calculateTotals()"
-            />
+            <input type="checkbox" class="select-item" [(ngModel)]="item.selected"
+              (ngModelChange)="calculateTotals()" />
 
             <!-- product details -->
             <div class="item-details">
-              <img
-                [src]="item.image || 'assets/images/placeholder-shirt.png'"
-                alt="Sản phẩm"
-                class="item-thumbnail"
-              />
+              <img [src]="item.image || 'assets/images/placeholder-shirt.png'" alt="Sản phẩm" class="item-thumbnail" />
 
               <div class="item-info">
                 <p class="item-name">{{ item.name }}</p>
@@ -75,14 +59,9 @@
                 -
               </button>
 
-              <input
-                type="number"
-                [(ngModel)]="item.quantityToAdd"
-                (blur)="updateQuantity(item._id, item.quantityToAdd)"
-                [min]="0"
-                [max]="item.maxStock ?? 1"
-                class="quantity-input"
-              />
+              <input type="number" [(ngModel)]="item.quantityToAdd"
+                (blur)="updateQuantity(item._id, item.quantityToAdd)" [min]="0" [max]="item.maxStock ?? 1"
+                class="quantity-input" />
 
               <button (click)="updateQuantity(item._id, item.quantityToAdd + 1)">
                 +
@@ -117,42 +96,17 @@
           <span>Phí vận chuyển</span>
           <span class="discount-fee">
             {{
-              deliveryFee === 0
-                ? "Free ship"
-                : "" + (deliveryFee | currency : "VND")
+            deliveryFee === 0
+            ? "Free ship"
+            : "" + (deliveryFee | currency : "VND")
             }}
           </span>
-        </div>
-        <div class="summary-row" *ngIf="voucherDiscount > 0">
-          <span>Voucher giảm giá</span>
-          <span class="discount-amount">-{{ voucherDiscount | currency : 'VND' }}</span>
         </div>
 
 
         <div class="summary-row total-row">
           <strong>Tổng cộng</strong>
           <strong>{{ totalAmount | currency : "VND" }}</strong>
-        </div>
-        <!-- Thông báo voucher -->
-        <div *ngIf="voucherMessage" class="voucher-message"
-          [class.success]="voucherMessageType === 'success'"
-          [class.warning]="voucherMessageType === 'warning'"
-          [class.error]="voucherMessageType === 'error'">
-        {{ voucherMessage }}
-      </div>
-
-
-        <!-- VOUCHER -->
-        <div class="summary-voucher">
-          <p>Nhập mã voucher của bạn</p>
-          <input
-            type="text"
-            [(ngModel)]="voucherCode"
-            placeholder="Mã voucher"
-          />
-          <button class="apply-voucher-btn" (click)="applyVoucher()">
-            ÁP DỤNG
-          </button>
         </div>
 
         <!-- CHECKOUT -->
