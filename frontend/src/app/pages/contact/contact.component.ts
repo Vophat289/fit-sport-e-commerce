@@ -53,25 +53,28 @@ export class ContactComponent {
       submittedAt: new Date().toISOString()
     };
 
-    // Gửi đến backend (hoặc thay bằng EmailJS, Formspree, v.v.)
+    // Gửi đến backend - không cần đăng nhập
     this.http.post('/api/contact', payload).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.isSubmitting.set(false);
         this.showSuccessMessage.set(true);
+        console.log('Gửi liên hệ thành công:', response);
       },
-      error: () => {
+      error: (error: any) => {
         this.isSubmitting.set(false);
         this.showErrorMessage.set(true);
+        console.error('Lỗi gửi liên hệ:', error);
+        
+        // Hiển thị thông báo lỗi chi tiết nếu có
+        if (error.error?.message) {
+          alert(error.error.message);
+        }
       }
     });
   }
 
   goToHomePage(): void {
     this.router.navigate(['/']); // Dùng Angular Router thay vì reload
-  }
-
-  openEmailApp(): void {
-    window.location.href = 'mailto:info@fitsport.vn';
   }
 
   resetForm(): void {
