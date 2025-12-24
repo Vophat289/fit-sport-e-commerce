@@ -3,6 +3,7 @@ import News from '../../models/news.model.js';
 import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
+import cloudinary from '../../config/cloudinary.js';
 
 // Tạo slug duy nhất
 const generateUniqueSlug = async (title) => {
@@ -59,7 +60,32 @@ export const createNews = async (req, res) => {
       return res.status(400).json({ success: false, message: "Tiêu đề và nội dung là bắt buộc!" });
     }
 
-    const thumbnail = req.file ? `/uploads/news/${req.file.filename}` : null;
+    let thumbnailUrl = null;
+
+    // Upload ảnh lên Cloudinary nếu có file
+    if (req.file) {
+      try {
+        // Kiểm tra loại file - chỉ chấp nhận JPG và PNG
+        const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedMimeTypes.includes(req.file.mimetype.toLowerCase())) {
+          fs.unlinkSync(req.file.path); //xóa file không hợp lệ
+          return res.status(400).json({ success: false, message: "Chỉ chấp nhận file JPG và PNG" });
+        }
+
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+          folder: "news", // folder trên cloudinary
+        });
+
+        thumbnailUrl = uploadResult.secure_url;
+        fs.unlinkSync(req.file.path); //xóa file tạm sau khi upload
+      } catch (uploadError) {
+        console.error('Lỗi khi upload ảnh lên Cloudinary:', uploadError);
+        if (req.file?.path && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(500).json({ success: false, message: "Lỗi khi upload ảnh lên Cloudinary" });
+      }
+    }
 
     const tagsArray = tags
       ? (typeof tags === 'string'
@@ -74,7 +100,7 @@ export const createNews = async (req, res) => {
       slug,
       content: content.trim(),
       short_desc: short_desc?.trim() || '',
-      thumbnail,
+      thumbnail: thumbnailUrl,
       author: author?.trim() || 'Admin',
       tags: tagsArray,
       isActive: true
@@ -127,15 +153,50 @@ export const updateNewsBySlug = async (req, res) => {
         : Array.isArray(tags) ? tags : [];
     }
 
+    // Upload ảnh mới lên Cloudinary nếu có file
     if (req.file) {
-      if (news.thumbnail) {
-        const oldFileName = path.basename(news.thumbnail);
-        const oldPath = path.join(process.cwd(), 'uploads', 'news', oldFileName);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
+      try {
+        // Kiểm tra loại file - chỉ chấp nhận JPG và PNG
+        const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedMimeTypes.includes(req.file.mimetype.toLowerCase())) {
+          fs.unlinkSync(req.file.path); //xóa file không hợp lệ
+          return res.status(400).json({ success: false, message: "Chỉ chấp nhận file JPG và PNG" });
         }
+
+        // Xóa ảnh cũ trên Cloudinary nếu có
+        if (news.thumbnail && news.thumbnail.includes('cloudinary.com')) {
+          try {
+            // Lấy public_id từ URL cũ
+            const urlParts = news.thumbnail.split('/');
+            const filename = urlParts[urlParts.length - 1];
+            const publicId = `news/${filename.split('.')[0]}`;
+            await cloudinary.uploader.destroy(publicId);
+          } catch (deleteError) {
+            console.warn('Không thể xóa ảnh cũ trên Cloudinary:', deleteError);
+          }
+        } else if (news.thumbnail) {
+          // Nếu ảnh cũ là local file, xóa nó
+          const oldFileName = path.basename(news.thumbnail);
+          const oldPath = path.join(process.cwd(), 'uploads', 'news', oldFileName);
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+          }
+        }
+
+        // Upload ảnh mới lên Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+          folder: "news",
+        });
+
+        news.thumbnail = uploadResult.secure_url;
+        fs.unlinkSync(req.file.path); //xóa file tạm sau khi upload
+      } catch (uploadError) {
+        console.error('Lỗi khi upload ảnh lên Cloudinary:', uploadError);
+        if (req.file?.path && fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(500).json({ success: false, message: "Lỗi khi upload ảnh lên Cloudinary" });
       }
-      news.thumbnail = `/uploads/news/${req.file.filename}`;
     }
 
     await news.save();
@@ -193,11 +254,25 @@ export const deleteNews = async (req, res) => {
       return res.status(404).json({ success: false, message: "Không tìm thấy bài viết" });
     }
 
+    // Xóa ảnh trên Cloudinary nếu có
     if (news.thumbnail) {
-      const fileName = path.basename(news.thumbnail);
-      const filePath = path.join(process.cwd(), 'uploads', 'news', fileName);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      if (news.thumbnail.includes('cloudinary.com')) {
+        try {
+          // Lấy public_id từ URL
+          const urlParts = news.thumbnail.split('/');
+          const filename = urlParts[urlParts.length - 1];
+          const publicId = `news/${filename.split('.')[0]}`;
+          await cloudinary.uploader.destroy(publicId);
+        } catch (deleteError) {
+          console.warn('Không thể xóa ảnh trên Cloudinary:', deleteError);
+        }
+      } else {
+        // Nếu là local file, xóa nó
+        const fileName = path.basename(news.thumbnail);
+        const filePath = path.join(process.cwd(), 'uploads', 'news', fileName);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
       }
     }
 
