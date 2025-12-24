@@ -13,7 +13,7 @@ export class HomeComponent {
  images: string[] = [ 
     'https://res.cloudinary.com/dolqwcawp/image/upload/v1766527408/home_slider_image_2_febhli.jpg',
     'https://res.cloudinary.com/dolqwcawp/image/upload/v1766520354/banner-vnvodich_kfolfk.jpg',  
-    'https://res.cloudinary.com/dolqwcawp/image/upload/v1761841770/banner-3_gwnpel.png'
+    'https://res.cloudinary.com/dolqwcawp/image/upload/v1766535731/banner-3333_glossg.jpg'
   ];
 
   current = 0;
