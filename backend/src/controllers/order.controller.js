@@ -7,7 +7,7 @@ import ProductsVariant from "../models/productsVariant.model.js";
  * ================================
  * GET: Danh sách đơn hàng của user
  * - COD: luôn hiện
- * - VNPAY: chỉ hiện khi PAID
+ * - VNPAY: chỉ hiện khi SUCCESS (đã thanh toán)
  * ================================
  */
 export const getOrdersByUser = async (req, res) => {
@@ -18,7 +18,7 @@ export const getOrdersByUser = async (req, res) => {
       user_id: userId,
       $or: [
         { payment_method: "COD" },
-        { payment_method: "VNPAY", payment_status: "PAID" },
+        { payment_method: "VNPAY", payment_status: "SUCCESS" },
       ],
     }).sort({ createdAt: -1 });
 
@@ -51,7 +51,7 @@ export const getOrderDetail = async (req, res) => {
     // Chặn xem đơn VNPAY chưa thanh toán
     if (
       order.payment_method === "VNPAY" &&
-      order.payment_status !== "PAID"
+      order.payment_status !== "SUCCESS"
     ) {
       return res.status(403).json({
         message: "Đơn hàng chưa thanh toán",
@@ -132,7 +132,7 @@ export const cancelOrder = async (req, res) => {
     // Không cho hủy đơn VNPAY đã thanh toán
     if (
       order.payment_method === "VNPAY" &&
-      order.payment_status === "PAID"
+      order.payment_status === "SUCCESS"
     ) {
       return res.status(400).json({
         message: "Đơn hàng đã thanh toán không thể hủy",
